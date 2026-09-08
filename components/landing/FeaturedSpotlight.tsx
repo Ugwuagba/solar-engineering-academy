@@ -59,7 +59,7 @@ export default function FeaturedSpotlight() {
                 </span>
                 <span className="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-bold uppercase flex items-center gap-1.5">
                   <BookOpen className="w-3.5 h-3.5 text-[#2B82C9]" />
-                  10 Main Chapters
+                  10 Comprehensive Chapters
                 </span>
                 <span className="px-3.5 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-amber-600" />
@@ -67,7 +67,7 @@ export default function FeaturedSpotlight() {
                 </span>
                 <span className="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 animate-pulse">
                   <Briefcase className="w-3.5 h-3.5 text-white" />
-                  Includes 2–4 Months Practical Field Attachment
+                  2–4 Months Practical Field Attachment with Partners
                 </span>
               </div>
 
