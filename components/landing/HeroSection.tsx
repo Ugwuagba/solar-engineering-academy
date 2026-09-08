@@ -5,8 +5,6 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowRight, 
-  ChevronLeft, 
-  ChevronRight, 
   BarChart3, 
   Award, 
   ShieldCheck, 
@@ -150,61 +148,32 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* 3. Bottom Controls Area with Progress Pill Lines & Arrows */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3">
-        <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-3">
-          {/* Left: 3 Interactive Progress Pill Lines */}
-          <div className="flex items-center gap-2.5">
-            {slides.map((s, idx) => {
-              const isActive = idx === currentSlide;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => setCurrentSlide(idx)}
-                  className="group flex flex-col gap-1 cursor-pointer focus:outline-none py-2"
-                  aria-label={`Jump to slide ${idx + 1}`}
-                >
-                  <div className={`h-1.5 rounded-full overflow-hidden transition-all duration-500 ${isActive ? "w-16 sm:w-20 bg-white/20" : "w-8 sm:w-10 bg-white/20 hover:bg-white/40"}`}>
-                    {isActive ? (
-                      <motion.div
-                        key={`fill-${currentSlide}`}
-                        initial={{ width: "0%" }}
-                        animate={{ width: "100%" }}
-                        transition={{ duration: 5.5, ease: "linear" }}
-                        className="h-full bg-sky-400 rounded-full"
-                      />
-                    ) : (
-                      <div className={`h-full ${idx < currentSlide ? "bg-white/40" : "bg-transparent"}`} />
-                    )}
+      {/* 3. Carousel Indicator Dots (Matching Spec: White Dots with Red Active Ring) */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3 flex items-center justify-center">
+        <div className="flex items-center gap-3.5">
+          {slides.map((s, idx) => {
+            const isActive = idx === currentSlide;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setCurrentSlide(idx)}
+                className="group relative flex items-center justify-center w-6 h-6 cursor-pointer focus:outline-none transition-transform hover:scale-110"
+                aria-label={`Jump to slide ${idx + 1}`}
+              >
+                {isActive ? (
+                  <div className="relative flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] border-[#E13B2B]">
+                    <motion.span
+                      layoutId="activeHeroDot"
+                      className="w-2.5 h-2.5 rounded-full bg-[#E13B2B]"
+                      transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                    />
                   </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Right: Counter and Subtle Arrows */}
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-xs sm:text-sm font-bold tracking-widest text-slate-300">
-              0{currentSlide + 1} <span className="text-slate-500 font-light">/</span> 0{slides.length}
-            </span>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
-                className="border border-white/20 hover:bg-white/10 active:scale-95 text-white rounded-full p-2 backdrop-blur-md transition-all cursor-pointer"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="w-4 h-4" />
+                ) : (
+                  <span className="w-2.5 h-2.5 rounded-full bg-white transition-all duration-200 group-hover:scale-110 shadow-sm" />
+                )}
               </button>
-              <button
-                onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-                className="border border-white/20 hover:bg-white/10 active:scale-95 text-white rounded-full p-2 backdrop-blur-md transition-all cursor-pointer"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </div>
 
