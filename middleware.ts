@@ -1,6 +1,12 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
+const FALLBACK_SECRET = "solar-engineering-academy-super-secure-jwt-secret-key-2026";
+
+if (!process.env.NEXTAUTH_SECRET) {
+  process.env.NEXTAUTH_SECRET = FALLBACK_SECRET;
+}
+
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
@@ -14,6 +20,7 @@ export default withAuth(
     return NextResponse.next();
   },
   {
+    secret: process.env.NEXTAUTH_SECRET || FALLBACK_SECRET,
     callbacks: {
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;

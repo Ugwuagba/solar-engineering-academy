@@ -8,10 +8,12 @@ import {
   Calendar, 
   Award, 
   CheckCircle2, 
-  AlertCircle, 
   Plus, 
   ArrowLeft,
-  Settings
+  Briefcase,
+  ShieldCheck,
+  ExternalLink,
+  GraduationCap
 } from "lucide-react";
 import { SEED_COURSES } from "@/lib/seed-data";
 
@@ -19,32 +21,37 @@ export default function AdminStudioPage() {
   const { data: session } = useSession();
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 py-10">
+    <div className="min-h-screen bg-slate-50 text-slate-900 py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1.5">
               <Link
                 href="/courses"
-                className="text-xs text-slate-400 hover:text-white flex items-center gap-1"
+                className="text-xs font-semibold text-slate-500 hover:text-[#2B82C9] flex items-center gap-1 transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Return to Catalog</span>
               </Link>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Solar Academy Faculty & Curriculum Studio
-            </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Authenticated Admin: <strong className="text-amber-400">{session?.user?.email || "admin@solaracademy.org"}</strong> (Role: ADMIN)
+            <div className="flex items-center gap-2.5">
+              <span className="px-2.5 py-1 rounded-md bg-blue-50 text-[#2B82C9] border border-blue-200 font-mono text-xs font-bold">
+                DIRECTORATE
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Subway Energy Faculty & Curriculum Studio
+              </h1>
+            </div>
+            <p className="text-xs text-slate-500 mt-1.5">
+              Lead Administrator: <strong className="text-slate-900">{session?.user?.name || session?.user?.email || "Lead Solar Engineer"}</strong> • Authority Level: <span className="font-mono text-[#2B82C9] font-bold">ADMIN / DIRECTOR</span>
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => alert("New Course Creation Modal")}
-              className="px-4 py-2 text-xs font-semibold rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+              onClick={() => alert("Program Creator: Subway Schools Curriculum Expansion")}
+              className="px-5 py-2.5 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create New Program</span>
@@ -53,91 +60,108 @@ export default function AdminStudioPage() {
         </div>
 
         {/* Top Analytics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-slate-400 uppercase font-mono">Active Courses</span>
-              <BookOpen className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-bold text-slate-500 uppercase font-mono">Active Tracks</span>
+              <BookOpen className="w-5 h-5 text-[#2B82C9]" />
             </div>
-            <p className="text-2xl font-bold text-white font-mono">{SEED_COURSES.length}</p>
-            <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" />
-              <span>100% Published & Gated</span>
+            <p className="text-3xl font-black text-slate-900 font-mono">{SEED_COURSES.length}</p>
+            <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1 font-medium">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>100% Gated & Field-Attached</span>
             </p>
           </div>
 
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-slate-400 uppercase font-mono">Scheduled Cohorts</span>
-              <Calendar className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-bold text-slate-500 uppercase font-mono">Scheduled Cohorts</span>
+              <Calendar className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-2xl font-bold text-white font-mono">2</p>
-            <p className="text-[11px] text-slate-400 mt-1">Spring & Summer 2026</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">3</p>
+            <p className="text-xs text-slate-500 mt-1">Q2 & Q3 2026 Academic Calendar</p>
           </div>
 
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-slate-400 uppercase font-mono">Total Candidates</span>
-              <Users className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs font-bold text-slate-500 uppercase font-mono">Total Candidates</span>
+              <Users className="w-5 h-5 text-emerald-600" />
             </div>
-            <p className="text-2xl font-bold text-white font-mono">1,248</p>
-            <p className="text-[11px] text-slate-400 mt-1">+14% month-over-month</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">1,480</p>
+            <p className="text-xs text-emerald-600 mt-1">+18% enrollment rate</p>
           </div>
 
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-slate-400 uppercase font-mono">Average Pass Rate</span>
-              <Award className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-bold text-slate-500 uppercase font-mono">Milestone Pass Rate</span>
+              <Award className="w-5 h-5 text-amber-500" />
             </div>
-            <p className="text-2xl font-bold text-white font-mono">82.4%</p>
-            <p className="text-[11px] text-amber-400/90 mt-1">70% Milestone Benchmark</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">84.2%</p>
+            <p className="text-xs text-slate-500 mt-1">70% Milestone Benchmark</p>
           </div>
         </div>
 
         {/* Courses Table */}
-        <div className="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-              Curriculum Inventory
-            </h3>
-            <span className="text-xs text-slate-400 font-mono">2 Programs Active</span>
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+          <div className="px-6 py-4.5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-mono">
+                Curriculum & Program Inventory
+              </h3>
+              <p className="text-xs text-slate-500">
+                Managed courses, milestone assessment thresholds, and partner placements
+              </p>
+            </div>
+            <span className="text-xs font-mono font-bold text-[#2B82C9] bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
+              {SEED_COURSES.length} Programs Live
+            </span>
           </div>
 
-          <div className="divide-y divide-slate-800">
+          <div className="divide-y divide-slate-200">
             {SEED_COURSES.map((course) => (
               <div
                 key={course.code}
-                className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-800/30 transition-colors"
+                className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 hover:bg-slate-50/60 transition-colors"
               >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <div className="space-y-1.5 max-w-2xl">
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded bg-blue-50 text-[#2B82C9] border border-blue-200">
                       {course.code}
                     </span>
-                    <h4 className="text-base font-bold text-white">{course.title}</h4>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 uppercase">
+                      {course.level}
+                    </span>
+                    {course.fieldAttachment && (
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-50 text-[#E13B2B] border border-red-200 flex items-center gap-1">
+                        <Briefcase className="w-3 h-3" />
+                        {course.fieldAttachment}
+                      </span>
+                    )}
                   </div>
-                  <p className="text-xs text-slate-400 max-w-xl line-clamp-1">
+                  <h4 className="text-base font-bold text-slate-900">{course.title}</h4>
+                  <p className="text-xs text-slate-600 line-clamp-1">
                     {course.description}
                   </p>
-                  <div className="flex items-center gap-4 text-[11px] text-slate-400 pt-1">
+                  <div className="flex items-center flex-wrap gap-4 text-xs text-slate-500 pt-1 font-mono">
                     <span>{course.contactHours} Contact Hours</span>
                     <span>•</span>
-                    <span>{course.modules.length} Modules</span>
+                    <span>{course.modules.length} Modules ({course.modules.reduce((acc, m) => acc + m.lessons.length, 0)} Lessons)</span>
                     <span>•</span>
-                    <span>Format: {course.deliveryType}</span>
+                    <span>{course.instructor || "Subway Engineering Faculty"}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 self-end md:self-center">
+                <div className="flex items-center gap-3 self-end md:self-center shrink-0">
                   <Link
                     href={`/courses/${course.slug}`}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-300 transition-colors"
+                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1.5"
                   >
-                    View Public Page
+                    <span>Public View</span>
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
                   </Link>
                   <Link
                     href={`/learn/${course.slug}`}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 transition-colors"
+                    className="px-4 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm transition-colors"
                   >
                     Enter Classroom
                   </Link>
@@ -147,32 +171,44 @@ export default function AdminStudioPage() {
           </div>
         </div>
 
-        {/* Cohort Schedule Overview */}
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-            Upcoming Scheduled Cohorts (BESS201)
-          </h3>
+        {/* Partner Attachment Placement Log */}
+        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-mono flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-[#E13B2B]" />
+                <span>Partner Field Attachment Deployments</span>
+              </h3>
+              <p className="text-xs text-slate-500">
+                Candidates matched with commercial EPC contractors and industrial solar farms
+              </p>
+            </div>
+            <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+              100% Placement Rate
+            </span>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50 space-y-2">
+            <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-white text-sm">Spring 2026 Intensive Cohort</span>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono">
-                  Enrolling (28/35 Seats)
+                <span className="font-bold text-slate-900 text-sm">Industrial Rooftop Inverter Commissioning</span>
+                <span className="px-2 py-0.5 rounded bg-blue-50 text-[#2B82C9] font-bold text-[10px] font-mono">
+                  Active Deployment
                 </span>
               </div>
-              <p className="text-slate-400">Duration: April 15, 2026 – May 20, 2026</p>
-              <p className="text-slate-400">Instructors: Lead BESS Commissioning Engineers</p>
+              <p className="text-slate-600">Partner: Apex Industrial Energy EPC Ltd • Lagos, Nigeria</p>
+              <p className="text-slate-500">Lead Mentor: Engr. Asanga (Direct Sign-Off on Safety Logbook)</p>
             </div>
 
-            <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50 space-y-2">
+            <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-white text-sm">Summer 2026 Engineering Cohort</span>
-                <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] font-mono">
-                  Early Bird Open (12/30 Seats)
+                <span className="font-bold text-slate-900 text-sm">High-Voltage Battery Energy Storage (BESS)</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px] font-mono">
+                  Upcoming Cohort Match
                 </span>
               </div>
-              <p className="text-slate-400">Duration: July 1, 2026 – August 5, 2026</p>
-              <p className="text-slate-400">Instructors: NFPA 855 Regulatory Specialists</p>
+              <p className="text-slate-600">Partner: Prime Grid Mini-Grid Utility • Abuja, Nigeria</p>
+              <p className="text-slate-500">Focus: Rack Balancing, UL9540A Thermal Protocols, SCADA Integration</p>
             </div>
           </div>
         </div>
