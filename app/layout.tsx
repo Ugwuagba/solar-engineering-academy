@@ -14,18 +14,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Solar Engineering Academy | SEI-Aligned Technical PV & BESS Institute",
+  title: "Subway Energy Limited & Subway Schools | Industrial Solar Engineering & Academy",
   description:
-    "Accredited professional solar and battery energy storage engineering academy. Featuring self-paced PVOL101 design and BESS201 industrial battery storage masterclasses.",
+    "Subway Energy Limited (RC: 1837154) — '...light up your world'. Next-generation solar engineering, commercial power auditing, and certified academy training featuring Engr. Asanga's comprehensive masterclass with 2-4 months practical partner field attachment.",
   keywords: [
-    "Solar Engineering",
-    "PVOL101",
-    "BESS201",
-    "NABCEP certification",
-    "Commercial Solar PV",
-    "Battery Energy Storage",
-    "NEC 690",
-    "UL 9540",
+    "Subway Energy Limited",
+    "Subway Schools",
+    "RC 1837154",
+    "Solar System Design Installation and Maintenance",
+    "Solar Installation 101",
+    "Engr Asanga",
+    "Deye Solar",
+    "Power Audit",
+    "Commercial Solar",
+    "Solar Training Field Attachment",
   ],
 };
 
@@ -35,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}>
-      <body className="min-h-full flex flex-col bg-[#090d16] text-slate-100 selection:bg-amber-500/30 selection:text-amber-200">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-[#F8FAFC] text-slate-900 selection:bg-blue-500/20 selection:text-blue-900">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

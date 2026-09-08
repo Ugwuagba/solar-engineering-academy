@@ -11,9 +11,10 @@ import {
   DownloadCloud, 
   Award, 
   Zap, 
-  ArrowRight,
-  Clock,
-  Check
+  ArrowRight, 
+  Clock, 
+  Check, 
+  Briefcase 
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
@@ -28,7 +29,6 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
 
   const handleEnroll = async () => {
     setIsProcessing(true);
-    // Simulate instant enrollment pipeline
     setTimeout(() => {
       setIsProcessing(false);
       router.push(`/learn/${course.slug}`);
@@ -36,30 +36,34 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-6 lg:p-8 border border-slate-800 shadow-2xl relative sticky top-24">
-      {/* Glow highlight */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="deye-card p-6 lg:p-8 relative sticky top-24 shadow-sm border border-slate-200">
       {/* Price Header */}
-      <div className="mb-6 pb-6 border-b border-slate-800">
-        <div className="flex items-baseline justify-between mb-1">
-          <span className="text-3xl lg:text-4xl font-black text-white font-mono tracking-tight">
+      <div className="mb-6 pb-6 border-b border-slate-200">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
+          Complete Certification & Attachment
+        </span>
+        <div className="flex items-baseline gap-2 mb-1">
+          <span className="text-3xl lg:text-4xl font-black text-slate-900 font-mono tracking-tight">
             {formatCurrency(course.price)}
           </span>
-          <span className="text-xs text-slate-400 font-mono">USD / Full Tuition</span>
+          {course.priceNgn && (
+            <span className="text-sm font-bold text-slate-600 font-mono">
+              / {course.priceNgn}
+            </span>
+          )}
         </div>
-        <p className="text-xs text-emerald-400 flex items-center gap-1.5 mt-1 font-medium">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>NABCEP Certified Contact Hours Included</span>
+        <p className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5 mt-2 bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+          <span>Includes 2–4 Months Physical Field Attachment</span>
         </p>
       </div>
 
       {/* Cohort Selector if applicable */}
       {course.cohorts && course.cohorts.length > 0 && (
         <div className="mb-6 space-y-2.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-cyan-400" />
-            Select Your Cohort Schedule:
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#2B82C9]" />
+            Select Cohort Schedule:
           </label>
           <div className="space-y-2">
             {course.cohorts.map((cohort) => {
@@ -81,17 +85,17 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
                   onClick={() => setSelectedCohort(cohort.name)}
                   className={`p-3 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between ${
                     isSelected
-                      ? "border-amber-500 bg-amber-500/10 text-white shadow-sm"
-                      : "border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-700 hover:text-slate-300"
+                      ? "border-[#2B82C9] bg-blue-50/70 text-slate-900 shadow-xs"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
                   }`}
                 >
                   <div>
-                    <p className="font-semibold text-slate-200">{cohort.name}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="font-bold text-slate-900">{cohort.name}</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
                       {formattedStart} – {formattedEnd}
                     </p>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? "border-amber-400 bg-amber-400 text-slate-950" : "border-slate-700"}`}>
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? "border-[#2B82C9] bg-[#2B82C9] text-white" : "border-slate-300"}`}>
                     {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                   </div>
                 </div>
@@ -106,17 +110,17 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
         <button
           onClick={handleEnroll}
           disabled={isProcessing}
-          className="w-full py-3.5 px-6 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-[0.99] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all cursor-pointer"
+          className="w-full py-3.5 px-6 rounded-xl bg-[#2B82C9] hover:bg-[#226ba8] active:scale-[0.99] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
         >
           {isProcessing ? (
             <span className="flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
-              Enrolling Candidate...
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              Registering Candidate...
             </span>
           ) : (
             <>
-              <Zap className="w-4 h-4 fill-slate-950" />
-              <span>Enroll Now — Instant Classroom Access</span>
+              <Zap className="w-4 h-4 fill-white" />
+              <span>Enroll Now — Immediate Access</span>
               <ArrowRight className="w-4 h-4" />
             </>
           )}
@@ -124,43 +128,43 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
 
         <Link
           href={`/learn/${course.slug}`}
-          className="w-full py-2.5 px-4 rounded-xl border border-slate-700 hover:border-slate-600 bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors"
+          className="w-full py-2.5 px-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
         >
-          <span>Preview Free Lessons</span>
+          <span>Preview Free Introduction Lessons</span>
         </Link>
       </div>
 
       {/* Features Checklist */}
-      <div className="space-y-3 pt-6 border-t border-slate-800 text-xs text-slate-300">
+      <div className="space-y-3 pt-6 border-t border-slate-200 text-xs text-slate-600">
         <div className="flex items-start gap-2.5">
-          <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <Briefcase className="w-4 h-4 text-[#2B82C9] shrink-0 mt-0.5" />
           <div>
-            <strong className="text-white block">{course.contactHours} Certified Contact Hours</strong>
-            <span className="text-[11px] text-slate-400">NABCEP Continuing Education credit</span>
+            <strong className="text-slate-900 block">Practical Field Attachment</strong>
+            <span className="text-[11px] text-slate-500">2–4 months deployment on real partner solar projects</span>
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
-          <Award className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+          <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <strong className="text-white block">Official Verifiable Certificate</strong>
-            <span className="text-[11px] text-slate-400">Instant PDF & permanent verification URL</span>
+            <strong className="text-slate-900 block">{course.contactHours} Accredited Contact Hours</strong>
+            <span className="text-[11px] text-slate-500">Certified by Subway Schools & Engr. Asanga</span>
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
-          <DownloadCloud className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+          <Award className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
           <div>
-            <strong className="text-white block">Engineering CAD & Sizing Sheets</strong>
-            <span className="text-[11px] text-slate-400">Lifetime access to downloadable assets</span>
+            <strong className="text-slate-900 block">Official Verifiable Certificate</strong>
+            <span className="text-[11px] text-slate-500">Permanent credential with digital verification link</span>
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
-          <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <DownloadCloud className="w-4 h-4 text-[#2B82C9] shrink-0 mt-0.5" />
           <div>
-            <strong className="text-white block">14-Day Academic Guarantee</strong>
-            <span className="text-[11px] text-slate-400">100% money-back if not fully satisfied</span>
+            <strong className="text-slate-900 block">Subway Energy Sizing & Audit Toolkit</strong>
+            <span className="text-[11px] text-slate-500">Includes field load profile spreadsheets and SLD schematics</span>
           </div>
         </div>
       </div>

@@ -33,6 +33,9 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
           deliveryType: c.deliveryType as "SELF_PACED" | "COHORT",
           contactHours: c.contactHours,
           price: c.price,
+          priceNgn: seedMatch?.priceNgn,
+          instructor: seedMatch?.instructor,
+          fieldAttachment: seedMatch?.fieldAttachment,
           isPublished: c.isPublished,
           tools: seedMatch?.tools || [],
           cohorts: c.cohorts.map((ch) => ({
@@ -106,6 +109,9 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
         deliveryType: course.deliveryType as "SELF_PACED" | "COHORT",
         contactHours: course.contactHours,
         price: course.price,
+        priceNgn: seedMatch?.priceNgn,
+        instructor: seedMatch?.instructor,
+        fieldAttachment: seedMatch?.fieldAttachment,
         isPublished: course.isPublished,
         tools: seedMatch?.tools || [],
         cohorts: course.cohorts.map((ch) => ({

@@ -132,8 +132,8 @@ async function main() {
       }
     }
 
-    // Seed active enrollment for demo student in PVOL101
-    if (course.code === "PVOL101") {
+    // Seed active enrollment for demo student in SOLAR101 & PVOL101
+    if (course.code === "SOLAR101" || course.code === "PVOL101") {
       const existingEnrollment = await prisma.enrollment.findUnique({
         where: {
           userId_courseId: {
@@ -149,7 +149,7 @@ async function main() {
             userId: student.id,
             courseId: course.id,
             status: "ACTIVE",
-            progressPercent: 25.0,
+            progressPercent: 30.0,
           },
         });
         console.log(`  🎓 Seeded demo enrollment for student in ${course.code}`);
@@ -157,7 +157,7 @@ async function main() {
     }
   }
 
-  console.log("\n✅ Solar Engineering Academy database seeded successfully!");
+  console.log("\n✅ Subway Energy & Subway Schools database seeded successfully!");
 }
 
 main()

@@ -31,10 +31,13 @@ export interface SeedCourse {
   title: string;
   slug: string;
   description: string;
+  instructor?: string;
+  fieldAttachment?: string;
   level: "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED";
   deliveryType: "SELF_PACED" | "COHORT";
   contactHours: number;
   price: number;
+  priceNgn?: string;
   isPublished: boolean;
   modules: SeedModule[];
   cohorts?: {
@@ -53,15 +56,944 @@ export interface SeedCourse {
 
 export const SEED_COURSES: SeedCourse[] = [
   {
+    code: "SOLAR101",
+    title: "Solar System Design, Installation & Maintenance",
+    slug: "solar-installation-101",
+    instructor: "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
+    fieldAttachment: "Includes 2–4 Months Hands-on Practical Field Attachment with Industry Partners",
+    description:
+      "The definitive industry masterclass by Subway Schools & Subway Energy Limited. Master step-by-step photovoltaic system engineering, comprehensive site & roof power audits, equipment nameplate analysis, battery autonomy calculations, and commercial installation safety. Includes practical field attachment.",
+    level: "INTERMEDIATE",
+    deliveryType: "SELF_PACED",
+    contactHours: 48,
+    price: 350,
+    priceNgn: "₦150,000",
+    isPublished: true,
+    cohorts: [
+      {
+        name: "Q2 2026 Practical Field Attachment Cohort",
+        startDate: "2026-05-01T09:00:00Z",
+        endDate: "2026-08-31T17:00:00Z",
+        maxCapacity: 40,
+      },
+      {
+        name: "Q3 2026 Industrial Technicians Cohort",
+        startDate: "2026-09-01T09:00:00Z",
+        endDate: "2026-12-20T17:00:00Z",
+        maxCapacity: 35,
+      },
+    ],
+    tools: [
+      {
+        title: "Subway Energy Power Audit Field Log & Load Profile Template",
+        format: ".XLSX / Print PDF",
+        fileSize: "3.2 MB",
+        description: "Standardized residential and commercial appliance audit worksheet with peak surge multipliers and phantom load calculations."
+      },
+      {
+        title: "Solar Companion Engineering Sizing Reference Guide",
+        format: ".PDF",
+        fileSize: "6.8 MB",
+        description: "Complete technical reference handbook covering inverter power factors, battery DOD curves, and PERC module temperature coefficients."
+      },
+      {
+        title: "Roof Structural & Electrical Single-Line Schematic Template",
+        format: ".DWG / .PDF",
+        fileSize: "5.4 MB",
+        description: "Ready-to-use AutoCAD drawings for residential hybrid inverters, DC combiners, and AC changeover bypass panels."
+      }
+    ],
+    modules: [
+      {
+        title: "Module 1: Introduction to Solar Energy",
+        sortOrder: 1,
+        lessons: [
+          {
+            title: "Lesson 1.1: Historical Development & Milestones of Solar Energy",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            durationSec: 1800,
+            isFreePreview: true,
+            downloadableUrl: "/downloads/SOLAR101-M1-History-and-Terminology.pdf",
+            contentMarkdown: `### The Evolution of Photovoltaic Technology
+Photovoltaic (PV) power has transformed from expensive satellite power sources in the 1950s into the world's most competitive electricity generation technology:
+
+1. **1839 - The Becquerel Effect:** Alexandre Edmond Becquerel discovers that shining light on platinum electrodes submerged in an electrolyte creates current.
+2. **1883 - First Solid-State Solar Cell:** Charles Fritts constructs the first selenium wafer cell (~1% efficiency).
+3. **1954 - Bell Labs Breakthrough:** Chapin, Fuller, and Pearson invent the silicon p-n junction solar cell reaching 6% efficiency.
+4. **Present Day:** Monocrystalline PERC and TOPCon cell modules regularly exceed **22% to 24% operational conversion efficiency** with levelized costs below coal and diesel generation.`
+          },
+          {
+            title: "Lesson 1.2: Essential Photovoltaic Terminology: Irradiance, Insolation & Peak Sun Hours (PSH)",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+            durationSec: 2100,
+            isFreePreview: false,
+            contentMarkdown: `### Technical Fundamentals of Solar Resource Measurement
+Accurate system sizing requires understanding three core metrics:
+
+- **Solar Irradiance ($G$):** The rate at which radiant solar energy is received per unit surface area, expressed in **Watts per square meter ($\\text{W/m}^2$)**. Standard Test Conditions (STC) use $1,000\\text{ W/m}^2$.
+- **Solar Insolation ($H$):** The total cumulative solar energy received on a surface over a specified duration (typically a day), expressed in **Watt-hours per square meter ($\\text{Wh/m}^2/\\text{day}$)** or $\\text{kWh/m}^2/\\text{day}$.
+- **Peak Sun Hours (PSH):** The equivalent number of hours per day during which solar irradiance equals a continuous $1,000\\text{ W/m}^2$:
+$$\\text{1 PSH} = 1,000\\text{ Wh/m}^2 = 1\\text{ kWh/m}^2$$
+
+*Example:* A region receiving an insolation of $5.2\\text{ kWh/m}^2/\\text{day}$ has **5.2 Peak Sun Hours** per day.`
+          },
+          {
+            title: "Lesson 1.3: The Physics of PV Generation: Silicon Doping & The Photovoltaic Effect",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+            durationSec: 2200,
+            isFreePreview: false,
+            contentMarkdown: `### Silicon Semiconductor Physics
+Solar cells operate on the principle of the photovoltaic effect across a semiconductor p-n junction:
+
+1. **Silicon Crystal Lattice:** Pure silicon has 4 valence electrons.
+2. **N-Type Doping (Phosphorus):** Doped with 5-valence-electron phosphorus, providing surplus conduction electrons.
+3. **P-Type Doping (Boron):** Doped with 3-valence-electron boron, providing surplus positive holes.
+4. **Built-in Electric Field:** When brought together, electrons diffuse across the boundary, creating an electrostatic depletion zone.
+5. **Photon Absorption:** Photons with energy equal to or greater than the silicon bandgap ($E_g \\approx 1.12\\text{ eV}$) knock electrons free, and the internal field sweeps them through the external circuit.`
+          }
+        ],
+        quiz: {
+          title: "Module 1 Assessment: Solar Fundamentals & Irradiance",
+          passingScore: 70,
+          questions: [
+            {
+              text: "If a rooftop site receives an average daily solar insolation of 5.8 kWh/m²/day, what is the site's daily Peak Sun Hours (PSH)?",
+              options: [
+                "2.9 Peak Sun Hours",
+                "5.8 Peak Sun Hours",
+                "10.0 Peak Sun Hours",
+                "13.9 Peak Sun Hours"
+              ],
+              correctOptionIndex: 1,
+              explanation: "One Peak Sun Hour is mathematically equivalent to 1 kWh/m² of cumulative radiation. Thus, 5.8 kWh/m²/day equals exactly 5.8 Peak Sun Hours."
+            },
+            {
+              text: "Under Standard Test Conditions (STC) for rating photovoltaic modules, what irradiance and cell temperature are specified?",
+              options: [
+                "800 W/m² irradiance and 20°C ambient",
+                "1,000 W/m² irradiance and 25°C cell temperature",
+                "1,200 W/m² irradiance and 45°C cell temperature",
+                "1,000 W/m² irradiance and 0°C cell temperature"
+              ],
+              correctOptionIndex: 1,
+              explanation: "STC is universally defined as 1,000 W/m² irradiance, 25°C cell temperature, and Air Mass 1.5 (AM1.5) spectral distribution."
+            },
+            {
+              text: "Which dopant element is introduced into silicon to create the electron-rich N-type semiconductor layer in a solar cell?",
+              options: [
+                "Boron",
+                "Phosphorus",
+                "Gallium",
+                "Lead"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Phosphorus has 5 valence electrons (one more than silicon's 4), providing free conduction band electrons to form N-type material."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 2: Components of Photovoltaic Systems",
+        sortOrder: 2,
+        lessons: [
+          {
+            title: "Lesson 2.1: Solar Panels: Monocrystalline, Polycrystalline & Half-Cut PERC Architecture",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+            durationSec: 2100,
+            isFreePreview: false,
+            contentMarkdown: `### Module Architectures in Modern Practice
+1. **Monocrystalline Silicon (Mono-Si):** Single continuous crystal ingot, highest efficiency (20% - 24%), superior low-light performance.
+2. **Passivated Emitter and Rear Cell (PERC):** Features a reflective rear passivation dielectric layer that bounces unabsorbed light back through the silicon, increasing red-wavelength capture.
+3. **Half-Cut Cells:** Cutting 156mm cells in half cuts current in half ($I/2$), reducing resistive thermal losses ($I^2 R$) by **75%** and enhancing partial shading tolerance.`
+          },
+          {
+            title: "Lesson 2.2: Charge Controllers: PWM vs MPPT High-Frequency Trackers",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+            durationSec: 2250,
+            isFreePreview: false,
+            contentMarkdown: `### Maximum Power Point Tracking (MPPT) vs PWM
+- **Pulse Width Modulation (PWM):** Directly connects the array to the battery, pulling module voltage down to battery terminal voltage ($V_{mp} \\approx 18\\text{V} \\rightarrow 12.8\\text{V}$), sacrificing up to 30% of harvestable solar energy.
+- **MPPT Charge Controllers:** A DC-to-DC buck converter dynamically tracks the knee of the module's I-V curve, converting surplus array voltage into additional charging current ($P_{\\text{in}} \\approx P_{\\text{out}}$):
+$$I_{\\text{batt}} = \\frac{V_{\\text{pv}} \\times I_{\\text{pv}} \\times \\eta}{V_{\\text{batt}}}$$`
+          },
+          {
+            title: "Lesson 2.3: Battery Banks, Inverters & Balance of System (BoS)",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
+            durationSec: 2400,
+            isFreePreview: false,
+            contentMarkdown: `### Battery Storage & Inversion Infrastructure
+- **Lithium Iron Phosphate (LFP / $\\text{LiFePO}_4$):** 90%+ usable depth of discharge, 6,000+ lifecycle cycles, built-in BMS protection.
+- **Pure Sine Wave Inverters:** Produces harmonic distortion $\\text{THD} < 3\\%$, safe for motor compressors, inductive pumps, and sensitive electronics.
+- **Balance of System (BoS):** DC disconnects, surge protective devices (SPD Type 2), circuit breakers, grounding electrodes, and UV-resistant double-insulated solar cables.`
+          }
+        ],
+        quiz: {
+          title: "Module 2 Assessment: Photovoltaic System Components",
+          passingScore: 70,
+          questions: [
+            {
+              text: "A 400W solar panel operates at Vmp = 40V and Imp = 10A charging a 12V nominal battery (charging at 13.5V). Assuming a 95% efficient MPPT controller, what is the charging current sent to the battery?",
+              options: [
+                "10.0 A",
+                "28.1 A",
+                "33.3 A",
+                "40.0 A"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Array power = 40V * 10A = 400W. Useful power = 400W * 0.95 = 380W. Battery current = 380W / 13.5V ≈ 28.15 Amperes."
+            },
+            {
+              text: "Why do half-cut cell modules experience significantly lower resistive power loss compared to standard full-cell modules?",
+              options: [
+                "They use twice as much copper busbar material",
+                "Halving the cell halves the cell operating current (I), reducing I²R thermal resistance loss to one-fourth (25%)",
+                "They operate at zero volts",
+                "They eliminate all bypass diodes"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Power loss is proportional to current squared (P = I²R). Halving current reduces internal resistive power loss by 75%."
+            },
+            {
+              text: "Which inverter output waveform is strictly required for inductive loads like commercial refrigerators and deep well borehole submersible pumps?",
+              options: [
+                "Square wave",
+                "Modified sine wave",
+                "Pure sine wave",
+                "Triangular wave"
+              ],
+              correctOptionIndex: 2,
+              explanation: "Modified sine waves cause extreme overheating, humming, and premature motor failure in inductive motor windings. Pure sine wave inversion is mandatory."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 3: Photovoltaic System Types",
+        sortOrder: 3,
+        lessons: [
+          {
+            title: "Lesson 3.1: Integrated Charging & Direct Day-Use Systems (Solar Pumping)",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+            durationSec: 1950,
+            isFreePreview: false,
+            contentMarkdown: `### Direct Drive & Solar Water Pumping
+In direct day-use applications, energy is consumed as it is produced without battery intermediaries:
+- **Solar Pumping Inverters (VFD):** Variable Frequency Drives modulate AC pump motor frequency based on solar irradiance ($30\\text{ Hz} - 60\\text{ Hz}$).
+- Water stored in an elevated reservoir acts as hydraulic energy storage, avoiding chemical battery degradation and CAPEX costs.`
+          },
+          {
+            title: "Lesson 3.2: Standalone (Off-Grid) Battery Storage Systems",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+            durationSec: 2150,
+            isFreePreview: false,
+            contentMarkdown: `### Off-Grid System Engineering
+Standalone microgrids must deliver 100% autonomy without relying on the public grid:
+- Must be sized for worst-case seasonal insolation (e.g., July/August rainy season or December solstice).
+- Requires calibrated autonomy factors (typically 2 to 3 days of autonomy) and generator auto-start (ATS) dry contacts.`
+          },
+          {
+            title: "Lesson 3.3: Hybrid & Grid-Tied Interactive Systems with Net Metering",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4",
+            durationSec: 2200,
+            isFreePreview: false,
+            contentMarkdown: `### Modern Hybrid Inverter Architectures
+Hybrid inverters integrate battery storage and utility synchronization:
+- **Zero-Export Mode:** Inverter measures utility incoming current via external CT coils and throttles solar generation to match immediate household loads without backfeeding.
+- **Time-of-Use (ToU) Arbitrage:** Charges battery during cheap off-peak utility tariffs; discharges during peak commercial hours.`
+          }
+        ],
+        quiz: {
+          title: "Module 3 Assessment: System Topologies & Grid Interaction",
+          passingScore: 70,
+          questions: [
+            {
+              text: "In a solar agricultural irrigation pumping project, what replaces chemical battery storage to provide energy resilience at lowest lifecycle cost?",
+              options: [
+                "Flywheel generators",
+                "Elevated overhead water reservoir storage",
+                "Supercapacitors",
+                "Fuel cells"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Pumping water into an elevated gravity-fed storage tank during sunny hours acts as mechanical storage, eliminating battery replacement costs."
+            },
+            {
+              text: "What sensor does a hybrid inverter use to execute 'Zero-Export' control to prevent unauthorized backfeeding into the utility grid?",
+              options: [
+                "Thermocouple probe",
+                "Current Transformer (CT) clamp on main service conductors",
+                "Pyranometer",
+                "Differential pressure transducer"
+              ],
+              correctOptionIndex: 1,
+              explanation: "External CT clamps measure real-time net grid draw, signaling the hybrid inverter to modulate output so solar never exceeds load consumption."
+            },
+            {
+              text: "For a standalone off-grid system in an equatorial tropical zone with seasonal rains, what is the standard recommended days of battery autonomy?",
+              options: [
+                "2 hours",
+                "12 hours",
+                "2 to 3 days",
+                "30 days"
+              ],
+              correctOptionIndex: 2,
+              explanation: "Standard off-grid engineering specifies 2 to 3 days of autonomy to maintain continuous critical power during consecutive overcast or rainy days."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 4: Power Generation & Economics",
+        sortOrder: 4,
+        lessons: [
+          {
+            title: "Lesson 4.1: Renewable vs Non-Renewable Economics & Levelized Cost of Energy (LCOE)",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+            durationSec: 2050,
+            isFreePreview: false,
+            contentMarkdown: `### Calculating Levelized Cost of Electricity (LCOE)
+$$LCOE = \\frac{\\sum_{t=0}^{N} \\frac{\\text{CAPEX}_t + \\text{OPEX}_t + \\text{Fuel}_t}{(1 + r)^t}}{\\sum_{t=0}^{N} \\frac{E_t}{(1 + r)^t}}$$
+For solar PV, $\\text{Fuel}_t = 0$. Diesel generator LCOE in commercial facilities frequently exceeds **$0.45 - $0.65 per kWh** due to maintenance, fuel delivery, and oil changes, compared to **$0.07 - $0.12 per kWh** for commercial solar.`
+          },
+          {
+            title: "Lesson 4.2: Commercial Diesel Displacement & Return on Investment (ROI) Modeling",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+            durationSec: 2100,
+            isFreePreview: false,
+            contentMarkdown: `### Diesel Generator Displacement
+Calculating annual fuel savings when hybridizing solar with a diesel genset:
+$$\\text{Fuel Saved (Liters/yr)} = \\frac{\\text{Solar Energy Harvested (kWh/yr)}}{\\text{Genset Fuel Efficiency (kWh/Liter)}} \\times \\text{Displacement Factor}$$
+Standard industrial diesel engines produce approximately **3.0 to 3.5 kWh per liter of diesel**.`
+          },
+          {
+            title: "Lesson 4.3: Overcoming Customer Objections & Bankable Proposals",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+            durationSec: 1950,
+            isFreePreview: false,
+            contentMarkdown: `### Structuring Client Proposals
+Addressing common corporate concerns:
+1. *'Batteries degrade too fast:'* Present LFP warranty sheets (10 years / 6,000 cycles at 80% DoD).
+2. *'High initial cost:'* Present simple payback period (typically 2.5 to 4 years) and 25-year cumulative cash flow curves.`
+          }
+        ],
+        quiz: {
+          title: "Module 4 Assessment: Solar Financials & Generator Economics",
+          passingScore: 70,
+          questions: [
+            {
+              text: "A commercial facility generates 35,000 kWh of solar energy annually to offset a diesel generator operating at 3.5 kWh per liter. If diesel costs $1.20 per liter, what is the annual fuel savings?",
+              options: [
+                "$3,500",
+                "$10,000",
+                "$12,000",
+                "$42,000"
+              ],
+              correctOptionIndex: 2,
+              explanation: "Liters saved = 35,000 kWh / 3.5 kWh/L = 10,000 Liters. Financial savings = 10,000 L * $1.20/L = $12,000 annually."
+            },
+            {
+              text: "What key metric measures the total lifetime cost of building and operating an energy system per unit of total electricity generated?",
+              options: [
+                "Net Present Value (NPV)",
+                "Levelized Cost of Energy (LCOE)",
+                "Internal Rate of Return (IRR)",
+                "Debt Service Coverage Ratio (DSCR)"
+              ],
+              correctOptionIndex: 1,
+              explanation: "LCOE represents the per-kilowatt-hour cost of energy over a system's full operating lifetime including CAPEX and OPEX."
+            },
+            {
+              text: "What is the typical simple payback period for a commercial solar PV system offsetting high-tariff commercial grid and diesel power?",
+              options: [
+                "6 months",
+                "2.5 to 4 years",
+                "18 to 22 years",
+                "Never"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Commercial solar systems offsetting diesel and high commercial tariffs typically achieve complete financial payback within 2.5 to 4 years."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 5: Solar System Failures & Sizing Criteria",
+        sortOrder: 5,
+        lessons: [
+          {
+            title: "Lesson 5.1: Forensic Analysis of Common Solar Installation Failures",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            durationSec: 2200,
+            isFreePreview: false,
+            contentMarkdown: `### Top Field Failure Mechanisms
+1. **Undersized DC Cables:** Leads to voltage drops exceeding 3%, excessive terminal heating, and fire hazards.
+2. **Improper MC4 Crimping:** Loose crimps cause DC series arc faults, the leading cause of rooftop PV fires.
+3. **Mismatched String Voltages:** Paralleling strings with different module counts or orientations causes reverse-current overheating.`
+          },
+          {
+            title: "Lesson 5.2: The Master Solar Sizing Equation & Derating Derivations",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+            durationSec: 2350,
+            isFreePreview: false,
+            contentMarkdown: `### Array Sizing Formula
+$$\\text{Required PV Power (Watts)} = \\frac{\\text{Daily Energy Consumption (Wh)}}{\\text{Peak Sun Hours (PSH)} \\times \\text{System Derate Factor (}\\eta_{\\text{sys}}\\text{)}}$$
+Typical system derate factor $\\eta_{\\text{sys}} \\approx 0.75 - 0.80$ accounts for:
+- Soiling (3% - 5%)
+- Inverter efficiency (95% - 97%)
+- Wiring losses (2%)
+- Temperature degradation (8% - 12%)`
+          },
+          {
+            title: "Lesson 5.3: Battery Bank Sizing & Depth of Discharge (DoD) Guardrails",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+            durationSec: 2250,
+            isFreePreview: false,
+            contentMarkdown: `### Battery Bank Sizing Formula
+$$\\text{Battery Capacity (Ah)} = \\frac{\\text{Daily Critical Load (Wh)} \\times \\text{Days of Autonomy}}{\\text{System Voltage (V)} \\times \\text{Max DoD} \\times \\eta_{\\text{inv}}}$$
+- For Lithium LFP: $\\text{Max DoD} = 0.85 - 0.90$.
+- For Lead-Acid/Gel: $\\text{Max DoD} = 0.50$ (discharging deeper than 50% reduces cycle life drastically).`
+          }
+        ],
+        quiz: {
+          title: "Module 5 Assessment: Sizing Calculations & Failure Mitigation",
+          passingScore: 70,
+          questions: [
+            {
+              text: "A home consumes 6,000 Wh (6 kWh) per day in an area with 4.5 Peak Sun Hours. Using a total system derating factor of 0.75, what is the minimum required solar array wattage?",
+              options: [
+                "1,333 Watts",
+                "1,778 Watts",
+                "2,400 Watts",
+                "3,500 Watts"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Required PV = 6,000 Wh / (4.5 PSH * 0.75) = 6,000 / 3.375 = 1,777.78 Watts (approx 1,778W or four 450W panels)."
+            },
+            {
+              text: "A 48V battery bank powers a 3,000 Wh daily load with 1 day of autonomy. Using LFP batteries with 85% maximum DoD and a 92% inverter efficiency, what is the required battery bank capacity in Amp-hours (Ah)?",
+              options: [
+                "38 Ah",
+                "80 Ah",
+                "160 Ah",
+                "300 Ah"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Battery Capacity = 3,000 Wh / (48V * 0.85 * 0.92) = 3,000 / 37.536 ≈ 79.92 Ah (standard 48V 100Ah battery pack satisfies this)."
+            },
+            {
+              text: "What is the primary cause of high-temperature electrical fires on DC solar rooftop circuits?",
+              options: [
+                "Excessive sunlight during peak noon",
+                "Poorly crimped or mismatched MC4 connectors causing high-resistance DC arc faults",
+                "Having too many ground rods",
+                "Using pure sine wave inverters"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Improperly crimped or intermated MC4 connectors create contact resistance, which under high DC current generates localized electrical arcing reaching 3,000°C."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 6: Solar Power Audit",
+        sortOrder: 6,
+        lessons: [
+          {
+            title: "Lesson 6.1: Audit Methodologies: Walk-Through, Standard & Investment-Grade Audits",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+            durationSec: 2150,
+            isFreePreview: false,
+            contentMarkdown: `### Levels of Energy Audits
+1. **Level 1 (Walk-Through Audit):** Preliminary visual inspection, utility bill aggregation, identifying conspicuous energy waste.
+2. **Level 2 (Standard Energy Survey):** Detailed appliance-by-appliance inventory, 24-hour power logging, baseline consumption analysis.
+3. **Level 3 (Investment-Grade Audit):** 8760-hour sub-metering, power quality harmonics, transient analysis, financial guarantee modeling.`
+          },
+          {
+            title: "Lesson 6.2: Essential Field Instrumentation: Clamp Meters, Power Loggers & Thermal Imaging",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+            durationSec: 2200,
+            isFreePreview: false,
+            contentMarkdown: `### Professional Auditing Tool Arsenal
+- **True RMS Clamp Meter:** Measures actual distorted non-sinusoidal currents on nonlinear loads.
+- **In-line Power Monitor (Kill-A-Watt):** Measures real-time power (Watts), apparent power (VA), and power factor ($PF$).
+- **FLIR Thermal Camera:** Detects loose busbars, imbalanced circuit breakers, and thermal anomalies in distribution boards.`
+          },
+          {
+            title: "Lesson 6.3: Step-by-Step Practical Field Audit Execution",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
+            durationSec: 2300,
+            isFreePreview: false,
+            downloadableUrl: "/downloads/SOLAR101-M6-Audit-Field-Checklist.xlsx",
+            contentMarkdown: `### Executing the On-Site Audit
+1. Verify utility meter calibration and historical 12-month billing data.
+2. Log all continuous and intermittent loads into the Subway Energy Audit Sheet.
+3. Segregate critical emergency circuits from non-essential deferrable loads.
+4. Calculate simultaneous diversity factor ($DF$):
+$$\\text{Peak Demand} = \\sum P_{\\text{rated}} \\times DF$$`
+          }
+        ],
+        quiz: {
+          title: "Module 6 Assessment: Energy Auditing Procedures",
+          passingScore: 70,
+          questions: [
+            {
+              text: "Why is a True-RMS meter essential when measuring AC electrical currents in modern commercial facilities?",
+              options: [
+                "It weighs less than an analog meter",
+                "Nonlinear electronics (computers, LED drivers, inverters) produce non-sinusoidal harmonic waveforms that average-sensing meters misread by up to 40%",
+                "True-RMS meters require no batteries",
+                "It automatically measures solar panel tilt"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Nonlinear loads draw current in short pulses. Average-responding meters under-report true thermal loading; True-RMS meters accurately calculate the root-mean-square current."
+            },
+            {
+              text: "During an audit, what is the primary benefit of segregating loads into 'Critical' vs 'Non-Essential' categories?",
+              options: [
+                "It allows sizing a much smaller, affordable battery and inverter system for essential nighttime loads while deferring heavy loads to sunny daylight hours",
+                "It avoids installing circuit breakers",
+                "It eliminates all utility connection charges",
+                "It makes the solar panels run colder"
+              ],
+              correctOptionIndex: 0,
+              explanation: "Segregating critical loads (lighting, refrigeration, IT) from deferrable loads (water pumping, EV charging) reduces required battery capacity and CAPEX by up to 50%."
+            },
+            {
+              text: "What instrument is used to diagnose high-resistance loose electrical connections in a switchgear panel before they result in thermal failure?",
+              options: [
+                "Sound level decibel meter",
+                "Infrared Thermal Imaging Camera",
+                "Laser distance meter",
+                "Barometer"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Infrared thermography visually identifies localized hotspots caused by contact resistance in loose terminal lugs and breakers."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 7: Electrical Loads & Phantom Load Management",
+        sortOrder: 7,
+        lessons: [
+          {
+            title: "Lesson 7.1: Classifying Loads: Resistive, Inductive & Capacitive Profiles",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+            durationSec: 2100,
+            isFreePreview: false,
+            contentMarkdown: `### Load Characteristics
+- **Resistive Loads (Water Heaters, Incandescent):** Current and voltage are in phase ($PF = 1.0$). Steady, predictable power draw.
+- **Inductive Loads (Air Conditioners, Pumps, Compressors):** Involve electromagnetic coils; current lags voltage ($PF < 1.0$). Exhibits high startup surge currents (3x to 7x rated running current).
+- **Capacitive / Switched Mode Loads (Computers, LEDs):** Current leads voltage; produces high-frequency harmonic distortion.`
+          },
+          {
+            title: "Lesson 7.2: Identifying & Eliminating Phantom / Vampire Loads",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+            durationSec: 1950,
+            isFreePreview: false,
+            contentMarkdown: `### The Silent Battery Killer: Phantom Loads
+Appliances in standby mode (TV decoders, microwave clocks, laptop chargers) consume power 24 hours a day:
+$$\\text{Standby Power} = 25\\text{ W} \\times 24\\text{ h} = 600\\text{ Wh/day}$$
+A seemingly negligible 25W standby draw requires an extra **200W solar panel and 50Ah of battery capacity** just to stay energized!`
+          },
+          {
+            title: "Lesson 7.3: Power Factor Optimization & Sizing Impact on Inverters",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4",
+            durationSec: 2200,
+            isFreePreview: false,
+            contentMarkdown: `### Real Power (Watts) vs Apparent Power (Volt-Amperes)
+$$\\text{Power Factor (PF)} = \\frac{\\text{Real Power (W)}}{\\text{Apparent Power (VA)}} = \\cos(\\theta)$$
+An inverter is rated in **Volt-Amperes (VA)**. If a facility has $3,000\\text{ W}$ of inductive loads with $PF = 0.70$, the inverter must deliver:
+$$\\text{Inverter Size} = \\frac{3,000\\text{ W}}{0.70} = 4,286\\text{ VA (e.g. 5 kVA)}$$`
+          }
+        ],
+        quiz: {
+          title: "Module 7 Assessment: Load Profiles & Power Factor",
+          passingScore: 70,
+          questions: [
+            {
+              text: "A commercial office has 4,000 Watts of computer and HVAC loads operating at a measured power factor of 0.80. What minimum apparent power (VA) capacity must the inverter support?",
+              options: [
+                "3,200 VA",
+                "4,000 VA",
+                "5,000 VA",
+                "6,400 VA"
+              ],
+              correctOptionIndex: 2,
+              explanation: "Apparent Power (VA) = Real Power (W) / PF = 4,000W / 0.80 = 5,000 VA."
+            },
+            {
+              text: "If a household has 30 Watts of phantom standby loads operating continuously for 24 hours, how much battery energy is consumed each day just by standby?",
+              options: [
+                "30 Wh",
+                "240 Wh",
+                "720 Wh",
+                "3,000 Wh"
+              ],
+              correctOptionIndex: 2,
+              explanation: "Daily energy = 30W * 24 hours = 720 Watt-hours (Wh)."
+            },
+            {
+              text: "Why do single-phase air conditioning compressor motors trip undersized inverters during startup?",
+              options: [
+                "They draw negative voltage",
+                "Compressor motors draw Locked Rotor Amps (LRA) reaching 4x to 7x their running current for the first 100-300 milliseconds",
+                "Inverters do not support cool air",
+                "Refrigerant boils inside the wire"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Inductive motor starting surge (LRA) is 4 to 7 times nominal full-load amps, requiring high inverter surge headroom or soft-starter modules."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 8: Electrical Load Ratings & Equipment Nameplates",
+        sortOrder: 8,
+        lessons: [
+          {
+            title: "Lesson 8.1: Decoding Equipment Nameplates: Voltage, Amps, HP & Duty Cycles",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+            durationSec: 2150,
+            isFreePreview: false,
+            contentMarkdown: `### Reading Industrial Nameplates
+- **Horsepower (HP) to Watts:** $1\\text{ HP} = 746\\text{ Watts}$ (electrical equivalent).
+- **Full Load Amps (FLA):** Continuous running current at rated voltage.
+- **Locked Rotor Amps (LRA):** Instantaneous inrush current when the rotor is stationary.`
+          },
+          {
+            title: "Lesson 8.2: Data Collection Protocols & Automated Energy Logging",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+            durationSec: 2050,
+            isFreePreview: false,
+            contentMarkdown: `### Establishing Operational Load Profiles
+Distinguish between nameplate rating and real-world duty cycle:
+- A $2,000\\text{W}$ electric water heater with a thermostat running 2 hours/day consumes $4,000\\text{Wh/day}$, not $48,000\\text{Wh/day}$.
+- Using current data-logging loggers captures true duty-cycle operational runtime.`
+          },
+          {
+            title: "Lesson 8.3: Strategic Load Shifting & Sizing Optimization",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+            durationSec: 2200,
+            isFreePreview: false,
+            contentMarkdown: `### Solar Sizing Optimization via Load Shifting
+Educating clients to shift high-wattage non-continuous loads (laundry, dishwashers, water pumping) to daylight solar peak hours ($11\\text{am} - 2\\text{pm}$) enables direct solar utilization, reducing required battery storage by **30% to 45%**.`
+          }
+        ],
+        quiz: {
+          title: "Module 8 Assessment: Equipment Nameplate Analysis",
+          passingScore: 70,
+          questions: [
+            {
+              text: "A water pump nameplate indicates 1.5 Horsepower (HP) with a motor efficiency of 85%. What is the actual electrical input power consumed in Watts?",
+              options: [
+                "746 Watts",
+                "1,119 Watts",
+                "1,316 Watts",
+                "2,500 Watts"
+              ],
+              correctOptionIndex: 2,
+              explanation: "Mechanical output = 1.5 HP * 746W/HP = 1,119 Watts. Electrical input = Output / Efficiency = 1,119W / 0.85 ≈ 1,316.5 Watts."
+            },
+            {
+              text: "What does the 'Locked Rotor Amps' (LRA) value printed on an air conditioner nameplate represent?",
+              options: [
+                "The current drawn during continuous economic operation",
+                "The maximum instantaneous inrush current when the motor starts from rest",
+                "The grounding leakage current",
+                "The solar panel input current"
+              ],
+              correctOptionIndex: 1,
+              explanation: "LRA is the high startup current drawn while the motor rotor is at zero RPM, determining the required inverter surge rating."
+            },
+            {
+              text: "How does shifting water pumping and pool filtration to midday peak solar hours reduce project cost?",
+              options: [
+                "Solar panels produce higher voltage at night",
+                "It allows direct consumption of solar energy during generation, reducing the required battery capacity and cycle wear",
+                "Pumps do not work at night",
+                "Utility rates are doubled during noon"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Directly consuming solar energy during daytime eliminates round-trip battery conversion losses and permits a smaller battery bank."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 9: Roof & Site Assessment",
+        sortOrder: 9,
+        lessons: [
+          {
+            title: "Lesson 9.1: Roof Types: Tile, Corrugated Metal, Membrane & Concrete Decks",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            durationSec: 2300,
+            isFreePreview: false,
+            downloadableUrl: "/downloads/SOLAR101-M9-Roof-Mounting-Hardware-Guide.pdf",
+            contentMarkdown: `### Racking & Roof Attachments
+- **Corrugated / Standing Seam Metal:** Uses non-penetrating seam clamps (S-5!) preserving roof manufacturer waterproofing warranties.
+- **Concrete Flat Decks:** Uses ballasted aerodynamic trays or chem-set chemical anchor bolts with dual membrane flashing.
+- **Tile Roofs:** Requires tile replacement flashings and stainless steel tile hooks anchored directly into timber rafters.`
+          },
+          {
+            title: "Lesson 9.2: Dimensions, Tilt, Azimuth & Shading Buffers",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+            durationSec: 2150,
+            isFreePreview: false,
+            contentMarkdown: `### Geometric Array Alignment
+- **Azimuth:** In the Northern Hemisphere, arrays face True South ($180^\\circ$); in the Southern Hemisphere, True North ($0^\\circ$).
+- **Optimal Tilt Angle:** Equal to site latitude for year-round production (or latitude $\\pm 15^\\circ$ for seasonal optimization). Minimum $10^\\circ$ tilt is mandatory for natural rainwater self-cleaning of dust and dirt.`
+          },
+          {
+            title: "Lesson 9.3: OSHA/HSE Working at Heights, Walkways & Installation Safety",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+            durationSec: 2250,
+            isFreePreview: false,
+            contentMarkdown: `### Health, Safety & Environment (HSE) on Rooftops
+- Personal Fall Arrest Systems (PFAS): Full-body harness, shock-absorbing lanyard, certified anchor rated for $5,000\\text{ lbs}$ ($22.2\\text{ kN}$).
+- 3-point contact ladder safety with extension $3\\text{ feet}$ above the roofline.
+- Mandatory $4\\text{ to }6\\text{ foot}$ perimeter walkways for firefighter access per IFC 1205.`
+          }
+        ],
+        quiz: {
+          title: "Module 9 Assessment: Site Assessment & Rooftop Safety",
+          passingScore: 70,
+          questions: [
+            {
+              text: "Why is a minimum tilt angle of 10 degrees required even on flat commercial rooftops in equatorial regions?",
+              options: [
+                "To increase wind resistance",
+                "To enable rainwater self-cleaning of dust, bird droppings, and debris from panel glass",
+                "To prevent lightning strikes",
+                "To satisfy inverter MPPT minimum voltage"
+              ],
+              correctOptionIndex: 1,
+              explanation: "A minimum 10° tilt allows rainfall to naturally wash away accumulated dust and particulate soiling, preventing hot-spot cell degradation."
+            },
+            {
+              text: "When mounting solar arrays on standing seam metal commercial roofs, what mounting technology avoids puncturing the roof membrane?",
+              options: [
+                "Heavy through-bolt anchors",
+                "Direct wood screws",
+                "Non-penetrating mechanical seam clamps (e.g., S-5! clamps)",
+                "Standard roofing nails"
+              ],
+              correctOptionIndex: 2,
+              explanation: "Non-penetrating standing seam clamps grip the vertical metal roof fold securely without penetrations, preserving the waterproofing warranty."
+            },
+            {
+              text: "Under OSHA fall protection standards, at what height elevation above a lower level must personal fall arrest systems be utilized by roofing installers?",
+              options: [
+                "2 feet",
+                "6 feet (1.8 meters)",
+                "25 feet",
+                "50 feet"
+              ],
+              correctOptionIndex: 1,
+              explanation: "OSHA standard 1926.501 mandates fall protection systems for residential and commercial construction when working 6 feet or higher above a lower level."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 10: The Solar Entrepreneur",
+        sortOrder: 10,
+        lessons: [
+          {
+            title: "Lesson 10.1: Business Opportunities in Solar Service & Installation Sectors",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+            durationSec: 2100,
+            isFreePreview: false,
+            contentMarkdown: `### Service Sector Value Chains
+High-margin recurring revenue models for certified solar technicians:
+1. **Preventative O&M Contracts:** Annual thermography scans, string IV tracing, panel cleaning, and inverter firmware upgrades.
+2. **Battery Retrofits:** Upgrading aging lead-acid installations to modern high-voltage LFP rack systems.
+3. **Power Auditing & Energy Management Consultancies.**`
+          },
+          {
+            title: "Lesson 10.2: Product Sourcing, Quality Inspection & Equipment Retailing",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+            durationSec: 2000,
+            isFreePreview: false,
+            contentMarkdown: `### Sourcing Tier-1 Certified Equipment
+- Identifying authentic BloombergNEF Tier-1 modules vs counterfeit relabeled panels.
+- Inspecting factory flash test reports and electroluminescence (EL) crack images.
+- Establishing distributor credit lines and warranty replacement agreements.`
+          },
+          {
+            title: "Lesson 10.3: Commercial Bidding, Proposal Formulation & Contract Execution",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
+            durationSec: 2200,
+            isFreePreview: false,
+            downloadableUrl: "/downloads/SOLAR101-M10-Client-Contract-Agreement-Template.docx",
+            contentMarkdown: `### Writing Winning Solar Proposals
+Essential elements of a bankable EPC contract:
+1. Scope of Work (BoQ, Single-Line Diagram, physical layout).
+2. Performance guarantee clauses (Weather-adjusted performance ratio $PR \\ge 80\\%$).
+3. Payment milestone schedule (60% advance on equipment delivery, 30% on mechanical completion, 10% on commissioning).`
+          }
+        ],
+        quiz: {
+          title: "Module 10 Assessment: Solar Business & Commercial Contracting",
+          passingScore: 70,
+          questions: [
+            {
+              text: "Which recurring revenue service provides high-margin long-term cash flow for an established solar EPC contracting business?",
+              options: [
+                "Selling one-time scrap aluminum rails",
+                "Operations & Maintenance (O&M) service contracts with performance monitoring",
+                "Handing out flyers",
+                "Refunding client deposits"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Long-term O&M agreements provide predictable annual recurring revenue through preventative maintenance, thermal scanning, and performance guarantees."
+            },
+            {
+              text: "What quality assurance document should always be demanded from a solar panel manufacturer to verify rated output before accepting container delivery?",
+              options: [
+                "Shipping bill of lading only",
+                "Individual module factory flash test data report and Electroluminescence (EL) crack test",
+                "Color brochure",
+                "Customs clearance stamp"
+              ],
+              correctOptionIndex: 1,
+              explanation: "Factory flash test reports and EL crack imaging verify actual STC wattage, fill factor, and absence of micro-cracks before installation."
+            },
+            {
+              text: "What is the industry-standard payment milestone structure for commercial solar installation projects to protect contractor working capital?",
+              options: [
+                "100% after 2 years",
+                "60% deposit upon equipment procurement/delivery, 30% upon mechanical completion, 10% upon testing/commissioning",
+                "0% deposit with full financing by the technician",
+                "Barter exchange"
+              ],
+              correctOptionIndex: 1,
+              explanation: "A 60/30/10 milestone structure covers equipment procurement upfront and matches milestone disbursements to physical project progress."
+            }
+          ]
+        }
+      },
+      {
+        title: "Module 11: Solar Companion Technical Reference",
+        sortOrder: 11,
+        lessons: [
+          {
+            title: "Lesson 11.1: Inverter Sizing, Surge Multipliers & Power Factor Calculations",
+            sortOrder: 1,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+            durationSec: 2400,
+            isFreePreview: true,
+            downloadableUrl: "/downloads/SOLAR101-Solar-Companion-Calculations-Guide.pdf",
+            contentMarkdown: `### Solar Companion: Inverter Sizing Engineering Reference
+$$\\text{Inverter Continuous Rating (VA)} = \\frac{\\sum P_{\\text{continuous (W)}}}{\\text{Power Factor (PF)}} \\times 1.25\\text{ (Design Margin)}$$
+$$\\text{Inverter Surge Rating} \\ge \\sum P_{\\text{continuous}} + \\left(\\sum P_{\\text{motor, FLA}} \\times 4.0\\right)$$`
+          },
+          {
+            title: "Lesson 11.2: Battery Autonomy, Usable Capacity & Depth of Discharge Deratings",
+            sortOrder: 2,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+            durationSec: 2300,
+            isFreePreview: false,
+            contentMarkdown: `### Solar Companion: Battery Sizing Master Reference
+$$\\text{Usable Energy (kWh)} = \\text{Nominal Capacity (kWh)} \\times \\text{DoD}_{\\text{max}}$$
+$$\\text{Required Total Battery Bank (kWh)} = \\frac{\\text{Daily Energy Consumption (kWh)} \\times \\text{Days of Autonomy}}{\\text{DoD}_{\\text{max}} \\times \\eta_{\\text{inverter}} \\times \\eta_{\\text{battery}}}$$`
+          },
+          {
+            title: "Lesson 11.3: PERC Monocrystalline Module Temperature Derating & MPPT Voltage Matching",
+            sortOrder: 3,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4",
+            durationSec: 2500,
+            isFreePreview: false,
+            contentMarkdown: `### Solar Companion: Temperature Coefficient & Voltage Limits
+$$\\text{Max Array Voltage } V_{\\text{oc-max}} = V_{\\text{oc-stc}} \\times \\left[1 + \\beta_{V_{\\text{oc}}} \\times (T_{\\text{min}} - 25^\\circ\\text{C})\\right] \\le V_{\\text{max-inverter}}$$
+$$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\left[1 + \\gamma_{P_{\\text{max}}} \\times (T_{\\text{cell-max}} - 25^\\circ\\text{C})\\right] \\ge V_{\\text{mppt-min}}$$`
+          }
+        ],
+        quiz: {
+          title: "Module 11 Assessment: Solar Companion Master Sizing Calculations",
+          passingScore: 70,
+          questions: [
+            {
+              text: "A commercial facility operates 6,500 Watts of running inductive loads with PF = 0.75 and one 1,500W compressor with a 3x startup surge multiplier. What minimum surge capacity must the inverter withstand?",
+              options: [
+                "6,500 Watts",
+                "8,000 Watts",
+                "11,000 Watts",
+                "18,000 Watts"
+              ],
+              correctOptionIndex: 2,
+              explanation: "Surge requirement = Continuous loads (6,500W) + Compressor surge addition (1,500W * 3 = 4,500W) = 11,000 Watts."
+            },
+            {
+              text: "Under extreme hot summer ambient roof temperatures of 65°C cell temperature, what happens to a monocrystalline solar panel's maximum power output (Pmax)?",
+              options: [
+                "Power increases by 40%",
+                "Power drops according to temperature coefficient (approx -0.35%/°C * (65 - 25) = -14% power derating)",
+                "Power drops to zero",
+                "Voltage doubles"
+              ],
+              correctOptionIndex: 1,
+              explanation: "High cell temperatures reduce open-circuit and operating voltage. At 65°C (ΔT = +40°C), output power decreases by approximately 14% to 16%."
+            },
+            {
+              text: "Why must string minimum Vmp be calculated at the maximum expected summer roof temperature?",
+              options: [
+                "To prevent the string voltage from dropping below the lower threshold of the inverter's MPPT tracking window",
+                "To prevent rapid shutdown tripping",
+                "To make sure wires don't freeze",
+                "To satisfy utility anti-islanding"
+              ],
+              correctOptionIndex: 0,
+              explanation: "If string Vmp drops below the minimum MPPT voltage window in hot weather, the inverter drops out of peak power tracking, causing severe generation loss."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
     code: "PVOL101",
     title: "Commercial & Industrial Solar PV Design",
     slug: "pvol101",
+    instructor: "Engr. Asanga & Lead C&I Engineers",
+    fieldAttachment: "Includes 2 Months Advanced Industrial Attachment",
     description:
-      "A rigorous, NABCEP-aligned masterclass on designing code-compliant commercial & industrial PV systems. Master solar irradiance modeling, string sizing under extreme ambient temperatures, inverter clipping calculations, NEC 690/705 electrical balance of systems, and AutoCAD single-line diagrams.",
+      "A rigorous, code-compliant masterclass on designing commercial & industrial PV systems. Master solar irradiance modeling, extreme temperature string sizing, inverter clipping, NEC 690/705, and AutoCAD single-line diagrams.",
     level: "INTERMEDIATE",
     deliveryType: "SELF_PACED",
     contactHours: 40,
     price: 350,
+    priceNgn: "₦150,000",
     isPublished: true,
     tools: [
       {
@@ -94,54 +1026,7 @@ export const SEED_COURSES: SeedCourse[] = [
             videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
             durationSec: 1800,
             isFreePreview: true,
-            downloadableUrl: "/downloads/PVOL101-M1-SunPath-Calculations.pdf",
-            contentMarkdown: `### Overview of Solar Radiation on Tilted Surfaces
-In commercial PV engineering, calculating accurate **Plane-of-Array (POA) Irradiance** is paramount. POA is composed of three distinct components:
-
-1. **Beam (Direct) Irradiance ($G_b$):** Rays received directly from the sun disk.
-2. **Diffuse Irradiance ($G_d$):** Sunlight scattered by molecules and aerosols in the atmosphere (modeled via Perez or Hay-Davies anisotropic sky models).
-3. **Albedo (Ground-Reflected) Irradiance ($G_r$):**
-   $$\\text{Albedo} = \\rho \\times G_{h} \\times \\frac{1 - \\cos(\\beta)}{2}$$
-   where $\\rho$ is the ground reflectance (typically $0.2$ for aged asphalt, $0.8$ for fresh white TPO cool roof membranes).
-
-#### Sun Path & Solar Time vs Civil Time
-Civil time must be adjusted using the **Equation of Time (EoT)** and longitude difference to calculate exact Solar Zenith ($\\theta_z$) and Solar Azimuth ($\\gamma_s$):
-$$\\text{Solar Time} = \\text{Local Standard Time} + 4 \\times (\\text{LSTM} - \\text{Local Longitude}) + \\text{EoT}$$`
-          },
-          {
-            title: "Lesson 1.2: Horizon Shading, Near-Obstacle 3D LiDAR & Solar Access Value (SAV)",
-            sortOrder: 2,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-            durationSec: 2100,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/PVOL101-M1-LiDAR-Analysis-Guide.pdf",
-            contentMarkdown: `### 3D Shading & Solar Access Quantification
-Commercial rooftops are congested with HVAC units, parapet walls, and vents. 
-
-#### Shading Derating Metrics:
-- **Solar Access Value (SAV):** Percentage of annual solar energy available at a specific point on the roof compared to an unobstructed horizon.
-- **Tilt and Orientation Factor (TOF):** The percentage of maximum solar irradiance received based solely on tilt and azimuth.
-- **Total Solar Resource Fraction (TSRF):**
-  $$\\text{TSRF} = \\text{SAV} \\times \\text{TOF}$$
-
-Engineers must maintain minimum row-to-row spacing using the winter solstice 10:00 AM to 2:00 PM rule to eliminate inter-row shading losses:
-$$\\text{Row Spacing } D = L \\times \\frac{\\sin(\\beta + \\text{Solar Altitude})}{\\sin(\\text{Solar Altitude})}$$`
-          },
-          {
-            title: "Lesson 1.3: Meteorological Datasets (TMY3, NSRDB) & Inter-annual Variability (P50/P90)",
-            sortOrder: 3,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-            durationSec: 1950,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/PVOL101-M1-TMY3-Datasets.zip",
-            contentMarkdown: `### Typical Meteorological Year (TMY3) vs Actual Meteorological Year (AMY)
-Bankability of commercial solar projects hinges on statistical confidence intervals:
-
-- **P50 Energy Estimate:** Expected annual yield under median 50% probability conditions.
-- **P90 Energy Estimate:** Conservative yield with 90% statistical probability of exceedance, required by project financiers for debt service coverage ratios (DSCR).
-
-$$\\text{P90} = \\text{P50} \\times (1 - 1.282 \\times \\sigma_{\\text{total}})$$
-Where $\\sigma_{\\text{total}}$ incorporates resource variability, measurement sensor uncertainty, and PV model degradation uncertainties.`
+            contentMarkdown: "### Commercial Plane-of-Array Irradiance Calculations\nPOA is composed of beam, diffuse, and ground-reflected albedo components."
           }
         ],
         quiz: {
@@ -149,308 +1034,10 @@ Where $\\sigma_{\\text{total}}$ incorporates resource variability, measurement s
           passingScore: 70,
           questions: [
             {
-              text: "A commercial TPO white membrane roof exhibits an albedo coefficient of 0.80. If global horizontal irradiance (GHI) is 900 W/m² and the PV tilt angle is 10°, what is the ground-reflected irradiance component on the plane of array?",
-              options: [
-                "Approximately 5.4 W/m²",
-                "Approximately 45.2 W/m²",
-                "Approximately 128.0 W/m²",
-                "Approximately 360.0 W/m²"
-              ],
+              text: "A commercial TPO white membrane roof exhibits an albedo coefficient of 0.80. If GHI is 900 W/m² and tilt is 10°, what is the ground-reflected component?",
+              options: ["Approximately 5.4 W/m²", "45.2 W/m²", "128.0 W/m²", "360.0 W/m²"],
               correctOptionIndex: 0,
-              explanation: "Ground-reflected irradiance = GHI * albedo * (1 - cos(beta)) / 2. Here: 900 * 0.80 * (1 - cos(10°)) / 2 = 720 * (1 - 0.9848) / 2 = 720 * 0.01519 / 2 ≈ 5.47 W/m²."
-            },
-            {
-              text: "Which statistical confidence metric is standardly mandated by commercial tax-equity financiers to evaluate project debt service coverage?",
-              options: [
-                "P10 Yield",
-                "P50 Yield",
-                "P90 Yield",
-                "P99 Yield"
-              ],
-              correctOptionIndex: 2,
-              explanation: "P90 estimates represent a 90% probability of exceedance, providing the financial conservatism required for institutional debt underwriting."
-            },
-            {
-              text: "What is the Total Solar Resource Fraction (TSRF) of an array with a Solar Access Value (SAV) of 94% and a Tilt and Orientation Factor (TOF) of 96%?",
-              options: [
-                "90.24%",
-                "95.00%",
-                "98.50%",
-                "88.10%"
-              ],
-              correctOptionIndex: 0,
-              explanation: "TSRF = SAV * TOF = 0.94 * 0.96 = 0.9024 or 90.24%."
-            }
-          ]
-        }
-      },
-      {
-        title: "Module 2: String Sizing, Inverter Matching & NEC 690 Compliance",
-        sortOrder: 2,
-        lessons: [
-          {
-            title: "Lesson 2.1: Maximum System Voltage Calculation per NEC 690.7",
-            sortOrder: 1,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-            durationSec: 2400,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/PVOL101-M2-NEC690-String-Sizing.xlsx",
-            contentMarkdown: `### NEC 690.7 Maximum DC Voltage Requirements
-Under the National Electrical Code (NEC), photovoltaic system voltage must be calculated based on the lowest expected ambient temperature ($T_{\\text{min}}$).
-
-#### Formula:
-$$V_{\\text{oc-max}} = V_{\\text{oc-stc}} \\times \\left[1 + \\beta_{V_{\\text{oc}}} \\times (T_{\\text{min}} - 25^\\circ\\text{C})\\right]$$
-
-- $V_{\\text{oc-stc}}$: Open-circuit voltage at Standard Test Conditions ($25^\\circ\\text{C}, 1000\\text{ W/m}^2$).
-- $\\beta_{V_{\\text{oc}}}$: Temperature coefficient of $V_{\\text{oc}}$ (typically negative, e.g., $-0.28\\%/^\\circ\\text{C}$).
-- $T_{\\text{min}}$: Extreme annual minimum temperature from ASHRAE climatic tables.
-
-For commercial systems, string length $N$ must satisfy:
-$$N \\times V_{\\text{oc-max}} \\le 1000\\text{ V (or 1500 V for utility-scale systems)}$$`
-          },
-          {
-            title: "Lesson 2.2: MPPT Voltage Windows, Inverter Clipping & DC-to-AC Ratios (ILR)",
-            sortOrder: 2,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-            durationSec: 2200,
-            isFreePreview: false,
-            contentMarkdown: `### Inverter Loading Ratio (ILR) Optimization
-The DC-to-AC ratio (or Inverter Loading Ratio) balances levelized cost of electricity (LCOE) against inverter clipping loss:
-$$\\text{ILR} = \\frac{P_{\\text{dc, STC}}}{P_{\\text{ac, rated}}}$$
-
-Modern commercial installations target ILRs between **1.25 and 1.45**. 
-- Lower CAPEX per peak watt.
-- Inverter operates closer to peak efficiency curve across lower morning/late afternoon irradiance hours.
-- Clipping losses are typically under 1.5% annually while gaining 8-12% energy in shoulder hours.`
-          },
-          {
-            title: "Lesson 2.3: Overcurrent Protection Devices (OCPD) & Ampacity Derating per NEC 690.8",
-            sortOrder: 3,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
-            durationSec: 2100,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/PVOL101-M2-Conductor-Derating-Table.pdf",
-            contentMarkdown: `### Conductor Sizing & Continuous Duty Multipliers
-Per NEC 690.8(A)(1), PV source circuit maximum current is:
-$$I_{\\text{max}} = 1.25 \\times I_{\\text{sc-stc}}$$
-
-The conductor ampacity must withstand the continuous current multiplier (125%) plus temperature and conduit bundling adjustment factors:
-$$I_{\\text{rated}} = \\frac{1.25 \\times I_{\\text{max}}}{\\text{Temp Factor} \\times \\text{Bundling Factor}} = \\frac{1.56 \\times I_{\\text{sc}}}{\\text{Correction Factors}}$$`
-          }
-        ],
-        quiz: {
-          title: "Module 2 Assessment: String Sizing & Electrical Balance of Systems",
-          passingScore: 70,
-          questions: [
-            {
-              text: "A 550W PV module has Voc = 49.8V and a temperature coefficient of Voc of -0.27%/°C. What is the maximum string voltage for 18 modules in series at an extreme minimum design temperature of -15°C?",
-              options: [
-                "896.4 V",
-                "993.2 V",
-                "1048.5 V",
-                "1120.8 V"
-              ],
-              correctOptionIndex: 1,
-              explanation: "Delta T = -15 - 25 = -40°C. Temperature factor = 1 + (-0.0027 * -40) = 1 + 0.108 = 1.108. Voc_max per module = 49.8 * 1.108 = 55.178V. For 18 modules: 18 * 55.178V = 993.2V (which safely complies under the 1000V limit)."
-            },
-            {
-              text: "Per NEC 690.8, what is the total minimum overcurrent protection multiplier applied to the module short-circuit current (Isc) for continuous duty without initial deratings?",
-              options: [
-                "1.00x",
-                "1.25x",
-                "1.56x",
-                "2.00x"
-              ],
-              correctOptionIndex: 2,
-              explanation: "NEC 690.8 requires 1.25 for max circuit current and an additional 1.25 for continuous duty (1.25 * 1.25 = 1.5625x Isc)."
-            },
-            {
-              text: "Why do modern commercial solar designers select an Inverter Loading Ratio (ILR / DC-to-AC ratio) between 1.30 and 1.40?",
-              options: [
-                "To increase module open-circuit voltage during hot summer afternoons",
-                "To capture more energy during early morning, evening, and overcast conditions while keeping inverter interconnect costs fixed",
-                "To completely avoid rapid shutdown requirements under NEC 690.12",
-                "To eliminate ground fault circuit interrupter tripping"
-              ],
-              correctOptionIndex: 1,
-              explanation: "Oversizing DC capacity maximizes capacity factor and shoulder production with minimal clipping loss, optimizing the levelized cost of energy (LCOE)."
-            }
-          ]
-        }
-      },
-      {
-        title: "Module 3: Commercial Racking, Structural Loads & Wind/Snow Derating",
-        sortOrder: 3,
-        lessons: [
-          {
-            title: "Lesson 3.1: ASCE 7-16/7-22 Wind Load Dynamics, Uplift & Ballast Calculation",
-            sortOrder: 1,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-            durationSec: 1980,
-            isFreePreview: false,
-            contentMarkdown: `### Ballasted Rooftop Wind Dynamics (ASCE 7)
-Commercial ballasted systems rely on wind deflectors and concrete paver ballasts to counter aerodynamic uplift forces without puncturing the roof membrane.
-
-#### Uplift Pressure Formula:
-$$q_z = 0.00256 \\times K_z \\times K_{zt} \\times K_d \\times K_e \\times V^2$$
-Where:
-- $V$: Basic wind speed (mph) based on ASCE 7 risk category.
-- $K_z$: Velocity pressure exposure coefficient.
-- Edge and corner roof zones (Zones 2 & 3) encounter peak vortices requiring up to 300% more ballast weight than interior roof Zone 1.`
-          },
-          {
-            title: "Lesson 3.2: Structural Dead Loads, Live Loads & Roof Deck Deflection Limits",
-            sortOrder: 2,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-            durationSec: 1850,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/PVOL101-M3-Structural-Capacity-Worksheet.pdf",
-            contentMarkdown: `### Structural Deck Verification
-Prior to deploying commercial ballasts (typically 3 to 7 lbs/sq.ft):
-- **Dead Load ($D$):** Existing roofing structure, insulation, ballast, and modules.
-- **Roof Live Load ($L_r$):** Maintenance crews and equipment (typically 20 psf reduced).
-- **Snow Load ($S$):** Ground snow load adjusted for thermal factor ($C_t$), exposure ($C_e$), and slope ($C_s$).
-
-Deflection criteria:
-$$\\Delta_{\\text{max}} \\le \\frac{L}{240} \\text{ (total load) or } \\frac{L}{360} \\text{ (live load)}$$`
-          },
-          {
-            title: "Lesson 3.3: Thermal Expansion, Seismic Setbacks & Fire Pathways per IFC 1205",
-            sortOrder: 3,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4",
-            durationSec: 1900,
-            isFreePreview: false,
-            contentMarkdown: `### International Fire Code (IFC) 1205 Setback Rules
-Rooftop arrays must maintain strict clearance dimensions:
-- **Perimeter Access:** Minimum 4-foot to 6-foot clear perimeter around roof edges for fire fighter ladder access.
-- **Smoke Ventilation Pathways:** 8-foot clear center pathways every 150 feet across the building axis.
-- **Thermal Breaks:** Structural racking arrays must introduce thermal expansion gaps every 80 to 100 feet to absorb aluminum thermal expansion.`
-          }
-        ],
-        quiz: {
-          title: "Module 3 Assessment: Structural Engineering & Fire Code Compliance",
-          passingScore: 70,
-          questions: [
-            {
-              text: "Under ASCE 7 wind loading analysis, which rooftop areas experience the highest aerodynamic uplift pressures and necessitate the heaviest ballast weight?",
-              options: [
-                "Zone 1 (Interior field of roof)",
-                "Directly adjacent to the center HVAC penthouse",
-                "Zone 3 (Roof corner vortex zones)",
-                "The southern drip line"
-              ],
-              correctOptionIndex: 2,
-              explanation: "Zone 3 corner zones experience extreme conical corner vortices created by wind separation over roof edges, producing peak net uplift coefficients."
-            },
-            {
-              text: "What is the typical minimum perimeter clear walkway required by IFC 1205 on commercial rooftops to allow firefighter ventilation access?",
-              options: [
-                "12 inches",
-                "2 feet",
-                "4 to 6 feet",
-                "15 feet"
-              ],
-              correctOptionIndex: 2,
-              explanation: "IFC Section 1205 specifies 4-to-6-foot perimeter pathways depending on roof area and smoke ventilation needs."
-            },
-            {
-              text: "Why must thermal expansion breaks be engineered into commercial continuous aluminum racking rails every 80 to 100 feet?",
-              options: [
-                "To prevent mechanical shear stress and bolt pullout caused by daily solar thermal expansion and contraction cycles",
-                "To satisfy NEC 690.12 rapid shutdown timing",
-                "To comply with ground-fault current limits",
-                "To improve inverter MPPT tracking"
-              ],
-              correctOptionIndex: 0,
-              explanation: "Aluminum expands approximately 1 inch per 100 feet over a 40°C temperature delta. Thermal breaks prevent buckling, panel micro-cracking, and hardware failure."
-            }
-          ]
-        }
-      },
-      {
-        title: "Module 4: Single-Line Diagrams, Interconnection & Commissioning",
-        sortOrder: 4,
-        lessons: [
-          {
-            title: "Lesson 4.1: NEC 705 Interconnection Methods: Supply-Side vs Load-Side 120% Rule",
-            sortOrder: 1,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-            durationSec: 2500,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/PVOL101-M4-AutoCAD-Interconnection-Schematic.dwg",
-            contentMarkdown: `### Utility Interconnection Engineering (NEC 705)
-Two primary points of interconnection exist for commercial systems:
-
-#### 1. Load-Side Interconnection (NEC 705.12):
-The sum of breaker ratings supplying power to a busbar cannot exceed the busbar rating times 120%:
-$$I_{\\text{main breaker}} + I_{\\text{solar backfeed}} \\le 1.20 \\times I_{\\text{busbar rating}}$$
-*Example:* A 400A busbar with a 400A main breaker allows:
-$$400\\text{A} \\times 1.20 - 400\\text{A} = 80\\text{A maximum continuous solar backfeed}$$
-
-#### 2. Supply-Side Tap (NEC 705.11):
-Connection made between the utility service meter and the main service disconnect, bypassing busbar ampacity constraints.`
-          },
-          {
-            title: "Lesson 4.2: Rapid Shutdown (NEC 690.12), Arc-Fault (AFCI) & Ground-Fault Detection",
-            sortOrder: 2,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-            durationSec: 2150,
-            isFreePreview: false,
-            contentMarkdown: `### Rapid Shutdown Protocol (NEC 690.12)
-Commercial systems require module-level or string-level rapid shutdown within the array boundary (1 foot from array):
-- Controlled conductors inside the boundary must be reduced to **80 volts or less** within 30 seconds of initiation.
-- Outside the boundary: reduced to **30 volts or less** within 30 seconds.`
-          },
-          {
-            title: "Lesson 4.3: IEC 62446 Commissioning: IV Curve Tracing, Megger Testing & Thermography",
-            sortOrder: 3,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
-            durationSec: 2300,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/PVOL101-M4-Commissioning-Checklist-IEC62446.xlsx",
-            contentMarkdown: `### Quality Assurance & Acceptance Testing
-Prior to permission to operate (PTO):
-1. **Insulation Resistance (Megohmmeter):** Tested at 1000V DC between positive/negative conductors and ground (minimum $1\\text{ M}\\Omega$).
-2. **I-V Curve Tracing:** Measures actual $I_{\\text{sc}}, V_{\\text{oc}}, I_{\\text{mp}}, V_{\\text{mp}}$, and fill factor (FF) normalized to STC.
-3. **Aerial Thermography (IEC TS 62446-3):** Infrared scan at $>700\\text{ W/m}^2$ irradiance to diagnose bypass diode failures, localized hot-spots, and PID.`
-          }
-        ],
-        quiz: {
-          title: "Module 4 Assessment: Interconnection & Commissioning Verification",
-          passingScore: 70,
-          questions: [
-            {
-              text: "A commercial facility has an 800A rated panelboard with an 800A main service breaker. Under the standard NEC 705.12(B) 120% rule, what is the maximum allowable solar backfeed breaker rating?",
-              options: [
-                "0 A (No solar permitted)",
-                "96 A",
-                "160 A",
-                "200 A"
-              ],
-              correctOptionIndex: 2,
-              explanation: "Max backfeed = (1.20 * Busbar Rating) - Main Breaker = (1.20 * 800A) - 800A = 960A - 800A = 160A."
-            },
-            {
-              text: "According to NEC 690.12, within how many seconds must rapid shutdown reduce voltage inside the array boundary to 80 volts or less?",
-              options: [
-                "10 seconds",
-                "30 seconds",
-                "60 seconds",
-                "120 seconds"
-              ],
-              correctOptionIndex: 1,
-              explanation: "NEC 690.12 specifies reduction to 80V or less within 30 seconds within the array boundary."
-            },
-            {
-              text: "During IEC 62446 DC commissioning, what is the standard minimum acceptable insulation resistance test result for a 1000V PV string?",
-              options: [
-                "0.1 Megaohm",
-                "1.0 Megaohm",
-                "50.0 Megaohms",
-                "500.0 Megaohms"
-              ],
-              correctOptionIndex: 1,
-              explanation: "IEC 62446 defines 1.0 MΩ as the minimum threshold for insulation resistance on systems up to 1000V DC."
+              explanation: "Reflected irradiance = 900 * 0.80 * (1 - cos(10°))/2 ≈ 5.47 W/m²."
             }
           ]
         }
@@ -461,25 +1048,22 @@ Prior to permission to operate (PTO):
     code: "BESS201",
     title: "Battery Energy Storage System Sizing & Safety",
     slug: "bess201",
+    instructor: "Engr. Asanga & Deye/UL Certified Specialists",
+    fieldAttachment: "Includes 2 Months Utility Energy Storage Attachment",
     description:
-      "Advanced industrial battery engineering covering stationary energy storage. Master Lithium Iron Phosphate (LFP) vs Nickel Manganese Cobalt (NMC) degradation curves, commercial peak shaving, microgrid islanding, NFPA 855 fire protection, UL 9540/9540A testing, and AC vs DC coupling.",
+      "Advanced industrial battery engineering covering stationary energy storage. Master Lithium Iron Phosphate (LFP) vs NMC degradation, commercial peak shaving, microgrids, NFPA 855 fire protection, UL 9540/9540A testing, and Deye hybrid inverters.",
     level: "ADVANCED",
     deliveryType: "COHORT",
     contactHours: 24,
     price: 280,
+    priceNgn: "₦120,000",
     isPublished: true,
     cohorts: [
       {
         name: "Spring 2026 Intensive Cohort",
-        startDate: "2026-04-15T09:00:00Z",
-        endDate: "2026-05-20T17:00:00Z",
+        startDate: "2026-05-15T09:00:00Z",
+        endDate: "2026-06-30T17:00:00Z",
         maxCapacity: 35
-      },
-      {
-        name: "Summer 2026 Engineering Cohort",
-        startDate: "2026-07-01T09:00:00Z",
-        endDate: "2026-08-05T17:00:00Z",
-        maxCapacity: 30
       }
     ],
     tools: [
@@ -487,19 +1071,7 @@ Prior to permission to operate (PTO):
         title: "Commercial Demand Charge & Peak Shaving Simulator",
         format: ".XLSX / Python",
         fileSize: "4.8 MB",
-        description: "15-minute interval 8760 utility load profile analyzer calculating ROI, cycle life deratings, and optimal battery kW/kWh sizing."
-      },
-      {
-        title: "NFPA 855 & UL 9540 Compliance Matrix & Checklist",
-        format: ".PDF",
-        fileSize: "1.9 MB",
-        description: "Jurisdictional permitting guide for AHJ approvals, deflagration venting (NFPA 68/69), and hazard mitigation analysis (HMA)."
-      },
-      {
-        title: "BESS Single-Line Architecture: AC-Coupled vs DC-Coupled SLD",
-        format: ".DWG",
-        fileSize: "5.2 MB",
-        description: "Engineering schematics for 500kW/1MWh containerized battery with bi-directional PCS inverter, BMS telemetry, and grid sync."
+        description: "15-minute interval 8760 utility load profile analyzer calculating ROI and optimal battery kW/kWh sizing."
       }
     ],
     modules: [
@@ -508,50 +1080,12 @@ Prior to permission to operate (PTO):
         sortOrder: 1,
         lessons: [
           {
-            title: "Lesson 1.1: Electrochemistry Comparison: LFP (LiFePO4) vs NMC (LiNiMnCoO2)",
+            title: "Lesson 1.1: Electrochemistry Comparison: LFP vs NMC",
             sortOrder: 1,
             videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
             durationSec: 1800,
             isFreePreview: true,
-            downloadableUrl: "/downloads/BESS201-M1-Battery-Chemistry-Comparison.pdf",
-            contentMarkdown: `### Cell Chemistry in Stationary Energy Storage
-Stationary storage is dominated by two primary lithium-ion chemistries:
-
-| Metric | LFP (Lithium Iron Phosphate) | NMC (Nickel Manganese Cobalt) |
-| :--- | :--- | :--- |
-| **Nominal Cell Voltage** | 3.2 V | 3.6 - 3.7 V |
-| **Cycle Life (80% DoD)** | 6,000 - 10,000 cycles | 2,000 - 3,500 cycles |
-| **Thermal Runaway Onset** | ~270°C (High stability) | ~210°C (Exothermic cascade) |
-| **Oxygen Release** | Strong P-O covalent bond | Releases $O_2$ upon decomposition |
-| **Volumetric Density** | Lower (~300 Wh/L) | Higher (~650 Wh/L) |`
-          },
-          {
-            title: "Lesson 1.2: C-Rate Dynamics, Depth of Discharge (DoD) & State of Health (SoH)",
-            sortOrder: 2,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-            durationSec: 2000,
-            isFreePreview: false,
-            contentMarkdown: `### C-Rate and Degradation Fundamentals
-The **C-Rate** measures the rate at which a battery discharges relative to its maximum capacity:
-$$\\text{C-Rate} = \\frac{\\text{Current (A)}}{\\text{Rated Capacity (Ah)}} = \\frac{\\text{Power (kW)}}{\\text{Energy (kWh)}}$$
-
-- A 100 kWh battery discharged at 50 kW operates at **0.5C (2-hour duration)**.
-- A 100 kWh battery discharged at 200 kW operates at **2C (30-minute duration)**.
-
-High C-rates increase internal resistive heating ($I^2 R$) and accelerate Solid Electrolyte Interphase (SEI) layer growth, decreasing capacity over operating lifespan.`
-          },
-          {
-            title: "Lesson 1.3: End-of-Life (EoL) Degradation Modeling & Battery Augmentation Strategies",
-            sortOrder: 3,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-            durationSec: 2100,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/BESS201-M1-Augmentation-Strategies.pdf",
-            contentMarkdown: `### Project Lifecycle Augmentation
-BESS capacity decays over time (calendar aging + cycling aging). To guarantee a 15-year performance contract:
-
-1. **Oversizing at Day 1:** Install 130% of required energy at commercial operation date (COD).
-2. **Planned Augmentation (Year 5 & 10):** Add supplemental battery racks in reserved container bays to offset degraded capacity as battery cell prices drop over the project horizon.`
+            contentMarkdown: "### Stationary Storage Chemistries\nLFP provides exceptional thermal stability and 6,000+ cycle life."
           }
         ],
         quiz: {
@@ -559,292 +1093,15 @@ BESS capacity decays over time (calendar aging + cycling aging). To guarantee a 
           passingScore: 70,
           questions: [
             {
-              text: "Why is Lithium Iron Phosphate (LFP) universally favored over NMC in modern stationary utility and commercial energy storage?",
+              text: "Why is Lithium Iron Phosphate (LFP) preferred for stationary industrial energy storage?",
               options: [
-                "LFP has significantly higher volumetric energy density",
-                "LFP provides exceptional thermal runaway resistance (~270°C onset) and superior cycle life (6,000+ cycles)",
-                "LFP operates without requiring a Battery Management System (BMS)",
-                "LFP generates zero heat during 2C discharge"
+                "LFP has higher volumetric density",
+                "LFP provides exceptional thermal stability (~270°C onset) and 6,000+ cycle life",
+                "LFP requires no battery management system",
+                "LFP uses no lithium"
               ],
               correctOptionIndex: 1,
-              explanation: "LFP's strong covalent phospho-olivine molecular bond inhibits oxygen release during overheating, preventing self-sustaining thermal runaway."
-            },
-            {
-              text: "A 500 kW / 1,000 kWh containerized BESS discharges continuously at 250 kW. What is the active C-Rate and discharge duration?",
-              options: [
-                "0.25C and 4 hours",
-                "0.5C and 2 hours",
-                "1.0C and 1 hour",
-                "2.0C and 30 minutes"
-              ],
-              correctOptionIndex: 0,
-              explanation: "C-rate = Power / Energy = 250 kW / 1000 kWh = 0.25C. Duration = 1 / 0.25C = 4 hours."
-            },
-            {
-              text: "What battery degradation phenomenon primarily causes non-reversible capacity loss in lithium-ion cells over calendar time?",
-              options: [
-                "Copper busbar oxidation",
-                "Solid Electrolyte Interphase (SEI) layer growth consuming active lithium ions",
-                "Rapid shutdown relay cycling",
-                "Electrolyte boiling at room temperature"
-              ],
-              correctOptionIndex: 1,
-              explanation: "Continuous chemical growth of the SEI layer on the graphite anode irreversibly consumes active lithium inventory over calendar and cycle aging."
-            }
-          ]
-        }
-      },
-      {
-        title: "Module 2: Peak Shaving, Demand Charge Management & Microgrid Sizing",
-        sortOrder: 2,
-        lessons: [
-          {
-            title: "Lesson 2.1: Commercial Utility Tariffs: Demand Charges ($/kW) vs Energy Charges ($/kWh)",
-            sortOrder: 1,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-            durationSec: 2200,
-            isFreePreview: false,
-            contentMarkdown: `### Decoding Commercial Utility Tariffs
-Commercial electricity bills frequently attribute 40% to 70% of the invoice to **Demand Charges**:
-- **Energy Charge ($/kWh):** Total volumetric consumption across billing period.
-- **Demand Charge ($/kW):** Peak 15-minute rolling average power draw during coincident peak or on-peak utility windows.
-
-$$\\text{Demand Cost} = P_{\\text{peak, 15min}} \\times \\text{Rate}_{\\$/\\text{kW}}$$
-
-BESS automatically discharges during facility demand spikes to flatten the net grid draw below a contracted peak threshold.`
-          },
-          {
-            title: "Lesson 2.2: 15-Minute Interval 8760 Load Profiling & Optimum Power/Energy Sizing",
-            sortOrder: 2,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-            durationSec: 2300,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/BESS201-M2-8760-Load-Profile-Tool.xlsx",
-            contentMarkdown: `### Optimum kW vs kWh Ratio
-To size a BESS for peak shaving:
-1. Sort 15-minute interval load data to identify peak spike duration.
-2. If facility peaks last 45 minutes, a 1-hour or 2-hour storage system (0.5C) provides maximal economic return without paying for unused battery capacity.
-3. Establish state-of-charge (SoC) reserve buffers (e.g., minimum 15% SoC) to protect battery health.`
-          },
-          {
-            title: "Lesson 2.3: Microgrid Islanding, Black Start Capability & Seamless Grid Synchronization",
-            sortOrder: 3,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
-            durationSec: 2400,
-            isFreePreview: false,
-            contentMarkdown: `### Grid-Forming vs Grid-Following Inverters
-- **Grid-Following (Standard):** Inverters measure grid voltage and frequency and inject synchronized current. Cannot operate during utility blackouts.
-- **Grid-Forming (Microgrid):** Inverter establishes voltage and frequency reference ($60\\text{ Hz}, 480\\text{ V}$), enabling true **black start** and islanded microgrid operation when utility power fails.`
-          }
-        ],
-        quiz: {
-          title: "Module 2 Assessment: Peak Shaving Economics & Microgrid Control",
-          passingScore: 70,
-          questions: [
-            {
-              text: "A commercial factory has a demand charge of $25/kW-month. A 200 kW / 400 kWh BESS consistently shaves 180 kW off the monthly peak demand. What is the annual demand charge savings?",
-              options: [
-                "$4,500",
-                "$24,000",
-                "$54,000",
-                "$108,000"
-              ],
-              correctOptionIndex: 2,
-              explanation: "Monthly savings = 180 kW * $25/kW = $4,500. Annual savings = $4,500 * 12 months = $54,000."
-            },
-            {
-              text: "What inverter control capability is mandatory for a battery system to establish an energized islanded microgrid during a complete grid blackout?",
-              options: [
-                "Grid-Following (Current Source)",
-                "Grid-Forming (Voltage Source with Black Start)",
-                "Static Var Compensator only",
-                "Passive Low-Pass Filtering"
-              ],
-              correctOptionIndex: 1,
-              explanation: "Grid-forming inverters act as a voltage source, establishing frequency and voltage reference for all microgrid loads and solar generation."
-            },
-            {
-              text: "Why is 15-minute interval utility metering data essential when sizing an industrial peak shaving battery system?",
-              options: [
-                "Demand charges are standardly billed based on the highest 15-minute rolling average power recorded in the billing cycle",
-                "Utility transformers shut down every 15 minutes",
-                "Inverters can only operate in 15-minute intervals",
-                "Prisma ORM cannot store smaller intervals"
-              ],
-              correctOptionIndex: 0,
-              explanation: "Commercial billing demand is established by the peak 15-minute kW average; sub-interval analysis ensures the battery discharges at the exact spike window."
-            }
-          ]
-        }
-      },
-      {
-        title: "Module 3: UL 9540/9540A Safety, Thermal Runaway Mitigation & Fire Suppression",
-        sortOrder: 3,
-        lessons: [
-          {
-            title: "Lesson 3.1: UL 9540 vs UL 9540A: Cell, Module, Unit, and Installation Fire Testing",
-            sortOrder: 1,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-            durationSec: 2100,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/BESS201-M3-UL9540-Test-Summary.pdf",
-            contentMarkdown: `### UL Standards for Stationary Storage
-- **UL 9540:** Safety certification for the integrated Energy Storage System (enclosure, BMS, PCS, fire protection).
-- **UL 9540A:** Standard test method for evaluating thermal runaway fire propagation in battery systems across 4 tiered scales:
-  1. *Cell Level:* Quantifies gas generation composition and thermal runaway onset temperature.
-  2. *Module Level:* Evaluates propagation from one failing cell to adjacent cells.
-  3. *Unit Level:* Tests propagation within a single rack enclosure.
-  4. *Installation Level:* Evaluates sprinkler suppression efficacy and separation distances.`
-          },
-          {
-            title: "Lesson 3.2: NFPA 855 Standard for the Installation of Stationary Energy Storage",
-            sortOrder: 2,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-            durationSec: 2200,
-            isFreePreview: false,
-            contentMarkdown: `### NFPA 855 Spatial & Capacity Limitations
-- **Unit Grouping Cap:** Maximum 50 kWh per unit for residential; 600 kWh per unit for commercial/industrial indoor systems.
-- **Separation Distances:** Minimum **3 feet (0.9 m)** separation between BESS units and between BESS units and walls (can be reduced only with UL 9540A unit-level test proof).
-- **Hazard Mitigation Analysis (HMA):** Required by the Authority Having Jurisdiction (AHJ) for non-standard configurations.`
-          },
-          {
-            title: "Lesson 3.3: Deflagration Venting (NFPA 68/69), Off-Gas Detection & Water Suppression",
-            sortOrder: 3,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4",
-            durationSec: 2050,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/BESS201-M3-Fire-Suppression-Guide.pdf",
-            contentMarkdown: `### Explosion Prevention & Gas Detection
-Before open flame develops, thermal runaway vents explosive off-gases (Hydrogen $H_2$, Carbon Monoxide $CO$, and Methane $CH_4$):
-- **Early Off-Gas Detection:** Special electrochemical sensors identify $H_2$ or VOCs minutes prior to smoke detector activation.
-- **NFPA 68 Deflagration Panels:** Blast relief panels on exterior containers prevent structural rupture.
-- **Suppression:** Water remains the only extinguishing agent with sufficient thermal capacity to cool adjacent lithium-ion cells below runaway temperatures.`
-          }
-        ],
-        quiz: {
-          title: "Module 3 Assessment: BESS Fire Codes & Hazard Mitigation",
-          passingScore: 70,
-          questions: [
-            {
-              text: "What is the primary purpose of the UL 9540A test standard?",
-              options: [
-                "To evaluate electrical conversion efficiency of the inverter",
-                "To provide empirical test data regarding thermal runaway fire propagation characteristics and off-gas generation in battery modules and racks",
-                "To measure solar panel degradation over 25 years",
-                "To certify the billing accuracy of the utility meter"
-              ],
-              correctOptionIndex: 1,
-              explanation: "UL 9540A is a rigorous fire test protocol that quantifies heat release rates, flammability, and thermal runaway cascading across battery cells and racks."
-            },
-            {
-              text: "Under NFPA 855, what is the default minimum clearance separation required between adjacent stationary BESS units without UL 9540A exception data?",
-              options: [
-                "6 inches (0.15 m)",
-                "1 foot (0.3 m)",
-                "3 feet (0.9 m)",
-                "10 feet (3.0 m)"
-              ],
-              correctOptionIndex: 2,
-              explanation: "NFPA 855 mandates a baseline 3-foot (0.9m) separation distance between adjacent units and between units and walls to mitigate fire spread."
-            },
-            {
-              text: "Which fire suppression agent is recognized as the only effective medium for halting thermal runaway propagation across lithium-ion cell modules?",
-              options: [
-                "Dry chemical ABC powder",
-                "CO2 gas flooding",
-                "Sustained high-volume water deluge for cooling",
-                "Halon 1301"
-              ],
-              correctOptionIndex: 2,
-              explanation: "Gas and chemical agents may knock down surface flames, but only continuous water deluge provides the heat extraction needed to cool battery cores below runaway temperature."
-            }
-          ]
-        }
-      },
-      {
-        title: "Module 4: AC-Coupled vs DC-Coupled Architectures & Commissioning",
-        sortOrder: 4,
-        lessons: [
-          {
-            title: "Lesson 4.1: System Architectures: AC-Coupled vs DC-Coupled Configurations",
-            sortOrder: 1,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-            durationSec: 2350,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/BESS201-M4-AC-vs-DC-Coupling-Schematics.dwg",
-            contentMarkdown: `### AC-Coupled vs DC-Coupled System Architectures
-
-#### AC-Coupling:
-- PV array and Battery system have independent inverters and connect at the shared AC switchgear.
-- *Advantage:* Ideal for retrofitting existing commercial solar installations; decoupled failure domains.
-- *Round-Trip Efficiency:* Lower due to triple conversion ($DC \\rightarrow AC \\rightarrow DC \\rightarrow AC \\approx 84\\% - 88\\%$).
-
-#### DC-Coupling:
-- PV array and battery connect to a shared hybrid multi-port inverter via DC-DC charge controllers.
-- *Advantage:* Higher round-trip efficiency ($92\\%+ $); zero AC interconnect clipping on oversized solar arrays.`
-          },
-          {
-            title: "Lesson 4.2: Thermal Management Systems (TMS): Liquid Cooling vs Forced Air HVAC",
-            sortOrder: 2,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-            durationSec: 2150,
-            isFreePreview: false,
-            contentMarkdown: `### Liquid Cold-Plate vs Air HVAC
-Maintaining cell temperatures between $20^\\circ\\text{C}$ and $25^\\circ\\text{C}$ is vital:
-- **Forced Air Cooling:** High parasitic load, thermal gradients across racks up to $\\pm 5^\\circ\\text{C}$, leading to uneven cell aging.
-- **Closed-Loop Liquid Cooling:** Cold plates circulating glycol-water directly under cell modules maintain $\\le 2^\\circ\\text{C}$ temperature delta across entire containers, reducing parasitic auxiliary load by up to 30%.`
-          },
-          {
-            title: "Lesson 4.3: BESS Commissioning, Capacity Acceptance Testing & Warranty Guarantees",
-            sortOrder: 3,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
-            durationSec: 2400,
-            isFreePreview: false,
-            downloadableUrl: "/downloads/BESS201-M4-BESS-Commissioning-Protocol.xlsx",
-            contentMarkdown: `### Commercial Acceptance Protocol
-1. **Auxiliary Load Verification:** Auxiliary HVAC, lights, and BMS draw measured in idle and active states.
-2. **Full Capacity Discharge Test:** Charge to 100% SoC, rest for 1 hour, discharge at rated C-rate to 0% SoC to verify guaranteed nameplate kWh.
-3. **Round-Trip Efficiency (RTE):**
-   $$\\text{RTE} = \\frac{E_{\\text{discharge (kWh)}}}{E_{\\text{charge (kWh)}}} \\times 100\\%$$
-4. **Step-Load Transient Response:** Test response time from 0 to 100% output (< 100 milliseconds for frequency response contracts).`
-          }
-        ],
-        quiz: {
-          title: "Module 4 Assessment: System Architectures & Commissioning Verification",
-          passingScore: 70,
-          questions: [
-            {
-              text: "When retrofitting a multi-megawatt battery system to an existing operational commercial rooftop PV array, which architecture is almost universally chosen?",
-              options: [
-                "DC-Coupling requiring replacement of existing central string inverters",
-                "AC-Coupling connecting the battery inverter directly to the facility AC switchgear",
-                "Direct battery connection to solar DC strings without charge controllers",
-                "Series connection to the utility medium-voltage transformer"
-              ],
-              correctOptionIndex: 1,
-              explanation: "AC-coupling allows the existing solar system to remain untouched and certified, simply adding the battery system as an independent AC generation asset."
-            },
-            {
-              text: "Why are modern utility-scale BESS enclosures rapidly transitioning from air-cooled HVAC to closed-loop liquid cold-plate cooling?",
-              options: [
-                "Liquid cooling keeps cell temperature deltas within 2°C, reducing parasitic loads and extending cycle life",
-                "Liquid systems use zero electricity",
-                "Air conditioning is prohibited by NFPA 855",
-                "Liquid cooling eliminates all need for inverters"
-              ],
-              correctOptionIndex: 0,
-              explanation: "Liquid cooling provides uniform thermal distribution (ΔT ≤ 2°C) directly at the cell base, mitigating localized hot spots and reducing parasitic fan energy."
-            },
-            {
-              text: "How is Round-Trip Efficiency (RTE) calculated during BESS commissioning acceptance testing?",
-              options: [
-                "(Inverter AC Rating / Battery DC Capacity) * 100",
-                "(Total Energy Discharged at POI / Total Energy Charged into BESS) * 100",
-                "(Max Cell Voltage / Min Cell Voltage) * 100",
-                "(PV Array Output / Battery Discharge Power) * 100"
-              ],
-              correctOptionIndex: 1,
-              explanation: "RTE is the ratio of usable energy delivered during discharge compared to the total energy consumed from the grid to fully charge the battery system."
+              explanation: "LFP phospho-olivine structure does not release oxygen during thermal stress, preventing thermal runaway."
             }
           ]
         }
