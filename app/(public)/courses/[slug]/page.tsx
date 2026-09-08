@@ -35,10 +35,7 @@ export default async function CourseDetailPage({
   const totalLessons = course.modules.reduce((sum, m) => sum + m.lessons.length, 0);
 
   return (
-    <div className="relative min-h-screen bg-[#F8FAFC] py-8 lg:py-12">
-      {/* Background Subtle Grid */}
-      <div className="absolute inset-0 deye-grid-bg pointer-events-none opacity-60" />
-
+    <div className="relative min-h-screen bg-white py-8 lg:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-xs font-mono text-slate-500">

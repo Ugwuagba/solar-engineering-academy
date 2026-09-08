@@ -4,50 +4,63 @@ import FeaturedSpotlight from "@/components/landing/FeaturedSpotlight";
 import SolarCompanionSection from "@/components/landing/SolarCompanionSection";
 import SocialProofSection from "@/components/landing/SocialProofSection";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Briefcase, PhoneCall } from "lucide-react";
+import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="relative">
-      {/* 1. Hero Section with Framer Motion */}
+    <div className="relative bg-white">
+      {/* 1. Full-Bleed Cinematic Hero Section with Framer Motion */}
       <HeroSection />
 
-      {/* 2. Industrial Engineering Pillars */}
+      {/* 2. Photo-Driven Product & Systems Solutions (Deye Style) */}
       <IndustrialPillars />
 
-      {/* 3. Featured Masterclass: Solar Installation 101 by Engr. Asanga */}
+      {/* 3. Featured Masterclass: Solar Installation 101 by Engr. Asanga (Clean Split-Screen) */}
       <FeaturedSpotlight />
 
       {/* 4. Solar Companion Technical Reference Handbook */}
       <SolarCompanionSection />
 
-      {/* 5. Social Proof & Corporate Testimonials */}
+      {/* 5. Social Proof & Verified Testimonials */}
       <SocialProofSection />
 
-      {/* 6. Corporate CTA Banner */}
-      <section id="about" className="py-16 bg-[#0F172A] text-white border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">
-            Subway Energy Limited (RC: 1837154)
+      {/* 6. Photo-Driven Industrial CTA Banner */}
+      <section id="about" className="relative py-20 lg:py-24 bg-slate-950 text-white overflow-hidden">
+        {/* Full-bleed background photo */}
+        <img
+          src="https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=1920&q=80"
+          alt="Commercial Rooftop Solar Installation"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-900/60" />
+
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-xs border border-white/20 text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
+            <span className="w-2 h-2 rounded-full bg-[#E13B2B] animate-ping" />
+            <span>Subway Energy Limited • RC: 1837154 • "...light up your world"</span>
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight max-w-2xl mx-auto">
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white max-w-3xl mx-auto leading-tight">
             Ready to Light Up Your World or Advance Your Solar Career?
           </h2>
-          <p className="text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+
+          <p className="text-base text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
             Whether you need a turn-key commercial rooftop solar system or wish to enroll in the next physical field attachment cohort with Engr. Asanga, our engineering team is standing by.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
               href="/courses"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#2B82C9] hover:bg-[#226ba8] text-white font-bold text-sm shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <BookOpen className="w-4 h-4" />
               <span>Browse All Academy Tracks</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
+
             <a
               href="tel:+2348000000000"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl border border-slate-700 hover:border-slate-500 bg-slate-800/80 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               <PhoneCall className="w-4 h-4 text-[#E13B2B]" />
               <span>Speak with an Engineer</span>

@@ -1,122 +1,105 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { 
-  Building2, 
-  Cpu, 
-  Activity, 
-  Briefcase, 
-  ArrowRight,
-  CheckCircle2
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function IndustrialPillars() {
-  const pillars = [
+  const solutions = [
     {
-      icon: <Building2 className="w-6 h-6 text-[#2B82C9]" />,
-      tag: "C&I Infrastructure",
-      title: "Commercial & Industrial Mini-Grids",
-      description:
-        "Engineered multi-kilowatt and megawatt hybrid solar architectures designed to displace expensive diesel generation for manufacturing plants, hospitals, and educational estates.",
-      features: ["Diesel generator synchronization", "Zero-export utility compliance", "Levelized Cost of Energy < $0.10/kWh"],
-      cta: "Explore C&I Solutions",
-      href: "/courses/pvol101"
+      title: "C&I Mini-Grids & Solar Farms",
+      description: "Utility-scale and rooftop solar arrays delivering reliable megawatts and displacing costly diesel generation.",
+      image: "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80",
+      tag: "Solar Systems",
+      href: "/courses/pvol101",
     },
     {
-      icon: <Cpu className="w-6 h-6 text-[#E13B2B]" />,
+      title: "Hybrid Inverters & Energy Storage",
+      description: "Smart high-yield hybrid inverters and modular LiFePO4 battery storage banks engineered for seamless UPS backup.",
+      image: "https://images.unsplash.com/photo-1613665813446-82a78c468a1d?auto=format&fit=crop&w=1200&q=80",
       tag: "Power Conversion",
-      title: "Solar Inverter & Battery Storage (BESS)",
-      description:
-        "High-voltage hybrid inverter deployment paired with Lithium Iron Phosphate (LFP) battery chemistry. Specializing in peak shaving, demand charge mitigation, and microgrid islanding.",
-      features: ["Deye / Tier-1 hybrid inverter architecture", "UL 9540A thermal safety standards", "6,000+ cycle life warranty modeling"],
-      cta: "View BESS Masterclass",
-      href: "/courses/bess201"
+      href: "/courses/bess201",
     },
     {
-      icon: <Activity className="w-6 h-6 text-amber-500" />,
-      tag: "Energy Diagnostics",
-      title: "Comprehensive Site & Roof Power Audits",
-      description:
-        "Step-by-step scientific audit procedures to analyze true appliance nameplates, eliminate 24/7 phantom loads, correct lagging power factors, and prevent costly oversizing.",
-      features: ["True-RMS power harmonic measurement", "Thermal infrared hotspot inspection", "Automated 8760 load profiling"],
-      cta: "Learn Audit Techniques",
-      href: "/courses/solar-installation-101"
+      title: "Solar System Design & Power Audits",
+      description: "Scientific load analysis, harmonic power factor profiling, and precision economic ROI modeling for facilities.",
+      image: "https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=1200&q=80",
+      tag: "Engineering Audits",
+      href: "/courses/solar-installation-101",
     },
     {
-      icon: <Briefcase className="w-6 h-6 text-emerald-600" />,
-      tag: "Practical Deployment",
-      title: "Hands-on Partner Field Attachment",
-      description:
-        "All Subway Schools trainees gain 2 to 4 months of intensive physical field placement on live commercial installations under the mentorship of licensed lead solar engineers.",
-      features: ["Real-world roof mounting & HSE rigging", "Inverter commissioning & cable crimping", "Direct corporate contractor job placement"],
-      cta: "Enroll For Attachment",
-      href: "/courses/solar-installation-101"
-    }
+      title: "Hands-On Field Attachments (2-4 Months)",
+      description: "Verified on-site technical deployment with partner EPC contractors, live inverter commissioning, and mentored hours.",
+      image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
+      tag: "Academy Placement",
+      href: "/courses/solar-installation-101",
+    },
   ];
 
   return (
-    <section id="solutions" className="py-20 bg-white border-t border-slate-200">
+    <section id="solutions" className="py-20 lg:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="max-w-3xl mb-14">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#2B82C9] block mb-2">
-            Industrial Engineering Pillars
+        <div className="text-center max-w-3xl mx-auto mb-14 lg:mb-18">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#2B82C9] block mb-2.5">
+            ENGINEERED SYSTEMS & CAPABILITIES
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Integrated Solar Technology & Field Competency
+            Integrated Solar Technologies & Solutions
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
-            Subway Energy Limited bridges the gap between high-precision industrial hardware and field-certified solar craftsmanship.
+          <p className="text-base text-slate-600 mt-3 font-normal">
+            Deye-class efficiency, advanced battery storage architecture, and certified engineering standards for every project scale.
           </p>
         </div>
 
-        {/* 4 Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {pillars.map((pillar, idx) => (
+        {/* 4 Large Visual Product Cards Grid (Deye Style) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          {solutions.map((item, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: idx * 0.1 }}
-              className="deye-card p-6 flex flex-col justify-between border border-slate-200 bg-white hover:border-[#2B82C9]/50"
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              whileHover={{ y: -6 }}
+              className="group flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    {pillar.icon}
+                {/* Full-Bleed Top Image Container */}
+                <div className="relative aspect-16/10 w-full overflow-hidden bg-slate-100">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-white/90 backdrop-blur-xs text-slate-900 shadow-2xs">
+                      {item.tag}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                    {pillar.tag}
-                  </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-900 mb-2.5 leading-snug">
-                  {pillar.title}
-                </h3>
-
-                <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                  {pillar.description}
-                </p>
-
-                <div className="space-y-2 pt-2 border-t border-slate-100 mb-6">
-                  {pillar.features.map((feat, fIdx) => (
-                    <div key={fIdx} className="flex items-start gap-2 text-[11px] text-slate-700">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#2B82C9] shrink-0 mt-0.5" />
-                      <span>{feat}</span>
-                    </div>
-                  ))}
+                {/* Card Content */}
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#2B82C9] transition-colors line-clamp-2 leading-snug">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 mt-2.5 line-clamp-2 leading-relaxed font-normal">
+                    {item.description}
+                  </p>
                 </div>
               </div>
 
-              <Link
-                href={pillar.href}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2B82C9] hover:text-[#226ba8] transition-colors"
-              >
-                <span>{pillar.cta}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              {/* Card Footer Link */}
+              <div className="px-6 pb-6 pt-2">
+                <Link
+                  href={item.href}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2B82C9] hover:text-blue-700 transition-colors"
+                >
+                  <span>Learn more</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </motion.div>
           ))}
         </div>

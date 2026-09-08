@@ -47,10 +47,7 @@ export default function CoursesCatalogPage() {
   };
 
   return (
-    <div className="relative min-h-screen py-12 lg:py-16 bg-[#F8FAFC]">
-      {/* Background Grid */}
-      <div className="absolute inset-0 deye-grid-bg pointer-events-none" />
-
+    <div className="relative min-h-screen py-12 lg:py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
         {/* Catalog Header */}
         <div className="max-w-3xl space-y-3">

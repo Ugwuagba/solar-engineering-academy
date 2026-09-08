@@ -75,7 +75,8 @@ export default function SolarCompanionSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: idx * 0.08 }}
-              className="deye-card p-6 border border-slate-200 bg-white hover:border-[#2B82C9]/50 flex flex-col justify-between"
+              whileHover={{ y: -4 }}
+              className="deye-card p-6 border border-slate-200/80 bg-white hover:border-[#2B82C9]/40 hover:shadow-lg transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 w-fit mb-4">
