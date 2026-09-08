@@ -69,9 +69,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
           {/* Company Summary */}
           <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-[#2B82C9] flex items-center justify-center text-white">
-                <Sun className="w-5 h-5" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-1 shadow-sm shrink-0 overflow-hidden">
+                <img 
+                  src="/images/subway-logo.png" 
+                  alt="Subway Energy Limited Official Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="flex flex-col">
                 <span className="font-black text-lg tracking-tight text-white font-sans">

@@ -8,8 +8,7 @@ import {
   ArrowRight, 
   Menu, 
   X, 
-  LogOut, 
-  User
+  LogOut 
 } from "lucide-react";
 import { useState } from "react";
 
@@ -30,7 +29,13 @@ export default function Navbar() {
 
   const isLinkActive = (href: string) => {
     if (href === "/" && pathname === "/") return true;
-    if (href !== "/" && pathname.startsWith(href) && href !== "/#about" && href !== "/#solutions" && href !== "/#success-stories") {
+    if (
+      href !== "/" && 
+      pathname.startsWith(href) && 
+      href !== "/#about" && 
+      href !== "/#solutions" && 
+      href !== "/#success-stories"
+    ) {
       return true;
     }
     return false;
@@ -38,30 +43,16 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#0B1528] border-b border-white/10 shadow-sm transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* 1. Left Brand Identity: Circular Logo + SUBWAY SCHOOLS */}
+      <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 h-20 flex items-center justify-between gap-4">
+        {/* 1. Left Brand Identity: Moved to the left with generous spacing */}
         <Link href="/" className="flex items-center gap-3 group shrink-0">
-          {/* Circular White Logo Container matching Reference */}
-          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-md p-1.5 shrink-0 group-hover:scale-105 transition-transform duration-300">
-            <svg 
-              viewBox="0 0 48 48" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full h-full"
-            >
-              <circle cx="24" cy="24" r="22" stroke="#2B82C9" strokeWidth="2" strokeDasharray="3 2" />
-              {/* Sun Ray Beams */}
-              <path d="M24 6V11" stroke="#E13B2B" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M24 37V42" stroke="#E13B2B" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M6 24H11" stroke="#E13B2B" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M37 24H42" stroke="#E13B2B" strokeWidth="2.5" strokeLinecap="round" />
-              {/* Stylized Solar PV Matrix */}
-              <rect x="15" y="15" width="18" height="18" rx="3" fill="#2B82C9" />
-              <path d="M15 24H33" stroke="white" strokeWidth="1.5" />
-              <path d="M24 15V33" stroke="white" strokeWidth="1.5" />
-              {/* Energy Lightning / Subway Ascent Curve */}
-              <path d="M20 28L24 20L28 28" stroke="#E13B2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          {/* Circular White Logo Container with Official Company Logo */}
+          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-md p-1 shrink-0 overflow-hidden group-hover:scale-105 transition-transform duration-300">
+            <img 
+              src="/images/subway-logo.png" 
+              alt="Subway Energy Limited & Subway Schools Official Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
 
           <div className="flex flex-col">
@@ -74,8 +65,8 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* 2. Center Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+        {/* 2. Center Desktop Navigation Links: Centered in the middle */}
+        <nav className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 flex-1 px-4">
           {navLinks.map((item) => {
             const active = isLinkActive(item.href);
 
@@ -95,7 +86,7 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* 3. Right Action Buttons: [Student Portal] and [Apply Now →] */}
+        {/* 3. Right Action Buttons: Moved to the right */}
         <div className="hidden md:flex items-center gap-3 shrink-0">
           {/* Outlined Pill: Student Portal */}
           <Link
@@ -103,7 +94,7 @@ export default function Navbar() {
             className="px-4 py-2 rounded-full border border-white/30 bg-white/10 hover:bg-white/20 text-white text-xs lg:text-sm font-semibold flex items-center gap-2 backdrop-blur-xs transition-all cursor-pointer"
           >
             <GraduationCap className="w-4 h-4 text-slate-200" />
-            <span>{session?.user ? "Student Portal" : "Student Portal"}</span>
+            <span>Student Portal</span>
           </Link>
 
           {/* Solid Red Rounded Pill: Apply Now → */}
