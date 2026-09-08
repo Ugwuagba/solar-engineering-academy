@@ -9,7 +9,7 @@ export default function IndustrialPillars() {
     {
       title: "C&I Mini-Grids & Solar Farms",
       description: "Utility-scale and rooftop solar arrays delivering reliable megawatts and displacing costly diesel generation.",
-      image: "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80",
+      image: "/images/solutions/solutions-rooftop-sunset.jpg",
       tag: "Solar Systems",
       href: "/courses/pvol101",
     },
@@ -30,7 +30,7 @@ export default function IndustrialPillars() {
     {
       title: "Hands-On Field Attachments (2-4 Months)",
       description: "Verified on-site technical deployment with partner EPC contractors, live inverter commissioning, and mentored hours.",
-      image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
+      image: "/images/solutions/solutions-installation.jpg",
       tag: "Academy Placement",
       href: "/courses/solar-installation-101",
     },
