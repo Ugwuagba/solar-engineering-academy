@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Star, CheckCircle2, Quote, User, Building } from "lucide-react";
 
 export default function SocialProofSection() {
@@ -34,9 +35,9 @@ export default function SocialProofSection() {
   ];
 
   return (
-    <section id="success-stories" className="py-20 bg-slate-50 border-t border-slate-200">
+    <section id="success-stories" className="py-24 lg:py-28 bg-slate-50 border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
+        <div className="text-center max-w-2xl mx-auto mb-16 lg:mb-20">
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#2B82C9] block mb-2">
             Industry Recognition
           </span>
@@ -48,11 +49,16 @@ export default function SocialProofSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {testimonials.map((item, idx) => (
-            <div
+            <motion.div
               key={idx}
-              className="deye-card p-6 sm:p-7 border border-slate-200 bg-white flex flex-col justify-between"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              whileHover={{ y: -6 }}
+              className="bg-white rounded-2xl p-7 sm:p-8 border border-slate-200 hover:border-[#2B82C9]/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center gap-1 mb-4 text-amber-400">
@@ -78,7 +84,7 @@ export default function SocialProofSection() {
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

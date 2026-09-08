@@ -25,7 +25,7 @@ export default function HomePage() {
       <SocialProofSection />
 
       {/* 6. Photo-Driven Industrial CTA Banner */}
-      <section id="about" className="relative py-20 lg:py-24 bg-slate-950 text-white overflow-hidden">
+      <section id="about" className="relative py-24 lg:py-32 bg-slate-950 text-white overflow-hidden">
         {/* Full-bleed background photo */}
         <img
           src="https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=1920&q=80"
@@ -51,7 +51,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
               href="/courses"
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#2B82C9] hover:bg-[#226ba8] active:scale-[0.98] text-white font-bold text-sm sm:text-base shadow-lg shadow-[#2B82C9]/30 flex items-center justify-center gap-2.5 transition-all cursor-pointer"
             >
               <BookOpen className="w-4 h-4" />
               <span>Browse All Academy Tracks</span>
@@ -60,7 +60,7 @@ export default function HomePage() {
 
             <a
               href="tel:+2348000000000"
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] backdrop-blur-md border border-white/30 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all cursor-pointer"
             >
               <PhoneCall className="w-4 h-4 text-[#E13B2B]" />
               <span>Speak with an Engineer</span>

@@ -42,9 +42,9 @@ export default function SolarCompanionSection() {
   ];
 
   return (
-    <section id="companion" className="py-20 bg-white border-t border-slate-200">
+    <section id="companion" className="py-24 lg:py-28 bg-white border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-14 gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 lg:mb-20 gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 text-[#2B82C9] text-xs font-mono font-bold uppercase tracking-wider mb-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
@@ -53,14 +53,14 @@ export default function SolarCompanionSection() {
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
               The Solar Companion Technical Reference
             </h2>
-            <p className="text-sm text-slate-600 mt-2 leading-relaxed">
+            <p className="text-sm text-slate-600 mt-2 leading-relaxed font-normal">
               Included as the authoritative engineering reference module in Engr. Asanga's curriculum. Master mathematical derivations for actual field installations.
             </p>
           </div>
 
           <Link
             href="/courses/solar-installation-101"
-            className="px-5 py-2.5 rounded-xl border border-slate-300 hover:border-[#2B82C9] text-slate-700 hover:text-[#2B82C9] text-xs font-bold self-start lg:self-auto flex items-center gap-1.5 transition-colors"
+            className="px-6 py-3 rounded-xl border border-slate-200 bg-white hover:border-[#2B82C9] hover:bg-slate-50 text-slate-700 hover:text-[#2B82C9] text-xs font-bold self-start lg:self-auto flex items-center gap-2 shadow-2xs transition-all cursor-pointer"
           >
             <span>Access Complete Companion</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -75,8 +75,8 @@ export default function SolarCompanionSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: idx * 0.08 }}
-              whileHover={{ y: -4 }}
-              className="deye-card p-6 border border-slate-200/80 bg-white hover:border-[#2B82C9]/40 hover:shadow-lg transition-all flex flex-col justify-between"
+              whileHover={{ y: -6 }}
+              className="bg-white rounded-2xl p-6 border border-slate-200 hover:border-[#2B82C9]/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 w-fit mb-4">

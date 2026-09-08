@@ -37,10 +37,10 @@ export default function IndustrialPillars() {
   ];
 
   return (
-    <section id="solutions" className="py-20 lg:py-28 bg-white">
+    <section id="solutions" className="py-24 lg:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14 lg:mb-18">
+        <div className="text-center max-w-3xl mx-auto mb-16 lg:mb-20">
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#2B82C9] block mb-2.5">
             ENGINEERED SYSTEMS & CAPABILITIES
           </span>
@@ -62,7 +62,7 @@ export default function IndustrialPillars() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
               whileHover={{ y: -6 }}
-              className="group flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden"
+              className="group flex flex-col justify-between bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-xl hover:border-[#2B82C9]/40 transition-all duration-300 overflow-hidden"
             >
               <div>
                 {/* Full-Bleed Top Image Container */}
