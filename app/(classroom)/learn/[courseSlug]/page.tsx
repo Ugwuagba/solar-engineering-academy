@@ -138,7 +138,7 @@ export default function ClassroomPage({
                   controls
                   className="w-full h-full object-cover"
                   src={currentLesson.videoUrl}
-                  poster="https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1600&q=80"
+                  poster="/images/hero/hero-commercial.jpg"
                 />
               </div>
 

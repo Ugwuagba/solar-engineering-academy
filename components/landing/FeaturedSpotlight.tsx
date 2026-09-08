@@ -142,7 +142,7 @@ export default function FeaturedSpotlight() {
           <div className="lg:col-span-5 relative min-h-[380px] lg:min-h-full bg-slate-950 flex items-center justify-center overflow-hidden group">
             {/* Background Image of Inverter & Solar Installation */}
             <img
-              src="https://images.unsplash.com/photo-1613665813446-82a78c468a1d?auto=format&fit=crop&w=1200&q=80"
+              src="/images/solutions/solutions-inverters.jpg"
               alt="Solar Inverter & Battery Installation"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80"
             />

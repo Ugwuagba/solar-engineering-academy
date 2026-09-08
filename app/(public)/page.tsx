@@ -28,7 +28,7 @@ export default function HomePage() {
       <section id="about" className="relative py-24 lg:py-32 bg-slate-950 text-white overflow-hidden">
         {/* Full-bleed background photo */}
         <img
-          src="https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=1920&q=80"
+          src="/images/hero/hero-commercial.jpg"
           alt="Commercial Rooftop Solar Installation"
           className="absolute inset-0 w-full h-full object-cover object-center opacity-30"
         />
