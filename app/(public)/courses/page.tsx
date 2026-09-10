@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { 
   Search, 
   SlidersHorizontal, 
@@ -12,10 +13,18 @@ import {
 import CourseCard from "@/components/course/CourseCard";
 import { SEED_COURSES } from "@/lib/seed-data";
 
-export default function CoursesCatalogPage() {
+function CoursesCatalogContent() {
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams.get("query") || "";
   const [selectedLevel, setSelectedLevel] = useState<string>("ALL");
   const [selectedDelivery, setSelectedDelivery] = useState<string>("ALL");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>(urlQuery);
+
+  useEffect(() => {
+    if (urlQuery) {
+      setSearchQuery(urlQuery);
+    }
+  }, [urlQuery]);
 
   const filteredCourses = useMemo(() => {
     return SEED_COURSES.filter((course) => {
@@ -183,3 +192,18 @@ export default function CoursesCatalogPage() {
     </div>
   );
 }
+
+export default function CoursesCatalogPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white py-16 flex justify-center items-center">
+          <div className="w-8 h-8 border-2 border-[#2B82C9] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <CoursesCatalogContent />
+    </Suspense>
+  );
+}
+

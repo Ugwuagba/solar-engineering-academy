@@ -174,13 +174,21 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
   }
 
   const normalizedSlug = slug.toLowerCase();
-  if (normalizedSlug === "pvol-101" || normalizedSlug === "pvol101") {
+  if (normalizedSlug === "pvol-101" || normalizedSlug === "pvol101" || normalizedSlug === "commercial-industrial-solar") {
     const pvolMatch = SEED_COURSES.find((c) => c.slug === "intro-commercial-industrial-minigrid" || c.code === "CIGID101");
-    if (pvolMatch) return { ...pvolMatch, slug: "pvol-101", code: "PVOL 101", title: "Commercial & Industrial Solar PV Design" };
+    if (pvolMatch) return { ...pvolMatch, slug: "commercial-industrial-solar", code: "CIGID 101", title: "Commercial & Industrial (C&I) Mini-Grid Design" };
   }
   if (normalizedSlug === "bess-201" || normalizedSlug === "bess201") {
     const bessMatch = SEED_COURSES.find((c) => c.slug === "advance-battery-demystified-training" || c.code === "BATT201");
     if (bessMatch) return { ...bessMatch, slug: "bess-201", code: "BESS 201", title: "Battery Energy Storage Systems (BESS) & Safety" };
+  }
+  if (normalizedSlug === "power-audit-masterclass") {
+    const auditMatch = SEED_COURSES.find((c) => c.slug === "solar-installation-101");
+    if (auditMatch) return { ...auditMatch, slug: "power-audit-masterclass", code: "AUDIT 201", title: "Solar Power Auditing, Load Profiling & Sizing Masterclass" };
+  }
+  if (normalizedSlug === "solar-entrepreneurship") {
+    const entreMatch = SEED_COURSES.find((c) => c.slug === "solar-fast-track-blueprint");
+    if (entreMatch) return { ...entreMatch, slug: "solar-entrepreneurship", code: "ENTRE 301", title: "Solar Business, Contracting & Project Financing" };
   }
 
   const match = SEED_COURSES.find((c) => c.slug.toLowerCase() === normalizedSlug);

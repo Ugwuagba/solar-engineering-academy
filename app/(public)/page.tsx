@@ -1,7 +1,7 @@
 import HeroSection from "@/components/landing/HeroSection";
+import CourseCarouselSection from "@/components/landing/CourseCarouselSection";
 import IndustrialPillars from "@/components/landing/IndustrialPillars";
 import FeaturedSpotlight from "@/components/landing/FeaturedSpotlight";
-import SolarCompanionSection from "@/components/landing/SolarCompanionSection";
 import SocialProofSection from "@/components/landing/SocialProofSection";
 import Link from "next/link";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
@@ -12,14 +12,14 @@ export default function HomePage() {
       {/* 1. Full-Bleed Cinematic Hero Section with Framer Motion */}
       <HeroSection />
 
-      {/* 2. Photo-Driven Product & Systems Solutions (Deye Style) */}
-      <IndustrialPillars />
+      {/* 2. Udemy-Style Interactive Course Carousel Section */}
+      <CourseCarouselSection />
 
-      {/* 3. Featured Masterclass: Solar Installation 101 by Engr. Asanga (Clean Split-Screen) */}
+      {/* 3. Flagship Course Spotlight ("ACADEMY FLAGSHIP PROGRAM" - Solar Installation 101 by Engr. Asanga) */}
       <FeaturedSpotlight />
 
-      {/* 4. Solar Companion Technical Reference Handbook */}
-      <SolarCompanionSection />
+      {/* 4. Engineered Systems & Capabilities ("Integrated Solar Technologies & Solutions" 4-card grid) */}
+      <IndustrialPillars />
 
       {/* 5. Social Proof & Verified Testimonials */}
       <SocialProofSection />
