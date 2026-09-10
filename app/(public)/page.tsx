@@ -35,11 +35,6 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-900/60" />
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-xs border border-white/20 text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
-            <span className="w-2 h-2 rounded-full bg-[#E13B2B] animate-ping" />
-            <span>Subway Energy Limited • RC: 1837154 • "...light up your world"</span>
-          </span>
-
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white max-w-3xl mx-auto leading-tight">
             Ready to Light Up Your World or Advance Your Solar Career?
           </h2>

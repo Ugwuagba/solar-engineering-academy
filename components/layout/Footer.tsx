@@ -52,11 +52,11 @@ export default function Footer() {
             </div>
 
             <div className="flex items-center gap-3 justify-center md:justify-start">
-              <div className="p-2.5 rounded-xl bg-rose-500/10 text-[#E13B2B] border border-rose-500/20">
+              <div className="p-2.5 rounded-xl bg-blue-500/10 text-[#2B82C9] border border-blue-500/20">
                 <Sun className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-bold text-white uppercase tracking-wider">Deye / Tier-1 Aligned</p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">Tier-1 PV Engineering</p>
                 <p className="text-[11px] text-slate-400">Commercial & Industrial Systems</p>
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function Footer() {
                 <span className="text-slate-300">Commercial & Industrial Mini-Grids</span>
               </li>
               <li>
-                <span className="text-slate-300">Deye Hybrid Inverter Installations</span>
+                <span className="text-slate-300">Commercial Hybrid Inverter Systems</span>
               </li>
               <li>
                 <span className="text-slate-300">Industrial Facility Power Auditing</span>
@@ -171,7 +171,7 @@ export default function Footer() {
               Engineering Bulletin
             </h4>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Receive quarterly technical briefs on Deye inverters, NEC revisions, and cohort enrollment openings.
+              Receive quarterly technical briefs on industrial solar, NEC revisions, and cohort enrollment openings.
             </p>
             <div className="flex items-center gap-1.5">
               <input
