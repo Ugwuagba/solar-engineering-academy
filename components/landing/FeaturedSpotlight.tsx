@@ -4,14 +4,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { 
   Play, 
-  Award, 
   Clock, 
   BookOpen, 
   CheckCircle2, 
   ArrowRight, 
   Briefcase, 
-  ShieldCheck,
-  UserCheck
+  ShieldCheck
 } from "lucide-react";
 
 export default function FeaturedSpotlight() {

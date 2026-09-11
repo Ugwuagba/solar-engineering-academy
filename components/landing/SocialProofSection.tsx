@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, CheckCircle2, Quote, User, Building } from "lucide-react";
+import { Star } from "lucide-react";
 
 export default function SocialProofSection() {
   const testimonials = [
@@ -68,7 +68,7 @@ export default function SocialProofSection() {
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed italic mb-6">
-                  "{item.content}"
+                  &ldquo;{item.content}&rdquo;
                 </p>
               </div>
 

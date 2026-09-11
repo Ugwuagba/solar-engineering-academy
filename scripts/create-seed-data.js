@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const path = require('path');
+
 
 // Read existing seed-data.ts to preserve the exact detailed Module 1-11 of Course 1
 const currentSeedPath = path.join(__dirname, '../lib/seed-data.ts');

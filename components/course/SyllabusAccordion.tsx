@@ -16,11 +16,10 @@ import VideoPreviewModal from "./VideoPreviewModal";
 
 export default function SyllabusAccordion({ 
   modules,
-  courseSlug,
   courseTitle = "Technical Course"
 }: { 
   modules: SeedModule[];
-  courseSlug: string;
+  courseSlug?: string;
   courseTitle?: string;
 }) {
   const [openModules, setOpenModules] = useState<Record<number, boolean>>({ 0: true });

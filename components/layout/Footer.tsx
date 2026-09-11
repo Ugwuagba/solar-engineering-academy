@@ -5,14 +5,13 @@ import {
   Sun, 
   Award, 
   ShieldCheck, 
-  FileText, 
-  CheckCircle2, 
   Mail, 
   Send, 
   MapPin, 
   Phone, 
   Briefcase 
 } from "lucide-react";
+
 
 export default function Footer() {
   return (
@@ -192,7 +191,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© 2026 Subway Energy Limited (RC: 1837154). All rights reserved. "...light up your world"</p>
+          <p>© 2026 Subway Energy Limited (RC: 1837154). All rights reserved. &ldquo;...light up your world&rdquo;</p>
           <div className="flex gap-6">
             <span className="hover:text-slate-400 cursor-pointer">Terms of Attachment</span>
             <span className="hover:text-slate-400 cursor-pointer">Certificate Verification</span>

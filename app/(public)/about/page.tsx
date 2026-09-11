@@ -8,8 +8,7 @@ import {
   ArrowRight, 
   PhoneCall, 
   Mail, 
-  MapPin,
-  FileText
+  MapPin
 } from "lucide-react";
 
 export const metadata = {
@@ -53,11 +52,6 @@ export default function AboutBusinessPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-900/60" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-mono tracking-wider uppercase text-cyan-300">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span>SUBWAY ENERGY LIMITED • RC: 1837154</span>
-          </div>
-
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white max-w-3xl leading-tight">
             Enterprise Power Engineering & Accredited Workforce Solutions
           </h1>

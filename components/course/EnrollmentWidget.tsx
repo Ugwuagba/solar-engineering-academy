@@ -1,16 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Play, 
-  CheckCircle2, 
-  ShieldCheck, 
-  Infinity as InfinityIcon, 
-  Smartphone, 
-  Award, 
-  BookOpen, 
-  Briefcase, 
   Share2, 
   Gift, 
   Clock, 
@@ -30,6 +23,19 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerWidth >= 1024 && window.scrollY > 480) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleEnroll = () => {
     setIsProcessing(true);
@@ -47,15 +53,15 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
     }
   };
 
-  const totalLessons = course.modules.reduce((sum, m) => sum + m.lessons.length, 0);
-
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden sticky top-24 z-30">
-        {/* 1. Video Preview Area (Udemy Exact Style) */}
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden sticky top-24 z-30 transition-all duration-300">
+        {/* 1. Video Preview Area (Udemy Exact Style - Collapses on desktop scroll) */}
         <div 
           onClick={() => setPreviewOpen(true)}
-          className="relative aspect-video w-full overflow-hidden bg-slate-950 cursor-pointer group"
+          className={`relative w-full overflow-hidden bg-slate-950 cursor-pointer group transition-all duration-300 ease-in-out ${
+            isScrolled ? "max-h-0 opacity-0 pointer-events-none" : "max-h-[240px] aspect-video opacity-100"
+          }`}
         >
           <img
             src={course.thumbnailImage || "/images/courses/course-1-solar-intro.jpg"}
@@ -160,50 +166,11 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
             </button>
           </div>
 
-          {/* Guarantee Badges */}
-          <div className="text-center text-xs text-slate-500 pt-1 space-y-1">
-            <p className="flex items-center justify-center gap-1.5 font-medium text-slate-700">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>30-Day Money-Back Guarantee</span>
-            </p>
-            <p className="text-[11px] text-slate-400">
+          {/* Lifetime Access Note */}
+          <div className="text-center text-xs text-slate-500 pt-1">
+            <p className="text-[12px] font-medium text-slate-600">
               Full Lifetime Access • Learn at your own pace
             </p>
-          </div>
-
-          {/* This Course Includes Checklist */}
-          <div className="pt-5 border-t border-slate-100 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-              This course includes:
-            </h4>
-            <div className="space-y-2.5 text-xs text-slate-600">
-              <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>{course.contactHours} hours on-demand video</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <BookOpen className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>{course.modules.length} modules ({totalLessons} technical lessons)</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <BookOpen className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>Two hard copies official textbooks included</span>
-              </div>
-              {course.fieldAttachment && (
-                <div className="flex items-start gap-3">
-                  <Briefcase className="w-4 h-4 text-[#E13B2B] shrink-0 mt-0.5" />
-                  <span className="font-semibold text-slate-800">{course.fieldAttachment}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-3">
-                <Smartphone className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>Access on mobile, tablet and desktop</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Award className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>Certificate of completion</span>
-              </div>
-            </div>
           </div>
 
           {/* Share / Gift links */}

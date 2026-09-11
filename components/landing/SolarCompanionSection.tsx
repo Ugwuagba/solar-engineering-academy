@@ -8,7 +8,6 @@ import {
   Sun, 
   Sliders, 
   CheckCircle2, 
-  Download,
   ArrowRight
 } from "lucide-react";
 import Link from "next/link";
@@ -48,13 +47,13 @@ export default function SolarCompanionSection() {
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 text-[#2B82C9] text-xs font-mono font-bold uppercase tracking-wider mb-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>Engineers' Field Reference</span>
+              <span>Engineers&apos; Field Reference</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
               The Solar Companion Technical Reference
             </h2>
             <p className="text-sm text-slate-600 mt-2 leading-relaxed font-normal">
-              Included as the authoritative engineering reference module in Engr. Asanga's curriculum. Master mathematical derivations for actual field installations.
+              Included as the authoritative engineering reference module in Engr. Asanga&apos;s curriculum. Master mathematical derivations for actual field installations.
             </p>
           </div>
 

@@ -5,17 +5,11 @@ import Link from "next/link";
 import { 
   PlayCircle, 
   CheckCircle2, 
-  Lock, 
   HelpCircle, 
   ArrowLeft, 
   FileText, 
-  Award, 
-  ChevronRight,
-  Sparkles,
   Download,
-  BookOpen,
-  Briefcase,
-  GraduationCap
+  Briefcase
 } from "lucide-react";
 import { SEED_COURSES } from "@/lib/seed-data";
 import { formatDuration } from "@/lib/utils";
@@ -287,7 +281,6 @@ export default function ClassroomPage({
               {/* Questions List */}
               <div className="space-y-6">
                 {currentQuiz?.questions.map((q, qIdx) => {
-                  const isSelected = selectedAnswers[qIdx] !== undefined;
                   const isCorrect = selectedAnswers[qIdx] === q.correctOptionIndex;
 
                   return (

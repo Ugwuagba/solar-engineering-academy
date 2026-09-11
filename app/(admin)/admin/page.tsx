@@ -11,9 +11,7 @@ import {
   Plus, 
   ArrowLeft,
   Briefcase,
-  ShieldCheck,
-  ExternalLink,
-  GraduationCap
+  ExternalLink
 } from "lucide-react";
 import { SEED_COURSES } from "@/lib/seed-data";
 

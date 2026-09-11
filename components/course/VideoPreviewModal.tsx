@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Play, Volume2, Maximize2 } from "lucide-react";
+import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface VideoPreviewModalProps {

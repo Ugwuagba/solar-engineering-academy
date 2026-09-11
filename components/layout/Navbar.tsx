@@ -10,7 +10,6 @@ import {
   Menu, 
   X, 
   LogOut,
-  User,
   GraduationCap
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
