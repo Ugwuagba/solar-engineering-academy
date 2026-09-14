@@ -126,7 +126,7 @@ export default function HeroSection() {
   const slide = slides[currentSlide];
 
   return (
-    <section className="relative min-h-[90vh] lg:min-h-[720px] w-full overflow-hidden bg-slate-950 flex flex-col justify-between select-none py-10 lg:py-14">
+    <section className="relative min-h-[90vh] lg:min-h-[720px] w-full overflow-hidden bg-transparent flex flex-col justify-between select-none py-10 lg:py-14">
       {/* 1. Background Image with AnimatePresence and Zoom-In Transition */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
@@ -146,9 +146,9 @@ export default function HeroSection() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Continuous gradient overlays preserving Subway Energy dark aesthetics */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-900/60" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+        {/* Lighter, high-visibility dual-layer gradient overlays making solar photography distinctly visible */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/65 via-slate-900/35 to-slate-950/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080f1e]/80 via-transparent to-black/20" />
       </div>
 
       {/* 2. Responsive 2-Column Hero Content Container */}
@@ -167,18 +167,18 @@ export default function HeroSection() {
                 className="space-y-4 sm:space-y-6"
               >
                 {/* Eyebrow Pill */}
-                <div className="text-sky-400 font-semibold uppercase tracking-widest text-xs flex items-center gap-2">
+                <div className="text-sky-400 font-semibold uppercase tracking-widest text-xs flex items-center gap-2 drop-shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
                   <span>{slide.eyebrow}</span>
                 </div>
 
                 {/* Main Headline */}
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-white leading-[1.12] text-balance">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-white leading-[1.12] text-balance drop-shadow-md [text-shadow:_0_2px_10px_rgb(0_0_0_/_60%)]">
                   {slide.title}
                 </h1>
 
                 {/* Subtitle */}
-                <p className="text-slate-200 text-sm sm:text-base lg:text-lg max-w-xl font-light leading-relaxed text-balance">
+                <p className="text-slate-100 text-sm sm:text-base lg:text-lg max-w-xl font-normal leading-relaxed text-balance drop-shadow-sm [text-shadow:_0_1px_8px_rgb(0_0_0_/_50%)]">
                   {slide.description}
                 </p>
 
