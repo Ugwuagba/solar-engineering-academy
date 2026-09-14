@@ -10,7 +10,8 @@ import {
   Menu, 
   X, 
   LogOut,
-  GraduationCap
+  GraduationCap,
+  LayoutDashboard
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
@@ -45,6 +46,7 @@ const EXPLORE_COURSES = [
 export default function Navbar() {
   const router = useRouter();
   const { data: session } = useSession();
+  const isInstructorOrAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'INSTRUCTOR';
   
   // Navigation State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -223,6 +225,17 @@ export default function Navbar() {
 
         {/* 6 & 7. Action Buttons (Desktop) */}
         <div className="hidden md:flex items-center gap-3 shrink-0">
+          {/* Instructor Studio Button (ADMIN or INSTRUCTOR) */}
+          {isInstructorOrAdmin && (
+            <Link
+              href="/admin/courses/new"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-sky-400 border border-sky-500/30 hover:bg-slate-700 hover:text-white transition-all shadow-sm shrink-0"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Instructor Studio</span>
+            </Link>
+          )}
+
           {/* "Log in" Button */}
           {session?.user ? (
             <div className="flex items-center gap-2">
@@ -366,6 +379,17 @@ export default function Navbar() {
 
           {/* Mobile Buttons */}
           <div className="pt-3 border-t border-slate-200 flex flex-col gap-2.5">
+            {isInstructorOrAdmin && (
+              <Link
+                href="/admin/courses/new"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2.5 px-3.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-sky-400 border border-sky-500/30 hover:bg-slate-700 hover:text-white transition-all shadow-sm flex items-center justify-center gap-1.5"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Instructor Studio</span>
+              </Link>
+            )}
+
             {session?.user ? (
               <>
                 <Link
