@@ -4,14 +4,16 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Sun, ShieldAlert, ArrowRight, Lock, Mail, UserCheck, ShieldCheck } from "lucide-react";
+import { Sun, ShieldAlert, ArrowRight, Lock, Mail, UserCheck, ShieldCheck, CheckCircle2, KeyRound } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/courses";
+  const verifiedSuccess = searchParams.get("verified") === "true";
+  const emailParam = searchParams.get("email") || "";
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(emailParam);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -52,6 +54,8 @@ function LoginForm() {
     }
   };
 
+  const isEmailUnverified = error?.toLowerCase().includes("verify your email");
+
   return (
     <div className="glass-panel py-8 px-6 sm:px-8 rounded-2xl border border-slate-800 space-y-6">
       {/* Quick 1-Click Demo Fillers */}
@@ -79,10 +83,30 @@ function LoginForm() {
         </div>
       </div>
 
+      {verifiedSuccess && (
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2.5">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+          <span>Email verified successfully! You can now sign in with your credentials.</span>
+        </div>
+      )}
+
       {error && (
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
-          <ShieldAlert className="w-4 h-4 shrink-0" />
-          <span>{error}</span>
+        <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs space-y-2">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+          {isEmailUnverified && (
+            <div className="pt-1">
+              <Link
+                href={`/verify-email?email=${encodeURIComponent(email)}`}
+                className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition-colors"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Verify Email Now →</span>
+              </Link>
+            </div>
+          )}
         </div>
       )}
 

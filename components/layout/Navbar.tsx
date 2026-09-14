@@ -11,7 +11,8 @@ import {
   X, 
   LogOut,
   GraduationCap,
-  LayoutDashboard
+  LayoutDashboard,
+  User
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
@@ -236,7 +237,7 @@ export default function Navbar() {
             </Link>
           )}
 
-          {/* "Log in" Button */}
+          {/* Authenticated Account Actions vs Unauthenticated Actions */}
           {session?.user ? (
             <div className="flex items-center gap-2">
               <Link
@@ -246,6 +247,12 @@ export default function Navbar() {
                 <GraduationCap className="w-4 h-4 text-[#2B82C9]" />
                 <span>My Classroom</span>
               </Link>
+              <div 
+                title={`Signed in as ${session.user.name || session.user.email}`}
+                className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-700 select-none shadow-2xs"
+              >
+                {session.user.name ? session.user.name.charAt(0).toUpperCase() : <User className="w-4 h-4 text-slate-600" />}
+              </div>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
                 title={`Sign out (${session.user.email})`}
@@ -255,22 +262,22 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <Link
-              href="/login"
-              className="border border-slate-300 text-slate-800 hover:bg-slate-100 font-semibold px-4 py-2 rounded-lg text-sm transition-all whitespace-nowrap"
-            >
-              Log in
-            </Link>
+            <>
+              <Link
+                href="/login"
+                className="border border-slate-300 text-slate-800 hover:bg-slate-100 font-semibold px-4 py-2 rounded-lg text-sm transition-all whitespace-nowrap"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/courses/solar-installation-101"
+                className="bg-[#E13B2B] hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-lg text-sm shadow-md transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer active:scale-95"
+              >
+                <span>Apply Now</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </>
           )}
-
-          {/* "Apply Now" CTA Button */}
-          <Link
-            href="/courses/solar-installation-101"
-            className="bg-[#E13B2B] hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-lg text-sm shadow-md transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer active:scale-95"
-          >
-            <span>Apply Now</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
 
         {/* Mobile Action Controls */}
@@ -402,29 +409,31 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className="w-full text-center py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                  className="w-full text-center py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  Sign Out ({session.user.email})
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out ({session.user.email})</span>
                 </button>
               </>
             ) : (
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center py-2.5 text-xs font-semibold border border-slate-300 rounded-lg text-slate-800 hover:bg-slate-50 flex items-center justify-center"
-              >
-                Log in
-              </Link>
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-2.5 text-xs font-semibold border border-slate-300 rounded-lg text-slate-800 hover:bg-slate-50 flex items-center justify-center"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/courses/solar-installation-101"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-2.5 text-xs font-bold bg-[#E13B2B] hover:bg-red-700 text-white rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-red-500/20"
+                >
+                  <span>Apply Now</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </>
             )}
-
-            <Link
-              href="/courses/solar-installation-101"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center py-2.5 text-xs font-bold bg-[#E13B2B] hover:bg-red-700 text-white rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-red-500/20"
-            >
-              <span>Apply Now</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </div>
       )}

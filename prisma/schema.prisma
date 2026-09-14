@@ -11,13 +11,14 @@ model User {
   id           String        @id @default(cuid())
   name         String?
   email        String        @unique
-  passwordHash String
-  role         String        @default("STUDENT") // STUDENT, ADMIN
-  enrollments  Enrollment[]
-  certificates Certificate[]
-  quizAttempts QuizAttempt[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  passwordHash    String
+  role            String        @default("STUDENT") // STUDENT, ADMIN
+  isEmailVerified Boolean       @default(false)
+  enrollments     Enrollment[]
+  certificates    Certificate[]
+  quizAttempts    QuizAttempt[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model Course {
@@ -162,4 +163,14 @@ model Certificate {
   contactHours    Int
   issuedAt        DateTime @default(now())
   pdfUrl          String?
+}
+
+model OtpVerification {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
 }

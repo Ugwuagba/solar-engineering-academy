@@ -35,20 +35,8 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto sign in with new account
-      const signInRes = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-        callbackUrl: "/courses",
-      });
-
-      if (signInRes?.error) {
-        router.push("/login?registered=true");
-      } else {
-        router.push("/courses");
-        router.refresh();
-      }
+      // Redirect to 6-digit OTP verification screen
+      router.push(`/verify-email?email=${encodeURIComponent(email.trim())}&registered=true`);
     } catch {
       setError("An unexpected error occurred during registration.");
       setLoading(false);

@@ -62,15 +62,21 @@ export const authOptions: NextAuthOptions = {
           if (user) {
             const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
             if (isValid) {
+              if (!user.isEmailVerified) {
+                throw new Error("Please verify your email before logging in.");
+              }
               return {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: (user.role as "STUDENT" | "ADMIN") || "STUDENT",
+                role: (user.role as "STUDENT" | "ADMIN" | "INSTRUCTOR") || "STUDENT",
               };
             }
           }
-        } catch {
+        } catch (authError: any) {
+          if (authError?.message === "Please verify your email before logging in.") {
+            throw authError;
+          }
           // Live database might not be initialized yet; check fallback demo accounts
         }
 

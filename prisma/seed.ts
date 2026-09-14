@@ -18,12 +18,14 @@ async function main() {
       passwordHash: adminPasswordHash,
       role: "ADMIN",
       name: "Lead Solar Engineer (Director)",
+      isEmailVerified: true,
     },
     create: {
       email: "admin@solaracademy.org",
       name: "Lead Solar Engineer (Director)",
       passwordHash: adminPasswordHash,
       role: "ADMIN",
+      isEmailVerified: true,
     },
   });
   console.log(`✓ Admin user ready: ${admin.email}`);
@@ -34,12 +36,14 @@ async function main() {
       passwordHash: studentPasswordHash,
       role: "STUDENT",
       name: "Alex Rivera, EIT",
+      isEmailVerified: true,
     },
     create: {
       email: "student@solaracademy.org",
       name: "Alex Rivera, EIT",
       passwordHash: studentPasswordHash,
       role: "STUDENT",
+      isEmailVerified: true,
     },
   });
   console.log(`✓ Student user ready: ${student.email}`);
