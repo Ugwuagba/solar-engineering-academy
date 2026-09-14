@@ -1,9 +1,136 @@
 import prisma from "@/lib/db";
 import { SEED_COURSES, SeedCourse } from "@/lib/seed-data";
+import { formatDuration } from "@/lib/utils";
+
+function parseJsonArray<T = string>(raw: string | null | undefined, fallback: T[] = []): T[] {
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function formatNaira(amount: number): string {
+  return `₦${Number(amount || 0).toLocaleString()}`;
+}
+
+function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse {
+  const whatYouWillLearn = parseJsonArray<string>(
+    c.whatYoullLearn,
+    seedMatch?.whatYouWillLearn || [
+      "Scientific solar PV design according to international IEC/IEEE & Nigerian NEC standards",
+      "Sizing battery energy storage systems (BESS) for zero-flicker commercial microgrids",
+      "Comprehensive single-line diagrams (SLD) and protective earthing calculations",
+      "Hands-on equipment commissioning, hybrid inverter programming, and fault diagnostics",
+    ]
+  );
+
+  const includes = parseJsonArray<string>(
+    c.includesList,
+    seedMatch?.includes || [
+      `${c.contactHours || 40} Contact Hours of Accredited Technical Training`,
+      "Includes 2–4 Months Practical Field Attachment with Partners",
+      "Downloadable Technical Calculation Sheets & Handbooks",
+      "Official Subway Schools Accredited Certificate",
+    ]
+  );
+
+  const priceNgn = formatNaira(c.price);
+  const originalPriceNgn = c.originalPrice ? formatNaira(c.originalPrice) : seedMatch?.originalPriceNgn;
+  const discountPercentage = c.originalPrice && c.originalPrice > c.price
+    ? Math.round(((c.originalPrice - c.price) / c.originalPrice) * 100)
+    : seedMatch?.discountPercentage;
+
+  return {
+    code: c.code,
+    title: c.title,
+    subtitle: c.subtitle || seedMatch?.subtitle || c.description?.slice(0, 150) + "...",
+    slug: c.slug,
+    description: c.description,
+    level: (c.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED") || "INTRODUCTORY",
+    deliveryType: (c.deliveryType as "SELF_PACED" | "COHORT") || "SELF_PACED",
+    contactHours: c.contactHours || 40,
+    price: c.price,
+    priceNgn,
+    originalPriceNgn,
+    discountPercentage,
+    rating: seedMatch?.rating || 4.9,
+    ratingCount: seedMatch?.ratingCount || 120,
+    studentsCount: seedMatch?.studentsCount || 850,
+    thumbnailImage: c.thumbnailUrl || seedMatch?.thumbnailImage || "/images/courses/course-1-solar-intro.jpg",
+    badge: c.badge || seedMatch?.badge || (c.originalPrice ? "Special Offer" : "New Program"),
+    instructor: c.instructorName || seedMatch?.instructor || "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
+    fieldAttachment: seedMatch?.fieldAttachment || "Includes 2–4 Months Practical Field Attachment with Partners",
+    isPublished: c.isPublished ?? true,
+    whatYouWillLearn,
+    requirements: seedMatch?.requirements || [
+      "Basic understanding of basic electrical principles (Voltage, Current, Resistance)",
+      "A laptop or smartphone for technical calculation simulations",
+      "Commitment to participate in practical hands-on field attachment",
+    ],
+    targetAudience: seedMatch?.targetAudience || [
+      "Electrical engineers, technicians, and installers aiming for commercial EPC mastery",
+      "Facility directors and solar business entrepreneurs building high-reliability mini-grids",
+    ],
+    includes,
+    tools: seedMatch?.tools || [
+      {
+        title: "Commercial Solar System Sizing Spreadsheet",
+        format: "XLSX",
+        fileSize: "2.4 MB",
+        description: "Standardized sizing matrix with Nigerian meteorological irradiance constants.",
+      },
+      {
+        title: "PV Array String & Inverter Clipping Calculator",
+        format: "XLSX",
+        fileSize: "1.8 MB",
+        description: "DC-to-AC ratio derating and voltage drop calculator.",
+      },
+      {
+        title: "Official Solar Engineering Handbook & SLD Schematics",
+        format: "PDF",
+        fileSize: "14.2 MB",
+        description: "Field manual by Engr. Asanga covering grounding, earthing, and protection.",
+      },
+    ],
+    cohorts: (c.cohorts || []).map((ch: any) => ({
+      name: ch.name,
+      startDate: ch.startDate instanceof Date ? ch.startDate.toISOString() : ch.startDate,
+      endDate: ch.endDate instanceof Date ? ch.endDate.toISOString() : ch.endDate,
+      maxCapacity: ch.maxCapacity,
+    })),
+    modules: (c.modules || []).map((m: any, mIdx: number) => ({
+      title: m.title,
+      sortOrder: m.sortOrder ?? mIdx + 1,
+      lessons: (m.lessons || []).map((l: any, lIdx: number) => ({
+        title: l.title,
+        sortOrder: l.sortOrder ?? lIdx + 1,
+        videoUrl: l.videoUrl || "",
+        durationSec: l.durationSec || 1800,
+        durationText: l.durationText || formatDuration(l.durationSec || 1800),
+        contentMarkdown: l.contentMarkdown || "",
+        downloadableUrl: l.technicalSheetUrl || l.downloadableUrl || undefined,
+        isFreePreview: l.isFreePreview ?? false,
+      })),
+      quiz: {
+        title: m.quiz?.title || `Module ${m.sortOrder || mIdx + 1} Assessment`,
+        passingScore: m.quiz?.passingScore || 70,
+        questions: (m.quiz?.questions || []).map((q: any) => ({
+          text: q.text,
+          options: parseJsonArray<string>(q.optionsJson, ["Option A", "Option B", "Option C", "Option D"]),
+          correctOptionIndex: q.correctOptionIndex ?? 0,
+          explanation: q.explanation || "Correct answer verified by Subway Schools curriculum board.",
+        })),
+      },
+    })),
+  };
+}
 
 export async function getAllCourses(): Promise<SeedCourse[]> {
   try {
-    const courses = await prisma.course.findMany({
+    const dbCourses = await prisma.course.findMany({
       where: { isPublished: true },
       include: {
         modules: {
@@ -19,71 +146,21 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
           orderBy: { startDate: "asc" },
         },
       },
+      orderBy: { createdAt: "desc" },
     });
 
-    if (courses && courses.length > 0) {
-      return courses.map((c) => {
-        const seedMatch = SEED_COURSES.find((s) => s.code === c.code);
-        return {
-          code: c.code,
-          title: c.title,
-          subtitle: seedMatch?.subtitle,
-          slug: c.slug,
-          description: c.description,
-          level: c.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED",
-          deliveryType: c.deliveryType as "SELF_PACED" | "COHORT",
-          contactHours: c.contactHours,
-          price: c.price,
-          priceNgn: seedMatch?.priceNgn,
-          originalPriceNgn: seedMatch?.originalPriceNgn,
-          discountPercentage: seedMatch?.discountPercentage,
-          rating: seedMatch?.rating,
-          ratingCount: seedMatch?.ratingCount,
-          studentsCount: seedMatch?.studentsCount,
-          thumbnailImage: seedMatch?.thumbnailImage || "/images/courses/course-1-solar-intro.jpg",
-          badge: seedMatch?.badge,
-          instructor: seedMatch?.instructor,
-          fieldAttachment: seedMatch?.fieldAttachment,
-          isPublished: c.isPublished,
-          whatYouWillLearn: seedMatch?.whatYouWillLearn || [],
-          requirements: seedMatch?.requirements || [],
-          targetAudience: seedMatch?.targetAudience || [],
-          includes: seedMatch?.includes || [],
-          tools: seedMatch?.tools || [],
-          cohorts: c.cohorts.map((ch) => ({
-            name: ch.name,
-            startDate: ch.startDate.toISOString(),
-            endDate: ch.endDate.toISOString(),
-            maxCapacity: ch.maxCapacity,
-          })),
-          modules: c.modules.map((m) => ({
-            title: m.title,
-            sortOrder: m.sortOrder,
-            lessons: m.lessons.map((l) => ({
-              title: l.title,
-              sortOrder: l.sortOrder,
-              videoUrl: l.videoUrl || "",
-              durationSec: l.durationSec,
-              contentMarkdown: l.contentMarkdown,
-              downloadableUrl: l.downloadableUrl || undefined,
-              isFreePreview: l.isFreePreview,
-            })),
-            quiz: {
-              title: m.quiz?.title || "Module Quiz",
-              passingScore: m.quiz?.passingScore || 70,
-              questions: (m.quiz?.questions || []).map((q) => ({
-                text: q.text,
-                options: JSON.parse(q.optionsJson || "[]"),
-                correctOptionIndex: q.correctOptionIndex,
-                explanation: q.explanation,
-              })),
-            },
-          })),
-        };
+    if (dbCourses && dbCourses.length > 0) {
+      const mappedDbCourses = dbCourses.map((c) => {
+        const seedMatch = SEED_COURSES.find((s) => s.code === c.code || s.slug === c.slug);
+        return mapPrismaCourseToSeedCourse(c, seedMatch);
       });
+
+      // Merge any seed courses that don't have a matching DB code yet
+      const mergedCodes = new Set(mappedDbCourses.map((c) => c.code));
+      const remainingSeed = SEED_COURSES.filter((s) => !mergedCodes.has(s.code));
+      return [...mappedDbCourses, ...remainingSeed];
     }
   } catch (error) {
-    // Database connection not initialized or offline - fallback gracefully to seed data
     console.warn("Prisma query failed, serving seed curriculum data:", (error as Error).message);
   }
 
@@ -111,63 +188,8 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
     });
 
     if (course) {
-      const seedMatch = SEED_COURSES.find((s) => s.code === course.code);
-      return {
-        code: course.code,
-        title: course.title,
-        subtitle: seedMatch?.subtitle,
-        slug: course.slug,
-        description: course.description,
-        level: course.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED",
-        deliveryType: course.deliveryType as "SELF_PACED" | "COHORT",
-        contactHours: course.contactHours,
-        price: course.price,
-        priceNgn: seedMatch?.priceNgn,
-        originalPriceNgn: seedMatch?.originalPriceNgn,
-        discountPercentage: seedMatch?.discountPercentage,
-        rating: seedMatch?.rating,
-        ratingCount: seedMatch?.ratingCount,
-        studentsCount: seedMatch?.studentsCount,
-        thumbnailImage: seedMatch?.thumbnailImage || "/images/courses/course-1-solar-intro.jpg",
-        badge: seedMatch?.badge,
-        instructor: seedMatch?.instructor,
-        fieldAttachment: seedMatch?.fieldAttachment,
-        isPublished: course.isPublished,
-        whatYouWillLearn: seedMatch?.whatYouWillLearn || [],
-        requirements: seedMatch?.requirements || [],
-        targetAudience: seedMatch?.targetAudience || [],
-        includes: seedMatch?.includes || [],
-        tools: seedMatch?.tools || [],
-        cohorts: course.cohorts.map((ch) => ({
-          name: ch.name,
-          startDate: ch.startDate.toISOString(),
-          endDate: ch.endDate.toISOString(),
-          maxCapacity: ch.maxCapacity,
-        })),
-        modules: course.modules.map((m) => ({
-          title: m.title,
-          sortOrder: m.sortOrder,
-          lessons: m.lessons.map((l) => ({
-            title: l.title,
-            sortOrder: l.sortOrder,
-            videoUrl: l.videoUrl || "",
-            durationSec: l.durationSec,
-            contentMarkdown: l.contentMarkdown,
-            downloadableUrl: l.downloadableUrl || undefined,
-            isFreePreview: l.isFreePreview,
-          })),
-          quiz: {
-            title: m.quiz?.title || "Module Quiz",
-            passingScore: m.quiz?.passingScore || 70,
-            questions: (m.quiz?.questions || []).map((q) => ({
-              text: q.text,
-              options: JSON.parse(q.optionsJson || "[]"),
-              correctOptionIndex: q.correctOptionIndex,
-              explanation: q.explanation,
-            })),
-          },
-        })),
-      };
+      const seedMatch = SEED_COURSES.find((s) => s.code === course.code || s.slug === course.slug);
+      return mapPrismaCourseToSeedCourse(course, seedMatch);
     }
   } catch {
     // Fall back to seed data

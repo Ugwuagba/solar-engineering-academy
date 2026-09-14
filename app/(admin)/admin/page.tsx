@@ -47,13 +47,13 @@ export default function AdminStudioPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => alert("Program Creator: Subway Schools Curriculum Expansion")}
+            <Link
+              href="/admin/courses/new"
               className="px-5 py-2.5 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create New Program</span>
-            </button>
+            </Link>
           </div>
         </div>
 
