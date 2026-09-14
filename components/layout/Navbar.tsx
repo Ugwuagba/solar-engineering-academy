@@ -270,7 +270,7 @@ export default function Navbar() {
                 Log in
               </Link>
               <Link
-                href="/courses/solar-installation-101"
+                href="/register"
                 className="bg-[#E13B2B] hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-lg text-sm shadow-md transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer active:scale-95"
               >
                 <span>Apply Now</span>
@@ -425,7 +425,7 @@ export default function Navbar() {
                   Log in
                 </Link>
                 <Link
-                  href="/courses/solar-installation-101"
+                  href="/register"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center py-2.5 text-xs font-bold bg-[#E13B2B] hover:bg-red-700 text-white rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-red-500/20"
                 >
