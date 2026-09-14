@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
-import { sendOtpEmail } from "@/lib/mail";
+import { sendVerificationOtpEmail } from "@/lib/mail";
 
 export async function POST(req: Request) {
   try {
@@ -77,8 +77,12 @@ export async function POST(req: Request) {
       },
     });
 
-    // Dispatch OTP email (logs to console in dev, sends via Resend if key exists)
-    await sendOtpEmail(normalizedEmail, code);
+    // Dispatch OTP email (Resend dispatch with console log fallback)
+    try {
+      await sendVerificationOtpEmail(normalizedEmail, code, name?.trim());
+    } catch (mailError) {
+      console.error("[Register Mail Dispatch Error]:", mailError);
+    }
 
     return NextResponse.json(
       {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { sendOtpEmail } from "@/lib/mail";
+import { sendVerificationOtpEmail } from "@/lib/mail";
 
 export async function POST(req: Request) {
   try {
@@ -50,12 +50,16 @@ export async function POST(req: Request) {
       },
     });
 
-    // Dispatch email (and log to console in dev)
-    await sendOtpEmail(normalizedEmail, code);
+    // Dispatch email via Resend
+    try {
+      await sendVerificationOtpEmail(normalizedEmail, code, user.name || undefined);
+    } catch (mailError) {
+      console.error("[Resend OTP Mail Dispatch Error]:", mailError);
+    }
 
     return NextResponse.json({
       success: true,
-      message: "A new 6-digit verification code has been dispatched to your email.",
+      message: "A new confirmation code has been sent to your email.",
     });
   } catch (error) {
     console.error("Resend OTP error:", error);

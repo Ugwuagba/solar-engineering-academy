@@ -1,61 +1,104 @@
-/**
- * Email dispatch helper for 6-digit OTP verification.
- * In development, logs prominently to server console: `[DEV OTP CODE]: 123456`.
- * If RESEND_API_KEY is configured in environment, dispatches an executive email via Resend.
- */
-export async function sendOtpEmail(email: string, code: string): Promise<void> {
-  // Always log clearly to console in development
-  console.log("\n=======================================================");
-  console.log(`[DEV OTP CODE]: ${code}`);
-  console.log(`Target Recipient: ${email}`);
-  console.log(`Validity: 15 minutes (Expires at: ${new Date(Date.now() + 15 * 60 * 1000).toLocaleTimeString()})`);
-  console.log("=======================================================\n");
+import { Resend } from "resend";
 
-  // Optional: Dispatch email via Resend if API key is present
-  const resendApiKey = process.env.RESEND_API_KEY;
-  if (resendApiKey) {
-    try {
-      const fromEmail = process.env.EMAIL_FROM || "Solar Engineering Academy <onboarding@resend.dev>";
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: fromEmail,
-          to: email,
-          subject: `${code} is your Solar Academy verification code`,
-          html: `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; background-color: #0b1120; color: #f8fafc; border-radius: 16px; padding: 32px; border: 1px solid #1e293b;">
-              <div style="text-align: center; margin-bottom: 24px;">
-                <div style="display: inline-block; padding: 8px 16px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 9999px;">
-                  <span style="color: #fbbf24; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Subway Schools · Solar Academy</span>
-                </div>
+/**
+ * Send 6-digit OTP verification email via Resend SDK.
+ * Styles the email with Subway Schools executive dark energy palette.
+ * Always logs `[OTP DISPATCH -> email]: code` to the server terminal.
+ */
+export async function sendVerificationOtpEmail(
+  email: string,
+  code: string,
+  name?: string
+): Promise<{ success: boolean; data?: any; error?: any }> {
+  // Always log to terminal so local testing and offline execution are never blocked
+  console.log(`[OTP DISPATCH -> ${email}]: ${code}`);
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("[Resend Warning]: RESEND_API_KEY is not defined in environment.");
+    return { success: false, error: "Missing RESEND_API_KEY" };
+  }
+
+  const resend = new Resend(apiKey);
+  const from = process.env.EMAIL_FROM || "Subway Schools <onboarding@resend.dev>";
+  const greeting = name ? `Hello ${name},` : "Hello,";
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from,
+      to: [email],
+      subject: `${code} is your Subway Schools verification code`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>${code} - Subway Schools Verification Code</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc;">
+          <div style="max-width: 560px; margin: 40px auto; background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
+            <!-- Brand Header -->
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #334155;">
+              <div style="display: inline-block; padding: 6px 14px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 9999px; margin-bottom: 12px;">
+                <span style="color: #38bdf8; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Solar Engineering Academy</span>
               </div>
-              <h2 style="font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 8px; color: #ffffff;">Email Verification</h2>
-              <p style="font-size: 14px; color: #94a3b8; text-align: center; margin-bottom: 28px; line-height: 1.6;">
-                Use the 6-digit candidate verification code below to verify your institutional profile and activate your academic classroom credentials:
+              <h1 style="margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 0.05em; color: #ffffff; text-transform: uppercase;">
+                SUBWAY SCHOOLS
+              </h1>
+            </div>
+
+            <!-- Content Body -->
+            <div style="padding: 36px 32px;">
+              <p style="font-size: 16px; color: #e2e8f0; margin-top: 0; margin-bottom: 16px;">
+                ${greeting}
               </p>
-              <div style="background-color: #020617; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 28px;">
-                <span style="font-family: monospace; font-size: 36px; font-weight: 800; letter-spacing: 12px; color: #fbbf24; display: inline-block; padding-left: 12px;">
+              <p style="font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 28px;">
+                Thank you for registering your engineering candidate profile. Please use the following 6-digit confirmation PIN to complete your verification and activate your classroom credentials:
+              </p>
+
+              <!-- 6-digit OTP Box -->
+              <div style="background-color: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; padding: 22px 16px; text-align: center; margin-bottom: 28px; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);">
+                <span style="font-family: 'Courier New', Courier, monospace, monospace; font-size: 38px; font-weight: 800; letter-spacing: 14px; color: #38bdf8; display: inline-block; padding-left: 14px;">
                   ${code}
                 </span>
               </div>
-              <p style="font-size: 12px; color: #64748b; text-align: center; margin-bottom: 0;">
-                This code is confidential and expires in 15 minutes. If you did not create a Solar Academy profile, you can safely ignore this email.
+
+              <!-- Expiration Notice -->
+              <div style="background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 13px; color: #fbbf24; font-weight: 500;">
+                  ⏳ <strong>Notice:</strong> This verification code is single-use and will expire in 15 minutes.
+                </p>
+              </div>
+
+              <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;">
+                If you did not request this registration, you can safely ignore this email.
               </p>
             </div>
-          `,
-        }),
-      });
 
-      if (!response.ok) {
-        const errData = await response.text();
-        console.warn("[Resend Warning]: Failed to dispatch email via Resend:", errData);
-      }
-    } catch (err) {
-      console.warn("[Resend Warning]: Error dispatching email:", err);
+            <!-- Footer -->
+            <div style="background-color: #0f172a; padding: 20px 24px; text-align: center; border-top: 1px solid #334155;">
+              <p style="margin: 0; font-size: 12px; color: #64748b;">
+                © 2026 Subway Energy Limited & Subway Schools. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+
+    if (error) {
+      console.error("[Resend Error]:", error);
+      return { success: false, error };
     }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error("[Resend Exception]:", err);
+    return { success: false, error: err };
   }
 }
+
+// Backwards compatibility alias
+export const sendOtpEmail = sendVerificationOtpEmail;
