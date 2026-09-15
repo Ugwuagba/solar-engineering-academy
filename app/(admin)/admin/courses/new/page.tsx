@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useId } from "react";
+import { useState, useId, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { 
@@ -25,7 +25,9 @@ import {
   Image as ImageIcon,
   Sparkles,
   ShieldCheck,
-  Check
+  Check,
+  Upload,
+  RefreshCw
 } from "lucide-react";
 
 interface QuestionForm {
@@ -101,6 +103,62 @@ export default function AdminCourseUploadStudio() {
   const [price, setPrice] = useState(75000);
   const [originalPrice, setOriginalPrice] = useState<number | "">(120000);
   const [thumbnailUrl, setThumbnailUrl] = useState("/images/hero/hero-commercial.jpg");
+  const [thumbnailSourceTab, setThumbnailSourceTab] = useState<"upload" | "presets">("upload");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileSelect = async (file: File) => {
+    setUploadError(null);
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+      setUploadError("Invalid file type. Please upload a JPEG, PNG, or WebP image.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("File size exceeds the 5MB maximum limit.");
+      return;
+    }
+
+    // Immediate live local preview
+    const previewUrl = URL.createObjectURL(file);
+    setLocalPreview(previewUrl);
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to upload image.");
+      }
+
+      setThumbnailUrl(data.url);
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      setUploadError(err.message || "Failed to upload image. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveCustomImage = () => {
+    setLocalPreview(null);
+    setThumbnailUrl("/images/hero/hero-commercial.jpg");
+    setUploadError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const [promoVideoUrl, setPromoVideoUrl] = useState("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
   const [badge, setBadge] = useState("New Program");
   const [instructorName, setInstructorName] = useState("Engr. Asanga (Certified Solar Professional, 20+ Years Experience)");
@@ -755,56 +813,217 @@ export default function AdminCourseUploadStudio() {
               </div>
             </div>
 
-            {/* Thumbnail Selection */}
-            <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 space-y-4">
-              <div className="border-b border-white/10 pb-4 flex items-center justify-between">
+            {/* 1.3 Course Cover & Thumbnail Image */}
+            <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 space-y-5">
+              <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
                     <ImageIcon className="w-4 h-4 text-sky-400" />
                     <span>1.3 Course Cover &amp; Thumbnail Image</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Select a high-resolution verified industrial solar asset or input a custom asset URL.
+                    Upload a custom branded cover photo or choose from verified industrial presets.
                   </p>
+                </div>
+
+                {/* Sub-tabs: Upload Custom vs Presets */}
+                <div className="flex items-center p-1 bg-slate-950 rounded-xl border border-white/10 text-xs font-semibold self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => setThumbnailSourceTab("upload")}
+                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+                      thumbnailSourceTab === "upload"
+                        ? "bg-[#2B82C9] text-white shadow-xs"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload Custom</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setThumbnailSourceTab("presets")}
+                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+                      thumbnailSourceTab === "presets"
+                        ? "bg-[#2B82C9] text-white shadow-xs"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Choose Presets</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
-                {PRESET_THUMBNAILS.map((preset) => (
-                  <button
-                    key={preset.url}
-                    type="button"
-                    onClick={() => setThumbnailUrl(preset.url)}
-                    className={`group relative rounded-xl overflow-hidden border text-left transition-all cursor-pointer ${
-                      thumbnailUrl === preset.url
-                        ? "border-[#2B82C9] ring-2 ring-[#2B82C9]/50 shadow-md"
-                        : "border-white/15 opacity-70 hover:opacity-100"
-                    }`}
-                  >
-                    <div className="w-full h-20 bg-slate-950 overflow-hidden">
-                      <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="p-2 bg-slate-950/90 text-[10px] font-medium text-slate-300 truncate">
-                      {preset.label}
-                    </div>
-                    {thumbnailUrl === preset.url && (
-                      <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#2B82C9] text-white flex items-center justify-center text-[10px]">
-                        ✓
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
+              {/* TAB A: UPLOAD CUSTOM THUMBNAIL */}
+              {thumbnailSourceTab === "upload" && (
+                <div className="space-y-4">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png, image/jpeg, image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        handleFileSelect(e.target.files[0]);
+                      }
+                    }}
+                  />
 
-              <div className="pt-2">
-                <input
-                  type="text"
-                  value={thumbnailUrl}
-                  onChange={(e) => setThumbnailUrl(e.target.value)}
-                  placeholder="/images/... or custom image URL"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white font-mono text-xs focus:outline-none focus:border-sky-400"
-                />
-              </div>
+                  {(localPreview || (thumbnailUrl && !PRESET_THUMBNAILS.some(p => p.url === thumbnailUrl))) && !isUploading ? (
+                    <div className="rounded-2xl border border-white/15 bg-slate-950/70 p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-start md:items-center">
+                      <div className="relative w-full md:w-64 h-36 rounded-xl overflow-hidden bg-slate-900 border border-white/15 shrink-0 group">
+                        <img
+                          src={localPreview || thumbnailUrl}
+                          alt="Course Cover Preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-emerald-500/90 text-white font-mono text-[10px] font-bold flex items-center gap-1 shadow-md">
+                          <Check className="w-3 h-3" />
+                          <span>ACTIVE COVER</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-white font-mono uppercase tracking-wider">
+                            Custom Cover Loaded
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+                            Ready
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 line-clamp-1 font-mono break-all">
+                          {thumbnailUrl}
+                        </p>
+                        <p className="text-[11px] text-slate-500">
+                          This high-resolution graphic will serve as the course banner, card thumbnail, and syllabus preview image.
+                        </p>
+
+                        <div className="flex items-center gap-3 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
+                            <span>Change Photo</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleRemoveCustomImage}
+                            className="px-3.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setDragOver(true);
+                      }}
+                      onDragLeave={() => setDragOver(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setDragOver(false);
+                        if (e.dataTransfer.files?.[0]) {
+                          handleFileSelect(e.dataTransfer.files[0]);
+                        }
+                      }}
+                      onClick={() => !isUploading && fileInputRef.current?.click()}
+                      className={`relative rounded-2xl border-2 border-dashed p-8 sm:p-12 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-3 ${
+                        dragOver
+                          ? "border-[#2B82C9] bg-blue-500/10 scale-[1.01]"
+                          : "border-white/20 hover:border-white/40 bg-slate-950/50 hover:bg-slate-950/80"
+                      }`}
+                    >
+                      {isUploading ? (
+                        <div className="space-y-3 py-4">
+                          <div className="w-12 h-12 rounded-full border-3 border-[#2B82C9] border-t-transparent animate-spin mx-auto" />
+                          <p className="text-sm font-semibold text-white">Uploading &amp; Optimizing Image...</p>
+                          <p className="text-xs text-slate-400 font-mono">Generating responsive asset for Vercel CDN</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sky-400 shadow-md">
+                            <Upload className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-white">
+                              Drop course cover here or <span className="text-[#2B82C9] hover:underline">click to browse</span>
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1">
+                              Supports JPG, PNG, or WebP • 16:9 ratio recommended (e.g. 1920×1080) • Max 5MB
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {uploadError && (
+                    <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{uploadError}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB B: CHOOSE FROM PRESETS */}
+              {thumbnailSourceTab === "presets" && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
+                    {PRESET_THUMBNAILS.map((preset) => (
+                      <button
+                        key={preset.url}
+                        type="button"
+                        onClick={() => {
+                          setThumbnailUrl(preset.url);
+                          setLocalPreview(null);
+                        }}
+                        className={`group relative rounded-xl overflow-hidden border text-left transition-all cursor-pointer ${
+                          thumbnailUrl === preset.url
+                            ? "border-[#2B82C9] ring-2 ring-[#2B82C9]/50 shadow-md"
+                            : "border-white/15 opacity-70 hover:opacity-100"
+                        }`}
+                      >
+                        <div className="w-full h-20 bg-slate-950 overflow-hidden">
+                          <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="p-2 bg-slate-950/90 text-[10px] font-medium text-slate-300 truncate">
+                          {preset.label}
+                        </div>
+                        {thumbnailUrl === preset.url && (
+                          <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#2B82C9] text-white flex items-center justify-center text-[10px]">
+                            ✓
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="pt-2">
+                    <label className="block text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1">
+                      Direct Asset URL:
+                    </label>
+                    <input
+                      type="text"
+                      value={thumbnailUrl}
+                      onChange={(e) => {
+                        setThumbnailUrl(e.target.value);
+                        setLocalPreview(null);
+                      }}
+                      placeholder="/images/... or custom image URL"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white font-mono text-xs focus:outline-none focus:border-sky-400"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* What You'll Learn Dynamic Repeater */}
