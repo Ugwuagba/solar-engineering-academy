@@ -229,7 +229,7 @@ export default function Navbar() {
           {/* Instructor Studio Button (ADMIN or INSTRUCTOR) */}
           {isInstructorOrAdmin && (
             <Link
-              href="/admin/courses/new"
+              href="/admin"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-sky-400 border border-sky-500/30 hover:bg-slate-700 hover:text-white transition-all shadow-sm shrink-0"
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
@@ -388,7 +388,7 @@ export default function Navbar() {
           <div className="pt-3 border-t border-slate-200 flex flex-col gap-2.5">
             {isInstructorOrAdmin && (
               <Link
-                href="/admin/courses/new"
+                href="/admin"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 px-3.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-sky-400 border border-sky-500/30 hover:bg-slate-700 hover:text-white transition-all shadow-sm flex items-center justify-center gap-1.5"
               >

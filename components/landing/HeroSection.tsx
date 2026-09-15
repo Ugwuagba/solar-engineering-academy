@@ -128,7 +128,10 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-[90vh] lg:min-h-[720px] w-full overflow-hidden bg-transparent flex flex-col justify-between select-none py-10 lg:py-14">
       {/* 1. Background Image with AnimatePresence and Zoom-In Transition */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-950 via-slate-900 to-[#080f1e] overflow-hidden">
+        {/* Subtle Shimmer Skeleton while media mounts */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-pulse pointer-events-none" />
+
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -141,6 +144,9 @@ export default function HeroSection() {
             <img
               src={slide.image}
               alt={slide.title}
+              loading={currentSlide === 0 ? "eager" : "lazy"}
+              fetchPriority={currentSlide === 0 ? "high" : "auto"}
+              decoding="async"
               className="w-full h-full object-cover object-center"
             />
           </motion.div>
@@ -226,10 +232,12 @@ export default function HeroSection() {
                 </div>
 
                 {/* Thumbnail Container (160px height with subtle play overlay) */}
-                <div className="h-[160px] rounded-xl overflow-hidden relative my-4 bg-slate-950 group">
+                <div className="h-[160px] rounded-xl overflow-hidden relative my-4 bg-gradient-to-br from-slate-950 to-slate-900 group">
                   <img
                     src={slide.coursePreview.previewThumbnail}
                     alt={slide.coursePreview.courseTitle}
+                    loading={currentSlide === 0 ? "eager" : "lazy"}
+                    decoding="async"
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-black/30 to-transparent" />

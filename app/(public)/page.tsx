@@ -6,6 +6,8 @@ import SocialProofSection from "@/components/landing/SocialProofSection";
 import Link from "next/link";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
 
+export const revalidate = 60;
+
 export default function HomePage() {
   return (
     <div className="relative bg-white">

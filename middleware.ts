@@ -12,8 +12,8 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // Admin routes strictly require ADMIN role
-    if (path.startsWith("/admin") && token?.role !== "ADMIN") {
+    // Admin routes strictly require ADMIN or INSTRUCTOR role
+    if (path.startsWith("/admin") && token?.role !== "ADMIN" && token?.role !== "INSTRUCTOR") {
       return NextResponse.redirect(new URL("/courses?error=AdminAccessRequired", req.url));
     }
 
