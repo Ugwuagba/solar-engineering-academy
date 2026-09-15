@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Sun, ShieldAlert, ArrowRight, Lock, Mail, UserCheck, ShieldCheck, CheckCircle2, KeyRound } from "lucide-react";
+import { ShieldAlert, ArrowRight, Lock, Mail, ShieldCheck, CheckCircle2, KeyRound } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -44,14 +44,9 @@ function LoginForm() {
     }
   };
 
-  const handleQuickFill = (role: "student" | "admin") => {
-    if (role === "admin") {
-      setEmail("admin@solaracademy.org");
-      setPassword("SolarAdmin2026!");
-    } else {
-      setEmail("student@solaracademy.org");
-      setPassword("SolarStudent2026!");
-    }
+  const handleQuickFillAdmin = () => {
+    setEmail("admin@solaracademy.org");
+    setPassword("SolarAdmin2026!");
   };
 
   const isEmailUnverified = error?.toLowerCase().includes("verify your email");
@@ -63,22 +58,14 @@ function LoginForm() {
         <span className="text-[11px] font-mono text-slate-400 block text-center uppercase tracking-wider">
           Quick 1-Click Evaluation Credentials:
         </span>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex justify-center">
           <button
             type="button"
-            onClick={() => handleQuickFill("student")}
-            className="py-1.5 px-2 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Demo Student</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickFill("admin")}
-            className="py-1.5 px-2 text-xs rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            onClick={handleQuickFillAdmin}
+            className="py-1.5 px-4 text-xs font-medium rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-            <span>Demo Admin</span>
+            <span>Admin Fast-Fill</span>
           </button>
         </div>
       </div>
@@ -180,15 +167,25 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center space-y-4">
-        <Link href="/" className="inline-flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-amber-400 p-0.5 flex items-center justify-center shadow-lg shadow-amber-500/20">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Sun className="w-5 h-5 text-amber-400" />
-            </div>
+        <Link href="/" className="inline-flex flex-col items-center gap-3 group">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border border-slate-700/60 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xl shadow-black/40 group-hover:scale-105 transition-transform duration-200">
+            <img 
+              src="/images/subway-logo.png" 
+              alt="Subway Schools Official Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
-          <span className="font-extrabold text-xl text-white font-mono">SOLAR ACADEMY</span>
+
+          <div className="flex flex-col items-center text-center">
+            <span className="font-black text-xl sm:text-2xl tracking-wider text-white uppercase block leading-tight">
+              SUBWAY SCHOOLS
+            </span>
+            <span className="text-xs sm:text-sm text-slate-400 font-normal block leading-tight mt-1.5 tracking-tight max-w-xs sm:max-w-sm">
+              Building Africa&apos;s Next Generation of Energy Professionals
+            </span>
+          </div>
         </Link>
-        <h2 className="text-2xl font-black text-white tracking-tight">
+        <h2 className="text-2xl font-black text-white tracking-tight pt-2">
           Student & Faculty Portal
         </h2>
         <p className="text-xs text-slate-400">

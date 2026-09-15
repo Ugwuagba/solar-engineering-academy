@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Sun, ShieldAlert, ArrowRight, Lock, Mail, User, CheckCircle2 } from "lucide-react";
+import { ShieldAlert, ArrowRight, Lock, Mail, User, CheckCircle2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -46,15 +46,25 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center space-y-4">
-        <Link href="/" className="inline-flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-amber-400 p-0.5 flex items-center justify-center shadow-lg shadow-amber-500/20">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Sun className="w-5 h-5 text-amber-400" />
-            </div>
+        <Link href="/" className="inline-flex flex-col items-center gap-3 group">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border border-slate-700/60 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xl shadow-black/40 group-hover:scale-105 transition-transform duration-200">
+            <img 
+              src="/images/subway-logo.png" 
+              alt="Subway Schools Official Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
-          <span className="font-extrabold text-xl text-white font-mono">SOLAR ACADEMY</span>
+
+          <div className="flex flex-col items-center text-center">
+            <span className="font-black text-xl sm:text-2xl tracking-wider text-white uppercase block leading-tight">
+              SUBWAY SCHOOLS
+            </span>
+            <span className="text-xs sm:text-sm text-slate-400 font-normal block leading-tight mt-1.5 tracking-tight max-w-xs sm:max-w-sm">
+              Building Africa&apos;s Next Generation of Energy Professionals
+            </span>
+          </div>
         </Link>
-        <h2 className="text-2xl font-black text-white tracking-tight">
+        <h2 className="text-2xl font-black text-white tracking-tight pt-2">
           Create Engineering Candidate Profile
         </h2>
         <p className="text-xs text-slate-400">
