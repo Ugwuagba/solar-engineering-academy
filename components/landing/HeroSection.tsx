@@ -115,11 +115,11 @@ const slides: SlideData[] = [
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Automatic interval timer running synchronously every 5.5 seconds
+  // Automatic interval timer running synchronously every 8 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5500);
+    }, 8000);
     return () => clearInterval(timer);
   }, []);
 
