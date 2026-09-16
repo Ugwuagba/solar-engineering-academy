@@ -74,9 +74,9 @@ export const SEED_COURSES: SeedCourse[] = [
     subtitle: "A Comprehensive Foundation in Solar Energy, PV Components, System Types, Power Audit, Load Assessment, System Sizing and Solar Entrepreneurship",
     slug: "solar-installation-101",
     instructor: "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
-    fieldAttachment: "Includes 2–4 Months Hands-on Practical Field Attachment with Industry Partners",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     description:
-      "The definitive industry masterclass by Subway Schools & Subway Energy Limited. Master step-by-step photovoltaic system engineering, comprehensive site & roof power audits, equipment nameplate analysis, battery autonomy calculations, inverter sizing, and commercial installation safety. Includes practical field attachment.",
+      "The definitive industry masterclass by Subway Schools & Subway Energy Limited. Master step-by-step photovoltaic system engineering, comprehensive site & roof power audits, equipment nameplate analysis, battery autonomy calculations, inverter sizing, and commercial installation safety. Includes official certificate of completion.",
     level: "INTERMEDIATE",
     deliveryType: "SELF_PACED",
     contactHours: 48,
@@ -106,7 +106,7 @@ export const SEED_COURSES: SeedCourse[] = [
       "Basic addition and subtraction knowledge",
       "No electrical knowledge required as the course introduces many fundamental concepts progressively",
       "No previous professional solar installation experience is required for beginners",
-      "Dedication to complete hands-on practical exercises and field attachment preparation"
+      "Dedication to complete hands-on practical exercises and coursework"
     ],
     targetAudience: [
       "Beginners seeking professional knowledge of solar PV systems",
@@ -120,14 +120,14 @@ export const SEED_COURSES: SeedCourse[] = [
       "48 hours on-demand technical video lectures",
       "10 structured chapters + complete Solar Companion Technical Reference",
       "Two hard copies of official Subway Schools engineering textbooks",
-      "2 to 4 months intensive practical field attachment with industry partner EPCs",
+      "Official Subway Schools Accredited Certificate of Completion",
       "Downloadable power audit field logs, single-line CAD diagrams, and Excel sizing engines",
-      "Subway Schools Accredited Certificate of Completion",
+      "Verifiable digital badge & portfolio credential",
       "Full lifetime access on mobile and desktop devices"
     ],
     cohorts: [
       {
-        name: "Q2 2026 Practical Field Attachment Cohort",
+        name: "Q2 2026 Accredited Training Cohort",
         startDate: "2026-05-01T09:00:00Z",
         endDate: "2026-08-31T17:00:00Z",
         maxCapacity: 40,
@@ -1046,7 +1046,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     subtitle: "Master High-Voltage String Inverters, Commercial AC Couplings, Advanced Protection & Utility Interconnection Standards",
     slug: "advanced-solar-design-installation",
     instructor: "Engr. Asanga & C&I Engineering Specialists",
-    fieldAttachment: "Includes 2–4 Months Advanced Industrial Field Attachment",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     description:
       "A rigorous, advanced engineering program for practicing technicians and engineers. Dive deep into high-voltage 1000V/1500V DC string sizing, multi-MPPT optimization, transformerless grid interconnection, harmonic suppression, thermal imaging thermography, and utility compliance.",
     level: "ADVANCED",
@@ -1085,8 +1085,8 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
       "40 hours on-demand advanced video training",
       "Commercial AutoCAD Single-Line Diagram templates (480V 3-Phase)",
       "FLIR Thermal Analysis report template",
-      "2–4 months field attachment on active commercial PV projects",
-      "Accredited Certificate in Advanced Solar Engineering"
+      "Official Subway Schools Accredited Certificate of Completion",
+      "Verifiable digital credential & portfolio badge"
     ],
     tools: [
       {
@@ -1181,7 +1181,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     subtitle: "Rapid Deployment Framework for Residential & Light-Commercial PV Sizing, Supplier Sourcing & High-Margin Execution",
     slug: "solar-fast-track-blueprint",
     instructor: "Engr. Asanga",
-    fieldAttachment: "Includes 2 Months Partner Field Attachment",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     description:
       "A fast-paced, high-efficiency blueprint designed to take you from concept to your first completed solar installation in weeks. Learn streamlined load auditing, plug-and-play system selection, avoiding common contractor pitfalls, and closing client contracts.",
     level: "INTRODUCTORY",
@@ -1217,7 +1217,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
       "20 hours condensed actionable video modules",
       "Ready-to-use Client Quotation & Sizing Spreadsheet",
       "Verified Tier-1 Distributor Directory",
-      "Certificate of Completion"
+      "Official Subway Schools Accredited Certificate of Completion"
     ],
     tools: [
       {
@@ -1264,7 +1264,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     subtitle: "Foundational Engineering for Megawatt Rooftop Arrays, Industrial Three-Phase Hybrid Systems, and Rural Microgrids",
     slug: "intro-commercial-industrial-minigrid",
     instructor: "Engr. Asanga & Power Systems Faculty",
-    fieldAttachment: "Includes 2–4 Months Field Attachment on C&I Rooftops",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     description:
       "Bridge the gap between residential setups and heavy commercial/industrial infrastructure. Learn three-phase 415V/480V electrical distribution, commercial cable sizing, roof structural integrity checks, and mini-grid architecture.",
     level: "INTERMEDIATE",
@@ -1300,8 +1300,8 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
       "36 hours of focused commercial solar video lectures",
       "C&I Single Line Diagram Templates",
       "Rooftop Ballasted Mounting Structural Guide",
-      "2–4 months C&I project field attachment",
-      "Subway Schools Accredited Certificate"
+      "Official Subway Schools Accredited Certificate of Completion",
+      "Verifiable digital credential & portfolio badge"
     ],
     tools: [
       {
@@ -1348,7 +1348,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     subtitle: "Comprehensive Utility-Scale Engineering: PVSyst Modeling, Medium-Voltage Transformers, Demand Charge Shaving & Substation Interconnection",
     slug: "advance-commercial-solar-training",
     instructor: "Engr. Asanga & Lead Utility Engineers",
-    fieldAttachment: "Includes 3 Months Megawatt Substation & Ground-Mount Attachment",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     description:
       "Advanced training for utility-scale EPC engineers. Master complex PVSyst loss diagrams, medium-voltage step-up transformers (11kV/33kV), substation protection relays, peak demand shaving automation, and bankable financial models.",
     level: "ADVANCED",
@@ -1384,8 +1384,8 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
       "50 hours in-depth utility engineering modules",
       "PVSyst .PAN and .OND component database pack",
       "Medium-Voltage Substation Design Blueprints",
-      "3-month physical field attachment on utility/C&I sites",
-      "Advanced Subway Schools Professional Diploma"
+      "Official Subway Schools Accredited Certificate of Completion",
+      "Verifiable digital credential & portfolio badge"
     ],
     tools: [
       {
@@ -1468,8 +1468,8 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
       "44 hours on-demand and live cohort workshops",
       "Community Load Survey & Demand Forecasting Toolkit",
       "Reticulation Network Bill of Engineering Measurement (BEME)",
-      "3 months field deployment on operating mini-grids",
-      "Accredited Mini-Grid Engineer Certificate"
+      "Official Subway Schools Accredited Certificate of Completion",
+      "Verifiable digital credential & portfolio badge"
     ],
     tools: [
       {
@@ -1516,7 +1516,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     subtitle: "Hands-on Cell Sorting, Internal Resistance Testing, Spot Welding Nickel Strips & Building Safe Lithium-Ion Battery Packs",
     slug: "intro-battery-fabrication",
     instructor: "Engr. Asanga & Battery Cell Specialists",
-    fieldAttachment: "Includes 2 Months Battery Lab Attachment",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     description:
       "A hands-on practical masterclass teaching you how to fabricate custom lithium battery packs from scratch. Master cell chemistry, internal resistance grading, spot-welding nickel tabs, BMS installation, and pack thermal protection.",
     level: "INTRODUCTORY",
@@ -1552,8 +1552,8 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
       "24 hours step-by-step practical video demonstrations",
       "Battery Pack Series/Parallel Configuration Matrix",
       "BMS Wiring Diagrams & Safety Guidelines",
-      "2 months battery laboratory attachment",
-      "Certificate of Battery Fabrication Competence"
+      "Official Subway Schools Accredited Certificate of Completion",
+      "Verifiable digital credential & portfolio badge"
     ],
     tools: [
       {
@@ -1600,7 +1600,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     subtitle: "In-Depth Lithium Iron Phosphate (LiFePO4) Engineering: Smart Bluetooth/CAN-Bus BMS Architecture, Thermal Runway Prevention & UL 9540A Compliance",
     slug: "advance-battery-demystified-training",
     instructor: "Engr. Asanga & Energy Storage Directors",
-    fieldAttachment: "Includes 2 Months Utility BESS Lab Attachment",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     description:
       "The definitive deep-dive into stationary Lithium Iron Phosphate energy storage. Master smart BMS protocols (Pylontech, Victron, Deye CAN communication), active capacitive balancing, state of charge algorithms, and battery fire safety compliance.",
     level: "ADVANCED",
@@ -1636,8 +1636,8 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
       "32 hours advanced battery engineering training",
       "Smart BMS CAN Communication Protocol Cheat Sheet",
       "Battery Enclosure Thermal Venting & Fire Safety Guide",
-      "2 months utility BESS testing lab attachment",
-      "Advanced Battery Systems Specialist Certification"
+      "Official Subway Schools Accredited Certificate of Completion",
+      "Verifiable digital credential & portfolio badge"
     ],
     tools: [
       {
@@ -1684,7 +1684,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     subtitle: "Design, Assembling & Servicing Portable Solar Power Stations: MPPT Charge Circuits, Pure Sine Wave Inverters & Mobile Solar Charging",
     slug: "solar-generator-training",
     instructor: "Engr. Asanga & Hardware Lab Technicians",
-    fieldAttachment: "Includes 2 Months Electronics Service Attachment",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     description:
       "Learn how to build, repair, and commercialize all-in-one portable solar generators. Covers lightweight lithium power packs, pure sine wave high-frequency inverter boards, multi-voltage DC outputs (USB-C PD, 12V automotive), and fast solar charging.",
     level: "INTRODUCTORY",
@@ -1720,8 +1720,8 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
       "18 hours hands-on video tutorials",
       "Complete Component Sourcing & Wiring Diagram Blueprint",
       "Fault Diagnosis Flowchart",
-      "2 months workshop attachment",
-      "Certificate of Solar Generator Assembly"
+      "Official Subway Schools Accredited Certificate of Completion",
+      "Verifiable digital credential & portfolio badge"
     ],
     tools: [
       {
@@ -1768,7 +1768,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     subtitle: "Professional IP Surveillance, Solar-Powered Camera Stations, PoE Networking, NVR Storage Sizing & Remote Mobile Streaming Setup",
     slug: "cctv-installation",
     instructor: "Engr. Asanga & Security Systems Engineers",
-    fieldAttachment: "Includes 2 Months Security Integration Field Attachment",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     description:
       "A complete professional training program on modern CCTV and video surveillance installations. Learn IP camera configuration, Power over Ethernet (PoE) switches, NVR storage sizing, solar-powered standalone surveillance poles with 4G/LTE connectivity, and remote phone monitoring.",
     level: "INTRODUCTORY",
@@ -1804,8 +1804,8 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
       "24 hours comprehensive CCTV video lectures",
       "CCTV Bandwidth & Hard Drive Storage Sizing Calculator",
       "Solar-Powered Camera Station Wiring Diagram",
-      "2 months practical field attachment with security partners",
-      "Certified CCTV Systems Technician Certificate"
+      "Official Subway Schools Accredited Certificate of Completion",
+      "Verifiable digital credential & portfolio badge"
     ],
     tools: [
       {

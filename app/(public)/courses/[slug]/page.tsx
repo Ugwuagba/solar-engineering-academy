@@ -136,12 +136,17 @@ export default async function CourseDetailPage({
             {/* Left Column (lg:col-span-8) */}
             <div className="lg:col-span-8 space-y-8 order-2 lg:order-1">
               
-              {/* "What you'll learn" card container */}
+              {/* "LEARNING OUTCOMES" card container */}
               {course.whatYouWillLearn && course.whatYouWillLearn.length > 0 && (
                 <div className="rounded-xl border border-slate-200 p-6 bg-white shadow-xs space-y-4">
-                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-                    What you&apos;ll learn
-                  </h2>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 tracking-tight uppercase">
+                      LEARNING OUTCOMES
+                    </h2>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+                      After completing the course, the learner should be able to:
+                    </p>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-slate-700">
                     {course.whatYouWillLearn.map((item, idx) => (
                       <div key={idx} className="flex items-start gap-2.5">
@@ -171,9 +176,9 @@ export default async function CourseDetailPage({
                     <FileText className="w-4 h-4 text-[#2B82C9] shrink-0" />
                     <span>Two hard copies official textbooks included</span>
                   </div>
-                  <div className="flex items-center gap-3 text-[#E13B2B] font-semibold bg-red-50/70 p-2.5 rounded-xl border border-red-100">
-                    <Briefcase className="w-4 h-4 text-[#E13B2B] shrink-0" />
-                    <span>Includes 2–4 Months Hands-on Practical Field Attachment with Industry Partners</span>
+                  <div className="flex items-center gap-3 text-[#2B82C9] font-semibold bg-blue-50/70 p-2.5 rounded-xl border border-blue-100">
+                    <Award className="w-4 h-4 text-[#2B82C9] shrink-0" />
+                    <span>Official Subway Schools Accredited Certificate of Completion</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Smartphone className="w-4 h-4 text-[#2B82C9] shrink-0" />
@@ -181,7 +186,7 @@ export default async function CourseDetailPage({
                   </div>
                   <div className="flex items-center gap-3">
                     <Award className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Subway Schools Certificate of completion</span>
+                    <span>Verifiable digital credential &amp; portfolio badge</span>
                   </div>
                 </div>
               </div>

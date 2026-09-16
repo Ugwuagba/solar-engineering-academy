@@ -6,7 +6,7 @@ function parseJsonArray<T = string>(raw: string | null | undefined, fallback: T[
   if (!raw) return fallback;
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : fallback;
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : fallback;
   } catch {
     return fallback;
   }
@@ -31,7 +31,7 @@ function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse
     c.includesList,
     seedMatch?.includes || [
       `${c.contactHours || 40} Contact Hours of Accredited Technical Training`,
-      "Includes 2–4 Months Practical Field Attachment with Partners",
+      "Official Subway Schools Accredited Certificate of Completion",
       "Downloadable Technical Calculation Sheets & Handbooks",
       "Official Subway Schools Accredited Certificate",
     ]
@@ -62,13 +62,13 @@ function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse
     thumbnailImage: c.thumbnailUrl || seedMatch?.thumbnailImage || "/images/courses/course-1-solar-intro.jpg",
     badge: c.badge || seedMatch?.badge || (c.originalPrice ? "Special Offer" : "New Program"),
     instructor: c.instructorName || seedMatch?.instructor || "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
-    fieldAttachment: seedMatch?.fieldAttachment || "Includes 2–4 Months Practical Field Attachment with Partners",
+    fieldAttachment: seedMatch?.fieldAttachment || "Official Subway Schools Accredited Certificate of Completion",
     isPublished: c.isPublished ?? true,
     whatYouWillLearn,
     requirements: seedMatch?.requirements || [
       "Basic understanding of basic electrical principles (Voltage, Current, Resistance)",
       "A laptop or smartphone for technical calculation simulations",
-      "Commitment to participate in practical hands-on field attachment",
+      "Commitment to complete technical assessments and coursework",
     ],
     targetAudience: seedMatch?.targetAudience || [
       "Electrical engineers, technicians, and installers aiming for commercial EPC mastery",

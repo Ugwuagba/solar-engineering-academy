@@ -81,7 +81,7 @@ const PRESET_OUTCOMES = [
 
 const PRESET_INCLUDES = [
   "40 Contact Hours of Accredited Technical Training",
-  "Includes 2–4 Months Practical Field Attachment with Partners",
+  "Official Verifiable Certificate of Completion",
   "Downloadable Technical Calculation Sheets & Sizing Spreadsheets",
   "Full Lifetime Access to Video Curriculum & Master Lectures",
   "Official Subway Schools Accredited Solar Engineering Certificate",
@@ -1026,16 +1026,16 @@ export default function AdminCourseUploadStudio() {
               )}
             </div>
 
-            {/* What You'll Learn Dynamic Repeater */}
+            {/* 1.4 LEARNING OUTCOMES Dynamic Repeater */}
             <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 space-y-4">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span>1.4 &ldquo;What You&rsquo;ll Learn&rdquo; Key Competency Outcomes</span>
+                    <span>1.4 LEARNING OUTCOMES</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Displayed prominently as a 2-column checklist on the course landing page.
+                    After completing the course, the learner should be able to:
                   </p>
                 </div>
                 <button
@@ -1074,13 +1074,13 @@ export default function AdminCourseUploadStudio() {
               </div>
             </div>
 
-            {/* "This Course Includes" Dynamic Repeater */}
+            {/* 1.5 This Course Includes Dynamic Repeater */}
             <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 space-y-4">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    <span>1.5 &ldquo;This Course Includes&rdquo; Package Inclusions</span>
+                    <span>1.5 This Course Includes</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-0.5">
                     Displayed inside the floating enrollment widget on the right rail.
@@ -1106,7 +1106,7 @@ export default function AdminCourseUploadStudio() {
                       type="text"
                       value={includeItem}
                       onChange={(e) => handleUpdateInclude(idx, e.target.value)}
-                      placeholder="e.g. Includes 2–4 Months Practical Field Attachment with Partners"
+                      placeholder="e.g. Official Verifiable Certificate of Completion"
                       className="w-full px-4 py-2 rounded-xl bg-slate-950 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-sky-400"
                     />
                     <button
@@ -1628,7 +1628,7 @@ export default function AdminCourseUploadStudio() {
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-500 font-medium">Includes Physical Attachment Guarantee</p>
+                      <p className="text-[11px] text-slate-500 font-medium">Includes Official Verifiable Certificate</p>
                     </div>
 
                     <button
@@ -1651,11 +1651,14 @@ export default function AdminCourseUploadStudio() {
                 </div>
               </div>
 
-              {/* 2. White Content Area (What You'll Learn & Curriculum Accordion) */}
+              {/* 2. White Content Area (LEARNING OUTCOMES & Curriculum Accordion) */}
               <div className="p-6 sm:p-10 max-w-7xl mx-auto space-y-10">
-                {/* What You'll Learn Box */}
+                {/* LEARNING OUTCOMES Box */}
                 <div className="border border-slate-200 rounded-2xl p-6 bg-slate-50 space-y-4">
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900">What you&rsquo;ll learn</h3>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 uppercase">LEARNING OUTCOMES</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">After completing the course, the learner should be able to:</p>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm text-slate-700">
                     {whatYoullLearn.map((item, idx) => (
                       <div key={idx} className="flex items-start gap-2.5">
