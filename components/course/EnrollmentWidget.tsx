@@ -173,23 +173,6 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
             </p>
           </div>
 
-          {/* Course Inclusions */}
-          {course.includes && course.includes.length > 0 && (
-            <div className="pt-4 border-t border-slate-100 space-y-2.5">
-              <h4 className="font-bold text-slate-900 text-xs tracking-tight">
-                This course includes:
-              </h4>
-              <ul className="space-y-2 text-xs text-slate-600">
-                {course.includes.map((inc, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-emerald-600 font-bold shrink-0 text-xs">✓</span>
-                    <span className="text-[11px] sm:text-xs leading-snug">{inc}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           {/* Share / Gift links */}
           <div className="pt-4 border-t border-slate-100 flex items-center justify-around text-xs font-semibold text-slate-600">
             <button 
