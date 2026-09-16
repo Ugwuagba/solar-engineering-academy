@@ -243,6 +243,8 @@ export async function GET() {
         title: c.title,
         slug: c.slug,
         level: c.level,
+        description: c.description,
+        instructorName: c.instructorName || "Subway Engineering Faculty",
         price: c.price,
         originalPrice: c.originalPrice,
         contactHours: c.contactHours,
