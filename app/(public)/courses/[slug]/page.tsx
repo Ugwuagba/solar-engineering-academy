@@ -204,26 +204,24 @@ export default async function CourseDetailPage({
                 />
               </div>
 
-              {/* Field Attachment Guarantee Banner */}
-              {course.fieldAttachment && (
-                <div className="rounded-xl p-6 border-l-4 border-l-[#E13B2B] border border-slate-200 bg-white shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-[#E13B2B]" />
-                      <h3 className="text-base font-bold text-slate-900">
-                        2–4 Months Practical Field Attachment Included
-                      </h3>
-                    </div>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
-                      Students completing all modules with ≥70% score are deployed to Subway Energy Limited industrial partner sites across Nigeria for physical hands-on installation and commissioning.
-                    </p>
+              {/* Certificate of Completion Included Banner */}
+              <div className="rounded-xl p-6 border-l-4 border-l-[#2B82C9] border border-slate-200 bg-white shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-5 h-5 text-[#2B82C9]" />
+                    <h3 className="text-base font-bold text-slate-900">
+                      Official Certificate of Completion Included
+                    </h3>
                   </div>
-                  <div className="shrink-0 bg-red-50 border border-red-200/80 p-3 rounded-xl text-center min-w-[140px]">
-                    <span className="text-[10px] font-mono font-bold uppercase text-[#E13B2B] block">Field Placement</span>
-                    <span className="text-lg font-black text-slate-900">100% Guaranteed</span>
-                  </div>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
+                    Earn an accredited Subway Schools Certificate of Completion upon finishing all modules and passing final evaluations. Each credential features verifiable digital verification for employers and academic portfolios.
+                  </p>
                 </div>
-              )}
+                <div className="shrink-0 bg-blue-50/80 border border-blue-200/80 p-3 rounded-xl text-center min-w-[150px]">
+                  <span className="text-[10px] font-mono font-bold uppercase text-[#2B82C9] block">ACCREDITED CREDENTIAL</span>
+                  <span className="text-lg font-black text-slate-900">100% Included</span>
+                </div>
+              </div>
 
               {/* Explore Related Topics / Skills */}
               <div className="space-y-3">
@@ -285,9 +283,14 @@ export default async function CourseDetailPage({
               {/* Who this course is for Section */}
               {course.targetAudience && course.targetAudience.length > 0 && (
                 <div className="rounded-xl p-6 sm:p-8 border border-slate-200 bg-white shadow-xs space-y-4">
-                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-                    Who this course is for:
-                  </h2>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                      Who this course is for:
+                    </h2>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1 mb-3">
+                      This course is for:
+                    </p>
+                  </div>
                   <ul className="space-y-2 text-xs sm:text-sm text-slate-700 list-disc list-inside">
                     {course.targetAudience.map((aud, idx) => (
                       <li key={idx} className="leading-relaxed">
