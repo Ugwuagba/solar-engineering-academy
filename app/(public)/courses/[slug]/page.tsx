@@ -353,8 +353,8 @@ export default async function CourseDetailPage({
             </div>
 
             {/* Right Column: Floating & Sticky Checkout Card (Udemy Style) */}
-            <div className="lg:col-span-4 relative order-1 lg:order-2">
-              <div className="lg:-mt-[340px] xl:-mt-[360px] sticky top-24 z-30 transition-all duration-300">
+            <div className="lg:col-span-4 relative order-1 lg:order-2 self-stretch">
+              <div className="lg:-mt-[340px] xl:-mt-[360px] lg:sticky lg:top-24 z-20 transition-all duration-300">
                 <EnrollmentWidget course={course} />
               </div>
             </div>

@@ -24,6 +24,8 @@ export default function SyllabusAccordion({
 }) {
   const [openModules, setOpenModules] = useState<Record<number, boolean>>({ 0: true });
   const [previewLesson, setPreviewLesson] = useState<{ title: string; videoUrl: string } | null>(null);
+  const [showAllSections, setShowAllSections] = useState(false);
+  const INITIAL_VISIBLE_COUNT = 5;
 
   const toggleModule = (index: number) => {
     setOpenModules((prev) => ({
@@ -33,6 +35,7 @@ export default function SyllabusAccordion({
   };
 
   const expandAll = () => {
+    setShowAllSections(true);
     const allOpen: Record<number, boolean> = {};
     modules.forEach((_, idx) => (allOpen[idx] = true));
     setOpenModules(allOpen);
@@ -41,6 +44,10 @@ export default function SyllabusAccordion({
   const collapseAll = () => {
     setOpenModules({});
   };
+
+  const visibleModules = !showAllSections && modules.length > INITIAL_VISIBLE_COUNT
+    ? modules.slice(0, INITIAL_VISIBLE_COUNT)
+    : modules;
 
   return (
     <div className="space-y-4">
@@ -81,7 +88,8 @@ export default function SyllabusAccordion({
 
       {/* Modules List */}
       <div className="space-y-3">
-        {modules.map((module, mIdx) => {
+        {visibleModules.map((module) => {
+          const mIdx = modules.indexOf(module);
           const isOpen = !!openModules[mIdx];
           const totalModuleSecs = module.lessons.reduce((acc, l) => acc + l.durationSec, 0);
 
@@ -195,6 +203,26 @@ export default function SyllabusAccordion({
             </div>
           );
         })}
+
+        {/* Udemy-Style Collapsible Sections Button */}
+        {modules.length > INITIAL_VISIBLE_COUNT && (
+          <button
+            type="button"
+            onClick={() => setShowAllSections(!showAllSections)}
+            className="w-full py-2.5 my-3 border border-slate-300 dark:border-slate-700 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition text-slate-800 dark:text-slate-200 cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
+          >
+            <span>
+              {showAllSections
+                ? "Show less"
+                : `${modules.length - INITIAL_VISIBLE_COUNT} more sections`}
+            </span>
+            {showAllSections ? (
+              <ChevronUp className="w-4 h-4 text-slate-500" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-500" />
+            )}
+          </button>
+        )}
       </div>
     </div>
   );

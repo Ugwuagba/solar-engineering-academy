@@ -55,7 +55,7 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden sticky top-24 z-30 transition-all duration-300">
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden transition-all duration-300">
         {/* 1. Video Preview Area (Udemy Exact Style - Collapses on desktop scroll) */}
         <div 
           onClick={() => setPreviewOpen(true)}
