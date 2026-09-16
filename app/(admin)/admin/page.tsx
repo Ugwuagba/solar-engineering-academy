@@ -142,6 +142,13 @@ export default function AdminStudioPage() {
 
           <div className="flex items-center gap-3">
             <Link
+              href="/admin/students"
+              className="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 hover:text-slate-900 flex items-center gap-2 shadow-2xs transition-all cursor-pointer bg-white"
+            >
+              <Users className="w-4 h-4 text-[#2B82C9]" />
+              <span>Students &amp; Payments</span>
+            </Link>
+            <Link
               href="/admin/courses/new"
               className="px-5 py-2.5 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
