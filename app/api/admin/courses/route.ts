@@ -249,6 +249,7 @@ export async function GET() {
         originalPrice: c.originalPrice,
         contactHours: c.contactHours,
         isPublished: c.isPublished,
+        status: c.status || (c.isPublished ? "PUBLISHED" : "DRAFT"),
         moduleCount: c.modules.length,
         lessonCount: c.modules.reduce((sum, m) => sum + m.lessons.length, 0),
         quizCount: c.modules.filter((m) => !!m.quiz).length,

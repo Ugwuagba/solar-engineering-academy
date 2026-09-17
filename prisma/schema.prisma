@@ -34,6 +34,7 @@ model Course {
   price          Float
   originalPrice  Float?
   isPublished    Boolean       @default(false)
+  status         String        @default("DRAFT") // DRAFT, PUBLISHED
   instructorId   String?
   instructorName String?       @default("Engr. Asanga")
   whatYoullLearn String?       @default("[]") // JSON string array
@@ -122,8 +123,10 @@ model Enrollment {
   cohort          Cohort?    @relation(fields: [cohortId], references: [id], onDelete: SetNull)
   status          String     @default("ACTIVE") // ACTIVE, COMPLETED
   progressPercent Float      @default(0)
+  amountPaid      Float?
   progresses      Progress[]
   enrolledAt      DateTime   @default(now())
+  createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
   @@unique([userId, courseId])

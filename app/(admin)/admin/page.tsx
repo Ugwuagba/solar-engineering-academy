@@ -17,7 +17,8 @@ import {
   Trash2,
   AlertTriangle,
   Loader2,
-  X
+  X,
+  Edit3
 } from "lucide-react";
 import { SEED_COURSES } from "@/lib/seed-data";
 
@@ -221,6 +222,7 @@ export default function AdminStudioPage() {
               const moduleCount = course.moduleCount ?? course.modules?.length ?? 0;
               const lessonCount = course.lessonCount ?? course.modules?.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0) ?? 0;
               const instructor = course.instructorName || course.instructor || "Subway Engineering Faculty";
+              const isDraft = course.status === "DRAFT" || course.isPublished === false;
 
               return (
                 <div
@@ -228,13 +230,24 @@ export default function AdminStudioPage() {
                   className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 hover:bg-slate-50/60 transition-colors"
                 >
                   <div className="space-y-1.5 max-w-2xl">
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 flex-wrap">
                       <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded bg-blue-50 text-[#2B82C9] border border-blue-200">
                         {course.code}
                       </span>
                       <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 uppercase">
                         {course.level}
                       </span>
+                      {isDraft ? (
+                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase font-mono flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                          <span>DRAFT</span>
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase font-mono flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          <span>PUBLISHED</span>
+                        </span>
+                      )}
                       {course.fieldAttachment && (
                         <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-50 text-[#E13B2B] border border-red-200 flex items-center gap-1">
                           <Briefcase className="w-3 h-3" />
@@ -256,19 +269,39 @@ export default function AdminStudioPage() {
                   </div>
 
                   <div className="flex items-center gap-2.5 self-end md:self-center shrink-0">
-                    <Link
-                      href={`/courses/${course.slug}`}
-                      className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1.5"
-                    >
-                      <span>Public View</span>
-                      <ExternalLink className="w-3 h-3 text-slate-400" />
-                    </Link>
-                    <Link
-                      href={`/learn/${course.slug}`}
-                      className="px-3.5 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm transition-colors"
-                    >
-                      Enter Classroom
-                    </Link>
+                    {isDraft ? (
+                      <Link
+                        href={`/admin/courses/${course.id || course.slug}/edit`}
+                        className="px-4 py-2 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Edit Draft</span>
+                      </Link>
+                    ) : (
+                      <>
+                        <Link
+                          href={`/courses/${course.slug}`}
+                          className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1.5"
+                        >
+                          <span>Public View</span>
+                          <ExternalLink className="w-3 h-3 text-slate-400" />
+                        </Link>
+                        <Link
+                          href={`/learn/${course.slug}`}
+                          className="px-3.5 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm transition-colors"
+                        >
+                          Enter Classroom
+                        </Link>
+                        <Link
+                          href={`/admin/courses/${course.id || course.slug}/edit`}
+                          className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1"
+                          title={`Edit ${course.title}`}
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Edit</span>
+                        </Link>
+                      </>
+                    )}
                     <button
                       type="button"
                       onClick={() => openDeleteModal(course)}
