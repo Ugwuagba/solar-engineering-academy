@@ -28,7 +28,8 @@ import {
   Check, 
   Upload, 
   RefreshCw,
-  Loader2
+  Loader2,
+  GripVertical
 } from "lucide-react";
 
 interface QuestionForm {
@@ -336,6 +337,43 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
   const removeInclusion = (index: number) => {
     setIncludesList(includesList.filter((_, i) => i !== index));
     setIsDirty(true);
+  };
+
+  // Drag-and-Drop & Reordering State and Handlers
+  const [draggingItem, setDraggingItem] = useState<{ listType: "outcomes" | "inclusions"; index: number } | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<{ listType: "outcomes" | "inclusions"; index: number } | null>(null);
+
+  const handleReorder = (
+    listType: "outcomes" | "inclusions",
+    draggedIndex: number,
+    targetIndex: number
+  ) => {
+    if (draggedIndex === targetIndex || draggedIndex < 0 || targetIndex < 0) return;
+    if (listType === "outcomes") {
+      setWhatYoullLearn((prev) => {
+        if (draggedIndex >= prev.length || targetIndex >= prev.length) return prev;
+        const updated = [...prev];
+        const [movedItem] = updated.splice(draggedIndex, 1);
+        updated.splice(targetIndex, 0, movedItem);
+        return updated;
+      });
+    } else {
+      setIncludesList((prev) => {
+        if (draggedIndex >= prev.length || targetIndex >= prev.length) return prev;
+        const updated = [...prev];
+        const [movedItem] = updated.splice(draggedIndex, 1);
+        updated.splice(targetIndex, 0, movedItem);
+        return updated;
+      });
+    }
+    setIsDirty(true);
+  };
+
+  const moveItem = (listType: "outcomes" | "inclusions", index: number, direction: "up" | "down") => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    const list = listType === "outcomes" ? whatYoullLearn : includesList;
+    if (targetIndex < 0 || targetIndex >= list.length) return;
+    handleReorder(listType, index, targetIndex);
   };
 
   // Module Accordion Toggle
@@ -1251,22 +1289,84 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
               </div>
 
               <div className="space-y-3">
-                {whatYoullLearn.map((outcome, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-white/10 text-xs sm:text-sm text-slate-200 group"
-                  >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span className="flex-1">{outcome}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeOutcome(idx)}
-                      className="p-1 text-slate-500 hover:text-rose-400 transition-colors cursor-pointer"
+                {whatYoullLearn.map((outcome, idx) => {
+                  const isDragging = draggingItem?.listType === "outcomes" && draggingItem?.index === idx;
+                  const isDragOver = dragOverItem?.listType === "outcomes" && dragOverItem?.index === idx && draggingItem?.index !== idx;
+
+                  return (
+                    <div
+                      key={idx}
+                      draggable={true}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", `outcomes:${idx}`);
+                        setDraggingItem({ listType: "outcomes", index: idx });
+                      }}
+                      onDragEnd={() => {
+                        setDraggingItem(null);
+                        setDragOverItem(null);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        if (dragOverItem?.index !== idx || dragOverItem?.listType !== "outcomes") {
+                          setDragOverItem({ listType: "outcomes", index: idx });
+                        }
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setDraggingItem(null);
+                        setDragOverItem(null);
+                        const data = e.dataTransfer.getData("text/plain");
+                        if (!data) return;
+                        const [sourceType, fromIndexStr] = data.split(":");
+                        if (sourceType === "outcomes") {
+                          const fromIndex = Number(fromIndexStr);
+                          if (!isNaN(fromIndex)) {
+                            handleReorder("outcomes", fromIndex, idx);
+                          }
+                        }
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border text-xs sm:text-sm text-slate-200 transition-all group select-none ${
+                        isDragging
+                          ? "opacity-50 scale-[0.99] border-sky-400/50 bg-slate-900"
+                          : isDragOver
+                          ? "border-sky-400 bg-sky-500/10 shadow-lg ring-1 ring-sky-400/30"
+                          : "bg-slate-950 border-white/10 hover:border-white/25"
+                      }`}
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
+                      <GripVertical className="w-4 h-4 cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 mr-1 shrink-0 transition-colors" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span className="flex-1 select-text">{outcome}</span>
+                      <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => moveItem("outcomes", idx, "up")}
+                          className="p-1 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                          title="Move up"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === whatYoullLearn.length - 1}
+                          onClick={() => moveItem("outcomes", idx, "down")}
+                          className="p-1 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                          title="Move down"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeOutcome(idx)}
+                          className="p-1 text-slate-500 hover:text-rose-400 transition-colors cursor-pointer ml-1"
+                          title="Delete outcome"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
 
                 <div className="flex items-center gap-2 pt-2">
                   <input
@@ -1304,22 +1404,84 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
               </div>
 
               <div className="space-y-3">
-                {includesList.map((inc, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-white/10 text-xs sm:text-sm text-slate-200 group"
-                  >
-                    <Award className="w-4 h-4 text-sky-400 shrink-0" />
-                    <span className="flex-1">{inc}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeInclusion(idx)}
-                      className="p-1 text-slate-500 hover:text-rose-400 transition-colors cursor-pointer"
+                {includesList.map((inc, idx) => {
+                  const isDragging = draggingItem?.listType === "inclusions" && draggingItem?.index === idx;
+                  const isDragOver = dragOverItem?.listType === "inclusions" && dragOverItem?.index === idx && draggingItem?.index !== idx;
+
+                  return (
+                    <div
+                      key={idx}
+                      draggable={true}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", `inclusions:${idx}`);
+                        setDraggingItem({ listType: "inclusions", index: idx });
+                      }}
+                      onDragEnd={() => {
+                        setDraggingItem(null);
+                        setDragOverItem(null);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        if (dragOverItem?.index !== idx || dragOverItem?.listType !== "inclusions") {
+                          setDragOverItem({ listType: "inclusions", index: idx });
+                        }
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setDraggingItem(null);
+                        setDragOverItem(null);
+                        const data = e.dataTransfer.getData("text/plain");
+                        if (!data) return;
+                        const [sourceType, fromIndexStr] = data.split(":");
+                        if (sourceType === "inclusions") {
+                          const fromIndex = Number(fromIndexStr);
+                          if (!isNaN(fromIndex)) {
+                            handleReorder("inclusions", fromIndex, idx);
+                          }
+                        }
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border text-xs sm:text-sm text-slate-200 transition-all group select-none ${
+                        isDragging
+                          ? "opacity-50 scale-[0.99] border-sky-400/50 bg-slate-900"
+                          : isDragOver
+                          ? "border-sky-400 bg-sky-500/10 shadow-lg ring-1 ring-sky-400/30"
+                          : "bg-slate-950 border-white/10 hover:border-white/25"
+                      }`}
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
+                      <GripVertical className="w-4 h-4 cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 mr-1 shrink-0 transition-colors" />
+                      <Award className="w-4 h-4 text-sky-400 shrink-0" />
+                      <span className="flex-1 select-text">{inc}</span>
+                      <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => moveItem("inclusions", idx, "up")}
+                          className="p-1 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                          title="Move up"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === includesList.length - 1}
+                          onClick={() => moveItem("inclusions", idx, "down")}
+                          className="p-1 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                          title="Move down"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeInclusion(idx)}
+                          className="p-1 text-slate-500 hover:text-rose-400 transition-colors cursor-pointer ml-1"
+                          title="Delete inclusion"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
 
                 <div className="flex items-center gap-2 pt-2">
                   <input
