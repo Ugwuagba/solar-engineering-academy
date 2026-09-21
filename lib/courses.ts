@@ -65,15 +65,29 @@ function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse
     fieldAttachment: seedMatch?.fieldAttachment || "Official Subway Schools Accredited Certificate of Completion",
     isPublished: c.isPublished ?? true,
     whatYouWillLearn,
-    requirements: seedMatch?.requirements || [
-      "Basic understanding of basic electrical principles (Voltage, Current, Resistance)",
-      "A laptop or smartphone for technical calculation simulations",
-      "Commitment to complete technical assessments and coursework",
-    ],
-    targetAudience: seedMatch?.targetAudience || [
-      "Electrical engineers, technicians, and installers aiming for commercial EPC mastery",
-      "Facility directors and solar business entrepreneurs building high-reliability mini-grids",
-    ],
+    requirements: (Array.isArray(c.requirements) && c.requirements.length > 0)
+      ? c.requirements
+      : parseJsonArray<string>(
+          c.requirements,
+          seedMatch?.requirements && seedMatch.requirements.length > 0
+            ? seedMatch.requirements
+            : [
+                "Basic understanding of electrical principles (Voltage, Current, Resistance)",
+                "A laptop or smartphone for technical calculation simulations",
+                "Commitment to complete technical assessments and coursework",
+              ]
+        ),
+    targetAudience: (Array.isArray(c.targetAudience) && c.targetAudience.length > 0)
+      ? c.targetAudience
+      : parseJsonArray<string>(
+          c.targetAudience,
+          seedMatch?.targetAudience && seedMatch.targetAudience.length > 0
+            ? seedMatch.targetAudience
+            : [
+                "Electrical engineers, technicians, and installers aiming for commercial EPC mastery",
+                "Facility directors and solar business entrepreneurs building high-reliability mini-grids",
+              ]
+        ),
     includes,
     tools: seedMatch?.tools || [
       {

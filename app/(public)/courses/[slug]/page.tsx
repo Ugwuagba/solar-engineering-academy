@@ -254,20 +254,25 @@ export default async function CourseDetailPage({
               </div>
 
               {/* Requirements Section */}
-              {course.requirements && course.requirements.length > 0 && (
-                <div className="rounded-xl p-6 sm:p-8 border border-slate-200 bg-white shadow-xs space-y-4">
-                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-                    Requirements
-                  </h2>
-                  <ul className="space-y-2 text-xs sm:text-sm text-slate-700 list-disc list-inside">
-                    {course.requirements.map((req, idx) => (
-                      <li key={idx} className="leading-relaxed">
-                        {req}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <div className="rounded-xl p-6 sm:p-8 border border-slate-200 bg-white shadow-xs space-y-4">
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                  Requirements
+                </h2>
+                <ul className="space-y-2 text-xs sm:text-sm text-slate-700 list-disc list-inside">
+                  {((course.requirements && course.requirements.length > 0)
+                    ? course.requirements
+                    : [
+                        "Basic understanding of electrical principles (Voltage, Current, Resistance)",
+                        "A laptop or smartphone for technical calculation simulations",
+                        "Commitment to complete technical assessments and coursework",
+                      ]
+                  ).map((req, idx) => (
+                    <li key={idx} className="leading-relaxed">
+                      {req}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               {/* Description Section */}
               <div className="rounded-xl p-6 sm:p-8 border border-slate-200 bg-white shadow-xs space-y-4">
@@ -286,25 +291,29 @@ export default async function CourseDetailPage({
               </div>
 
               {/* Who this course is for Section */}
-              {course.targetAudience && course.targetAudience.length > 0 && (
-                <div className="rounded-xl p-6 sm:p-8 border border-slate-200 bg-white shadow-xs space-y-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-                      Who this course is for:
-                    </h2>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1 mb-3">
-                      This course is for:
-                    </p>
-                  </div>
-                  <ul className="space-y-2 text-xs sm:text-sm text-slate-700 list-disc list-inside">
-                    {course.targetAudience.map((aud, idx) => (
-                      <li key={idx} className="leading-relaxed">
-                        {aud}
-                      </li>
-                    ))}
-                  </ul>
+              <div className="rounded-xl p-6 sm:p-8 border border-slate-200 bg-white shadow-xs space-y-4">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                    Who this course is for:
+                  </h2>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1 mb-3">
+                    This course is for:
+                  </p>
                 </div>
-              )}
+                <ul className="space-y-2 text-xs sm:text-sm text-slate-700 list-disc list-inside">
+                  {((course.targetAudience && course.targetAudience.length > 0)
+                    ? course.targetAudience
+                    : [
+                        "Electrical engineers, technicians, and installers aiming for commercial EPC mastery",
+                        "Facility directors and solar business entrepreneurs building high-reliability mini-grids",
+                      ]
+                  ).map((aud, idx) => (
+                    <li key={idx} className="leading-relaxed">
+                      {aud}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               {/* Instructor Profile */}
               <div className="rounded-xl p-6 sm:p-8 border border-slate-200 bg-white shadow-xs space-y-5">

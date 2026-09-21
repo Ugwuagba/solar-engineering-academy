@@ -39,6 +39,8 @@ model Course {
   instructorName String?       @default("Engr. Asanga")
   whatYoullLearn String?       @default("[]") // JSON string array
   includesList   String?       @default("[]") // JSON string array
+  targetAudience String[]      @default([])
+  requirements   String[]      @default([])
   thumbnailUrl   String?
   promoVideoUrl  String?
   badge          String?

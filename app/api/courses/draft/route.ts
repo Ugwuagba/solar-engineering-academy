@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
       instructorName,
       whatYoullLearn,
       includesList,
+      targetAudience,
+      requirements,
       modules = [],
       publish = false,
     } = body;
@@ -168,6 +170,12 @@ export async function POST(req: NextRequest) {
       instructorName: instructorName ? String(instructorName).trim() : "Engr. Asanga",
       whatYoullLearn: JSON.stringify(Array.isArray(whatYoullLearn) ? whatYoullLearn : []),
       includesList: JSON.stringify(Array.isArray(includesList) ? includesList : []),
+      targetAudience: Array.isArray(targetAudience)
+        ? targetAudience.map((item: any) => String(item).trim()).filter(Boolean)
+        : [],
+      requirements: Array.isArray(requirements)
+        ? requirements.map((item: any) => String(item).trim()).filter(Boolean)
+        : [],
       thumbnailUrl: thumbnailUrl || "/images/hero/hero-commercial.jpg",
       promoVideoUrl: promoVideoUrl ? String(promoVideoUrl).trim() : null,
       badge: badge ? String(badge).trim() : null,

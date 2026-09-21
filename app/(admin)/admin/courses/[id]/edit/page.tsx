@@ -95,6 +95,8 @@ export default async function EditCoursePage({ params }: Props) {
         instructorName: seed.instructor || "Engr. Asanga",
         whatYoullLearn: JSON.stringify(seed.whatYouWillLearn || []),
         includesList: JSON.stringify(seed.includes || []),
+        targetAudience: seed.targetAudience || [],
+        requirements: seed.requirements || [],
         status: "PUBLISHED",
         modules: (seed.modules || []).map((m, mIdx) => ({
           id: `seed-mod-${mIdx + 1}`,

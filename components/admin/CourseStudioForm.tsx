@@ -29,7 +29,9 @@ import {
   Upload, 
   RefreshCw,
   Loader2,
-  GripVertical
+  GripVertical,
+  Users,
+  CheckSquare
 } from "lucide-react";
 
 interface QuestionForm {
@@ -89,6 +91,18 @@ const PRESET_INCLUDES = [
   "Official Subway Schools Accredited Solar Engineering Certificate",
 ];
 
+const PRESET_AUDIENCE = [
+  "Electrical engineers, technicians, and installers aiming for commercial EPC mastery",
+  "Facility directors and solar business entrepreneurs building high-reliability mini-grids",
+  "Technical diploma holders transitioning into solar photovoltaic engineering",
+];
+
+const PRESET_REQUIREMENTS = [
+  "Basic understanding of electrical principles (Voltage, Current, Resistance)",
+  "A laptop or smartphone for technical calculation simulations and spreadsheets",
+  "Commitment to complete technical assessments and coursework",
+];
+
 interface CourseStudioFormProps {
   initialCourse?: any;
   mode?: "create" | "edit";
@@ -144,6 +158,17 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
     initialCourse?.includesList ? parseJsonArray(initialCourse.includesList) : PRESET_INCLUDES
   );
   const [newInclusion, setNewInclusion] = useState("");
+
+  // TAB 1: Target Audience & Requirements State
+  const [targetAudience, setTargetAudience] = useState<string[]>(
+    initialCourse?.targetAudience ? parseJsonArray(initialCourse.targetAudience) : (mode === "create" ? PRESET_AUDIENCE : [])
+  );
+  const [newAudience, setNewAudience] = useState("");
+
+  const [requirements, setRequirements] = useState<string[]>(
+    initialCourse?.requirements ? parseJsonArray(initialCourse.requirements) : (mode === "create" ? PRESET_REQUIREMENTS : [])
+  );
+  const [newRequirement, setNewRequirement] = useState("");
 
   // Additional Metadata
   const [promoVideoUrl, setPromoVideoUrl] = useState(initialCourse?.promoVideoUrl || "");
@@ -339,12 +364,42 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
     setIsDirty(true);
   };
 
+  // Target Audience Handlers
+  const addAudience = () => {
+    if (newAudience.trim()) {
+      setTargetAudience([...targetAudience, newAudience.trim()]);
+      setNewAudience("");
+      setIsDirty(true);
+    }
+  };
+
+  const removeAudience = (index: number) => {
+    setTargetAudience(targetAudience.filter((_, i) => i !== index));
+    setIsDirty(true);
+  };
+
+  // Requirements Handlers
+  const addRequirement = () => {
+    if (newRequirement.trim()) {
+      setRequirements([...requirements, newRequirement.trim()]);
+      setNewRequirement("");
+      setIsDirty(true);
+    }
+  };
+
+  const removeRequirement = (index: number) => {
+    setRequirements(requirements.filter((_, i) => i !== index));
+    setIsDirty(true);
+  };
+
   // Drag-and-Drop & Reordering State and Handlers
-  const [draggingItem, setDraggingItem] = useState<{ listType: "outcomes" | "inclusions"; index: number } | null>(null);
-  const [dragOverItem, setDragOverItem] = useState<{ listType: "outcomes" | "inclusions"; index: number } | null>(null);
+  type ListType = "outcomes" | "inclusions" | "targetAudience" | "requirements";
+
+  const [draggingItem, setDraggingItem] = useState<{ listType: ListType; index: number } | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<{ listType: ListType; index: number } | null>(null);
 
   const handleReorder = (
-    listType: "outcomes" | "inclusions",
+    listType: ListType,
     draggedIndex: number,
     targetIndex: number
   ) => {
@@ -357,8 +412,24 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
         updated.splice(targetIndex, 0, movedItem);
         return updated;
       });
-    } else {
+    } else if (listType === "inclusions") {
       setIncludesList((prev) => {
+        if (draggedIndex >= prev.length || targetIndex >= prev.length) return prev;
+        const updated = [...prev];
+        const [movedItem] = updated.splice(draggedIndex, 1);
+        updated.splice(targetIndex, 0, movedItem);
+        return updated;
+      });
+    } else if (listType === "targetAudience") {
+      setTargetAudience((prev) => {
+        if (draggedIndex >= prev.length || targetIndex >= prev.length) return prev;
+        const updated = [...prev];
+        const [movedItem] = updated.splice(draggedIndex, 1);
+        updated.splice(targetIndex, 0, movedItem);
+        return updated;
+      });
+    } else if (listType === "requirements") {
+      setRequirements((prev) => {
         if (draggedIndex >= prev.length || targetIndex >= prev.length) return prev;
         const updated = [...prev];
         const [movedItem] = updated.splice(draggedIndex, 1);
@@ -369,9 +440,13 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
     setIsDirty(true);
   };
 
-  const moveItem = (listType: "outcomes" | "inclusions", index: number, direction: "up" | "down") => {
+  const moveItem = (listType: ListType, index: number, direction: "up" | "down") => {
     const targetIndex = direction === "up" ? index - 1 : index + 1;
-    const list = listType === "outcomes" ? whatYoullLearn : includesList;
+    let list: string[] = [];
+    if (listType === "outcomes") list = whatYoullLearn;
+    else if (listType === "inclusions") list = includesList;
+    else if (listType === "targetAudience") list = targetAudience;
+    else if (listType === "requirements") list = requirements;
     if (targetIndex < 0 || targetIndex >= list.length) return;
     handleReorder(listType, index, targetIndex);
   };
@@ -550,6 +625,8 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
         instructorName: instructorName.trim() || "Engr. Asanga",
         whatYoullLearn: whatYoullLearn.filter((item) => item.trim().length > 0),
         includesList: includesList.filter((item) => item.trim().length > 0),
+        targetAudience: targetAudience.filter((item) => item.trim().length > 0),
+        requirements: requirements.filter((item) => item.trim().length > 0),
         publish: false,
         modules: modules.map((m, mIdx) => ({
           title: m.title.trim(),
@@ -632,6 +709,8 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
     instructorName,
     whatYoullLearn,
     includesList,
+    targetAudience,
+    requirements,
     modules,
     isSavingDraft,
     isPublishing
@@ -692,6 +771,8 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
         publish: true,
         whatYoullLearn: whatYoullLearn.filter((item) => item.trim().length > 0),
         includesList: includesList.filter((item) => item.trim().length > 0),
+        targetAudience: targetAudience.filter((item) => item.trim().length > 0),
+        requirements: requirements.filter((item) => item.trim().length > 0),
         thumbnailUrl: thumbnailUrl || "/images/hero/hero-commercial.jpg",
         promoVideoUrl: promoVideoUrl.trim() || null,
         badge: badge.trim() || null,
@@ -1509,6 +1590,236 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
               </div>
             </div>
 
+            {/* 1.6 Target Audience */}
+            <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 space-y-6">
+              <div className="border-b border-white/10 pb-4">
+                <h2 className="text-lg font-bold text-white uppercase tracking-wide">1.6 Target Audience</h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Define who should take this course (displayed under &apos;Who this course is for&apos; on the course page).
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {targetAudience.map((audience, idx) => {
+                  const isDragging = draggingItem?.listType === "targetAudience" && draggingItem?.index === idx;
+                  const isDragOver = dragOverItem?.listType === "targetAudience" && dragOverItem?.index === idx && draggingItem?.index !== idx;
+
+                  return (
+                    <div
+                      key={idx}
+                      draggable={true}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", `targetAudience:${idx}`);
+                        setDraggingItem({ listType: "targetAudience", index: idx });
+                      }}
+                      onDragEnd={() => {
+                        setDraggingItem(null);
+                        setDragOverItem(null);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        if (dragOverItem?.index !== idx || dragOverItem?.listType !== "targetAudience") {
+                          setDragOverItem({ listType: "targetAudience", index: idx });
+                        }
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setDraggingItem(null);
+                        setDragOverItem(null);
+                        const data = e.dataTransfer.getData("text/plain");
+                        if (!data) return;
+                        const [sourceType, fromIndexStr] = data.split(":");
+                        if (sourceType === "targetAudience") {
+                          const fromIndex = Number(fromIndexStr);
+                          if (!isNaN(fromIndex)) {
+                            handleReorder("targetAudience", fromIndex, idx);
+                          }
+                        }
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border text-xs sm:text-sm text-slate-200 transition-all group select-none ${
+                        isDragging
+                          ? "opacity-50 scale-[0.99] border-sky-400/50 bg-slate-900"
+                          : isDragOver
+                          ? "border-sky-400 bg-sky-500/10 shadow-lg ring-1 ring-sky-400/30"
+                          : "bg-slate-950 border-white/10 hover:border-white/25"
+                      }`}
+                    >
+                      <GripVertical className="w-4 h-4 cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 mr-1 shrink-0 transition-colors" />
+                      <Users className="w-4 h-4 text-purple-400 shrink-0" />
+                      <span className="flex-1 select-text">{audience}</span>
+                      <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => moveItem("targetAudience", idx, "up")}
+                          className="p-1 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                          title="Move up"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === targetAudience.length - 1}
+                          onClick={() => moveItem("targetAudience", idx, "down")}
+                          className="p-1 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                          title="Move down"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeAudience(idx)}
+                          className="p-1 text-slate-500 hover:text-rose-400 transition-colors cursor-pointer ml-1"
+                          title="Delete audience item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="flex items-center gap-2 pt-2">
+                  <input
+                    type="text"
+                    value={newAudience}
+                    onChange={(e) => setNewAudience(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addAudience();
+                      }
+                    }}
+                    placeholder="e.g. Electrical engineers, technicians, and installers aiming for commercial EPC mastery"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-sky-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={addAudience}
+                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add Audience</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 1.7 Course Prerequisites & Requirements */}
+            <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 space-y-6">
+              <div className="border-b border-white/10 pb-4">
+                <h2 className="text-lg font-bold text-white uppercase tracking-wide">1.7 Course Prerequisites &amp; Requirements</h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  List tools, background knowledge, or equipment students need before enrolling.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {requirements.map((req, idx) => {
+                  const isDragging = draggingItem?.listType === "requirements" && draggingItem?.index === idx;
+                  const isDragOver = dragOverItem?.listType === "requirements" && dragOverItem?.index === idx && draggingItem?.index !== idx;
+
+                  return (
+                    <div
+                      key={idx}
+                      draggable={true}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", `requirements:${idx}`);
+                        setDraggingItem({ listType: "requirements", index: idx });
+                      }}
+                      onDragEnd={() => {
+                        setDraggingItem(null);
+                        setDragOverItem(null);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        if (dragOverItem?.index !== idx || dragOverItem?.listType !== "requirements") {
+                          setDragOverItem({ listType: "requirements", index: idx });
+                        }
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setDraggingItem(null);
+                        setDragOverItem(null);
+                        const data = e.dataTransfer.getData("text/plain");
+                        if (!data) return;
+                        const [sourceType, fromIndexStr] = data.split(":");
+                        if (sourceType === "requirements") {
+                          const fromIndex = Number(fromIndexStr);
+                          if (!isNaN(fromIndex)) {
+                            handleReorder("requirements", fromIndex, idx);
+                          }
+                        }
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border text-xs sm:text-sm text-slate-200 transition-all group select-none ${
+                        isDragging
+                          ? "opacity-50 scale-[0.99] border-sky-400/50 bg-slate-900"
+                          : isDragOver
+                          ? "border-sky-400 bg-sky-500/10 shadow-lg ring-1 ring-sky-400/30"
+                          : "bg-slate-950 border-white/10 hover:border-white/25"
+                      }`}
+                    >
+                      <GripVertical className="w-4 h-4 cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 mr-1 shrink-0 transition-colors" />
+                      <CheckSquare className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span className="flex-1 select-text">{req}</span>
+                      <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => moveItem("requirements", idx, "up")}
+                          className="p-1 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                          title="Move up"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === requirements.length - 1}
+                          onClick={() => moveItem("requirements", idx, "down")}
+                          className="p-1 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                          title="Move down"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeRequirement(idx)}
+                          className="p-1 text-slate-500 hover:text-rose-400 transition-colors cursor-pointer ml-1"
+                          title="Delete requirement"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="flex items-center gap-2 pt-2">
+                  <input
+                    type="text"
+                    value={newRequirement}
+                    onChange={(e) => setNewRequirement(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addRequirement();
+                      }
+                    }}
+                    placeholder="e.g. Basic understanding of electrical principles (Voltage, Current, Resistance)"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-sky-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={addRequirement}
+                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add Requirement</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-center justify-end gap-3 pt-4">
               <button
                 type="button"
@@ -1981,6 +2292,40 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
                     ))}
                   </div>
                 </div>
+
+                {/* Who This Course Is For */}
+                {targetAudience.length > 0 && (
+                  <div className="space-y-4 pt-4 border-t border-white/10">
+                    <h3 className="text-base font-bold text-white uppercase tracking-wider font-mono">
+                      Who This Course Is For
+                    </h3>
+                    <div className="space-y-2">
+                      {targetAudience.map((item, idx) => (
+                        <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-300">
+                          <Users className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Requirements */}
+                {requirements.length > 0 && (
+                  <div className="space-y-4 pt-4 border-t border-white/10">
+                    <h3 className="text-base font-bold text-white uppercase tracking-wider font-mono">
+                      Requirements &amp; Prerequisites
+                    </h3>
+                    <div className="space-y-2">
+                      {requirements.map((item, idx) => (
+                        <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-300">
+                          <CheckSquare className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Course Content Breakdown */}
                 <div className="space-y-4 pt-4 border-t border-white/10">

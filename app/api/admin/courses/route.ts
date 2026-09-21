@@ -50,6 +50,8 @@ const createCourseSchema = z.object({
   isPublished: z.boolean().default(false),
   whatYoullLearn: z.array(z.string()).default([]),
   includesList: z.array(z.string()).default([]),
+  targetAudience: z.array(z.string()).default([]),
+  requirements: z.array(z.string()).default([]),
   thumbnailUrl: z.string().optional().default("/images/courses/course-1-solar-intro.jpg"),
   promoVideoUrl: z.string().optional().default(""),
   badge: z.string().optional().default("New"),
@@ -127,6 +129,12 @@ export async function POST(req: NextRequest) {
         instructorName: data.instructorName || "Engr. Asanga",
         whatYoullLearn: JSON.stringify(data.whatYoullLearn || []),
         includesList: JSON.stringify(data.includesList || []),
+        targetAudience: Array.isArray(data.targetAudience)
+          ? data.targetAudience.map((item: any) => String(item).trim()).filter(Boolean)
+          : [],
+        requirements: Array.isArray(data.requirements)
+          ? data.requirements.map((item: any) => String(item).trim()).filter(Boolean)
+          : [],
         thumbnailUrl: data.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
         promoVideoUrl: data.promoVideoUrl || null,
         badge: data.badge || null,
