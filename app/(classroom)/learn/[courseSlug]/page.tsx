@@ -67,7 +67,7 @@ export default function ClassroomPage({
   const progressPct = Math.min(100, Math.round((currentLessonGlobalNumber / totalLessons) * 100));
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[#F8FAFC] text-slate-900 flex flex-col">
       {/* Top Classroom Bar */}
       <header className="h-16 border-b border-slate-200/80 bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-2xs z-20">
         <div className="flex items-center gap-3">
@@ -120,9 +120,9 @@ export default function ClassroomPage({
       </header>
 
       {/* Main Split Player Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div className="w-full flex-1 min-h-0 lg:h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-12 overflow-visible lg:overflow-hidden">
         {/* Left / Center: Active Player or Quiz View */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        <main className="w-full lg:col-span-8 h-auto lg:h-full overflow-y-visible lg:overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-6">
           {!isQuizMode ? (
             /* Video Lecture Mode */
             <div className="max-w-4xl mx-auto space-y-6">
@@ -361,19 +361,22 @@ export default function ClassroomPage({
         </main>
 
         {/* Right Sidebar: Modules & Lessons Drawer */}
-        <aside className="w-full lg:w-88 border-t lg:border-t-0 lg:border-l border-slate-200/80 bg-white p-4 shrink-0 overflow-y-auto space-y-4 shadow-xs">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
-                Course Curriculum
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                {course.modules.length} Modules • {totalLessons} Lessons
-              </p>
+        <aside className="w-full lg:col-span-4 h-auto lg:h-full overflow-y-visible lg:overflow-y-auto border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 p-4 custom-scrollbar bg-white shadow-xs">
+          {/* Pinned Curriculum Header */}
+          <div className="sticky -top-4 -mx-4 px-4 pt-4 pb-3 bg-white border-b border-slate-200 dark:border-slate-800 z-10 mb-4 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+                  Course Curriculum
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  {course.modules.length} Modules • {totalLessons} Lessons
+                </p>
+              </div>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-[#2B82C9] border border-blue-200">
+                70% Gated
+              </span>
             </div>
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-[#2B82C9] border border-blue-200">
-              70% Gated
-            </span>
           </div>
 
           <div className="space-y-4">
