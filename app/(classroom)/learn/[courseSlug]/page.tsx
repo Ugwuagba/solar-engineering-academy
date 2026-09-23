@@ -7,8 +7,6 @@ import {
   CheckCircle2, 
   HelpCircle, 
   ArrowLeft, 
-  FileText, 
-  Download,
   Briefcase
 } from "lucide-react";
 import { SEED_COURSES } from "@/lib/seed-data";
@@ -20,7 +18,13 @@ export default function ClassroomPage({
   params: Promise<{ courseSlug: string }>;
 }) {
   const { courseSlug } = use(params);
-  const course = SEED_COURSES.find((c) => c.slug.toLowerCase() === courseSlug.toLowerCase()) || SEED_COURSES[0];
+  const course =
+    SEED_COURSES.find(
+      (c) =>
+        c.slug.toLowerCase() === courseSlug.toLowerCase() ||
+        courseSlug.toLowerCase().startsWith(c.slug.toLowerCase()) ||
+        c.slug.toLowerCase().startsWith(courseSlug.toLowerCase())
+    ) || SEED_COURSES[0];
 
   const [activeModuleIdx, setActiveModuleIdx] = useState(0);
   const [activeLessonIdx, setActiveLessonIdx] = useState(0);
@@ -163,43 +167,6 @@ export default function ClassroomPage({
                     >
                       <HelpCircle className="w-4 h-4" />
                       <span>Take Module Quiz ({currentQuiz.passingScore}% Pass)</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Technical Lecture Notes & Reference Guide */}
-              <div className="deye-card p-6 sm:p-8 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-[#2B82C9]" />
-                    <span>Technical Lecture Notes & Solar Companion Formulations</span>
-                  </h3>
-                  <span className="text-xs font-mono text-slate-500">
-                    Subway Energy Reference
-                  </span>
-                </div>
-
-                <div className="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-3 font-sans">
-                  <pre className="whitespace-pre-wrap font-sans text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200/80 text-xs sm:text-sm overflow-x-auto leading-relaxed">
-                    {currentLesson.contentMarkdown}
-                  </pre>
-                </div>
-
-                {currentLesson.downloadableUrl && (
-                  <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                    <div className="flex items-center gap-2.5 text-xs">
-                      <Download className="w-5 h-5 text-[#2B82C9]" />
-                      <div>
-                        <span className="text-slate-900 font-bold block">Supplementary Engineering Asset</span>
-                        <span className="text-slate-500 text-[11px] font-mono">{currentLesson.downloadableUrl}</span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => alert(`Downloading engineering reference: ${currentLesson.downloadableUrl}`)}
-                      className="px-4 py-2 text-xs font-bold text-white bg-[#2B82C9] hover:bg-blue-700 rounded-lg shadow-sm transition-colors cursor-pointer"
-                    >
-                      Download Asset
                     </button>
                   </div>
                 )}
