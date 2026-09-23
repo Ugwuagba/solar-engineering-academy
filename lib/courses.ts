@@ -164,15 +164,10 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
     });
 
     if (dbCourses && dbCourses.length > 0) {
-      const mappedDbCourses = dbCourses.map((c) => {
+      return dbCourses.map((c) => {
         const seedMatch = SEED_COURSES.find((s) => s.code === c.code || s.slug === c.slug);
         return mapPrismaCourseToSeedCourse(c, seedMatch);
       });
-
-      // Merge any seed courses that don't have a matching DB code yet
-      const mergedCodes = new Set(mappedDbCourses.map((c) => c.code));
-      const remainingSeed = SEED_COURSES.filter((s) => !mergedCodes.has(s.code));
-      return [...mappedDbCourses, ...remainingSeed];
     }
   } catch (error) {
     console.warn("Prisma query failed, serving seed curriculum data:", (error as Error).message);

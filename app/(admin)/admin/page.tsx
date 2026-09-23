@@ -20,14 +20,13 @@ import {
   X,
   Edit3
 } from "lucide-react";
-import { SEED_COURSES } from "@/lib/seed-data";
 
 export default function AdminStudioPage() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const [courses, setCourses] = useState<any[]>(SEED_COURSES);
-  const [isLoading, setIsLoading] = useState(false);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; course: any | null }>({
     isOpen: false,
     course: null,
@@ -35,22 +34,22 @@ export default function AdminStudioPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" } | null>(null);
 
-  // Load courses from database and merge with seed inventory
+  // Load courses directly from PostgreSQL database (no static mock courses)
   const loadCourses = async () => {
     try {
       setIsLoading(true);
       const res = await fetch("/api/admin/courses");
       if (res.ok) {
         const data = await res.json();
-        if (data.courses && Array.isArray(data.courses) && data.courses.length > 0) {
-          const dbCodes = new Set(data.courses.map((c: any) => c.code));
-          const remainingSeed = SEED_COURSES.filter((s) => !dbCodes.has(s.code));
-          setCourses([...data.courses, ...remainingSeed]);
+        if (data.courses && Array.isArray(data.courses)) {
+          setCourses(data.courses);
           return;
         }
       }
+      setCourses([]);
     } catch (err) {
       console.error("Error fetching courses in Admin Studio:", err);
+      setCourses([]);
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +80,21 @@ export default function AdminStudioPage() {
     const target = deleteModal.course;
     const targetId = target.id || target.slug;
 
-    setIsDeleting(true);
+    // Optimistically remove course from local UI state immediately
+    setCourses((prev) =>
+      prev.filter((c) => {
+        if (targetId && (c.id === targetId || c.slug === targetId)) return false;
+        if (target.id && c.id === target.id) return false;
+        if (target.slug && c.slug === target.slug) return false;
+        if (target.code && c.code === target.code) return false;
+        return true;
+      })
+    );
+
+    // Close the delete dialog and show success toast immediately
+    closeDeleteModal();
+    showToast("Program removed successfully", "success");
+
     try {
       const res = await fetch(`/api/courses/${targetId}`, {
         method: "DELETE",
@@ -92,24 +105,11 @@ export default function AdminStudioPage() {
         throw new Error(errData.error || "Failed to delete course");
       }
 
-      // Remove course from local state immediately
-      setCourses((prev) =>
-        prev.filter((c) => {
-          if (target.id && c.id === target.id) return false;
-          if (target.slug && c.slug === target.slug) return false;
-          if (target.code && c.code === target.code) return false;
-          return true;
-        })
-      );
-
-      closeDeleteModal();
       router.refresh();
-      showToast("Course deleted successfully", "success");
     } catch (err: any) {
       console.error("Failed to delete course:", err);
       showToast(err.message || "Failed to delete course", "error");
-    } finally {
-      setIsDeleting(false);
+      loadCourses();
     }
   };
 
@@ -213,109 +213,135 @@ export default function AdminStudioPage() {
               </p>
             </div>
             <span className="text-xs font-mono font-bold text-[#2B82C9] bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
-              {courses.length} Programs Live
+              {isLoading ? "Loading..." : `${courses.length} Programs Live`}
             </span>
           </div>
 
-          <div className="divide-y divide-slate-200">
-            {courses.map((course) => {
-              const moduleCount = course.moduleCount ?? course.modules?.length ?? 0;
-              const lessonCount = course.lessonCount ?? course.modules?.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0) ?? 0;
-              const instructor = course.instructorName || course.instructor || "Subway Engineering Faculty";
-              const isDraft = course.status === "DRAFT" || course.isPublished === false;
+          {isLoading ? (
+            <div className="p-12 text-center flex flex-col items-center justify-center gap-3">
+              <Loader2 className="w-8 h-8 text-[#2B82C9] animate-spin" />
+              <p className="text-xs font-mono text-slate-500">Loading curriculum inventory from database...</p>
+            </div>
+          ) : courses.length === 0 ? (
+            <div className="p-12 text-center flex flex-col items-center justify-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2B82C9]">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-slate-900">No courses in inventory</h4>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Only database-backed courses are displayed. Create your first accredited program to launch the curriculum.
+                </p>
+              </div>
+              <Link
+                href="/admin/courses/new"
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Create New Course</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-200">
+              {courses.map((course) => {
+                const moduleCount = course.moduleCount ?? course.modules?.length ?? 0;
+                const lessonCount = course.lessonCount ?? course.modules?.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0) ?? 0;
+                const instructor = course.instructorName || course.instructor || "Subway Engineering Faculty";
+                const isDraft = course.status === "DRAFT" || course.isPublished === false;
 
-              return (
-                <div
-                  key={course.id || course.code || course.slug}
-                  className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 hover:bg-slate-50/60 transition-colors"
-                >
-                  <div className="space-y-1.5 max-w-2xl">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded bg-blue-50 text-[#2B82C9] border border-blue-200">
-                        {course.code}
-                      </span>
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 uppercase">
-                        {course.level}
-                      </span>
+                return (
+                  <div
+                    key={course.id || course.code || course.slug}
+                    className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 hover:bg-slate-50/60 transition-colors"
+                  >
+                    <div className="space-y-1.5 max-w-2xl">
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded bg-blue-50 text-[#2B82C9] border border-blue-200">
+                          {course.code}
+                        </span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 uppercase">
+                          {course.level}
+                        </span>
+                        {isDraft ? (
+                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase font-mono flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            <span>DRAFT</span>
+                          </span>
+                        ) : (
+                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase font-mono flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>PUBLISHED</span>
+                          </span>
+                        )}
+                        {course.fieldAttachment && (
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-50 text-[#E13B2B] border border-red-200 flex items-center gap-1">
+                            <Briefcase className="w-3 h-3" />
+                            {course.fieldAttachment}
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-base font-bold text-slate-900">{course.title}</h4>
+                      <p className="text-xs text-slate-600 line-clamp-1">
+                        {course.description}
+                      </p>
+                      <div className="flex items-center flex-wrap gap-4 text-xs text-slate-500 pt-1 font-mono">
+                        <span>{course.contactHours} Contact Hours</span>
+                        <span>•</span>
+                        <span>{moduleCount} Modules ({lessonCount} Lessons)</span>
+                        <span>•</span>
+                        <span>{instructor}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 self-end md:self-center shrink-0">
                       {isDraft ? (
-                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase font-mono flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                          <span>DRAFT</span>
-                        </span>
-                      ) : (
-                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase font-mono flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                          <span>PUBLISHED</span>
-                        </span>
-                      )}
-                      {course.fieldAttachment && (
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-50 text-[#E13B2B] border border-red-200 flex items-center gap-1">
-                          <Briefcase className="w-3 h-3" />
-                          {course.fieldAttachment}
-                        </span>
-                      )}
-                    </div>
-                    <h4 className="text-base font-bold text-slate-900">{course.title}</h4>
-                    <p className="text-xs text-slate-600 line-clamp-1">
-                      {course.description}
-                    </p>
-                    <div className="flex items-center flex-wrap gap-4 text-xs text-slate-500 pt-1 font-mono">
-                      <span>{course.contactHours} Contact Hours</span>
-                      <span>•</span>
-                      <span>{moduleCount} Modules ({lessonCount} Lessons)</span>
-                      <span>•</span>
-                      <span>{instructor}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2.5 self-end md:self-center shrink-0">
-                    {isDraft ? (
-                      <Link
-                        href={`/admin/courses/${course.id || course.slug}/edit`}
-                        className="px-4 py-2 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>Edit Draft</span>
-                      </Link>
-                    ) : (
-                      <>
-                        <Link
-                          href={`/courses/${course.slug}`}
-                          className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1.5"
-                        >
-                          <span>Public View</span>
-                          <ExternalLink className="w-3 h-3 text-slate-400" />
-                        </Link>
-                        <Link
-                          href={`/learn/${course.slug}`}
-                          className="px-3.5 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm transition-colors"
-                        >
-                          Enter Classroom
-                        </Link>
                         <Link
                           href={`/admin/courses/${course.id || course.slug}/edit`}
-                          className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1"
-                          title={`Edit ${course.title}`}
+                          className="px-4 py-2 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                         >
-                          <Edit3 className="w-3.5 h-3.5 text-slate-500" />
-                          <span>Edit</span>
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>Edit Draft</span>
                         </Link>
-                      </>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => openDeleteModal(course)}
-                      className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-lg px-3 py-2 text-xs font-medium transition flex items-center gap-1.5 cursor-pointer"
-                      title={`Delete ${course.title}`}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Delete</span>
-                    </button>
+                      ) : (
+                        <>
+                          <Link
+                            href={`/courses/${course.slug}`}
+                            className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1.5"
+                          >
+                            <span>Public View</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                          </Link>
+                          <Link
+                            href={`/learn/${course.slug}`}
+                            className="px-3.5 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm transition-colors"
+                          >
+                            Enter Classroom
+                          </Link>
+                          <Link
+                            href={`/admin/courses/${course.id || course.slug}/edit`}
+                            className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1"
+                            title={`Edit ${course.title}`}
+                          >
+                            <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Edit</span>
+                          </Link>
+                        </>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => openDeleteModal(course)}
+                        className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-lg px-3 py-2 text-xs font-medium transition flex items-center gap-1.5 cursor-pointer"
+                        title={`Delete ${course.title}`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Partner Attachment Placement Log */}

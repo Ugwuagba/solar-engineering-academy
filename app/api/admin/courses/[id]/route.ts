@@ -27,22 +27,26 @@ export async function DELETE(
       );
     }
 
-    // 2. Verify course existence
-    let course = await prisma.course.findUnique({
-      where: { id },
+    // 2. Verify course existence (search by id, slug, or code)
+    const course = await prisma.course.findFirst({
+      where: {
+        OR: [
+          { id },
+          { slug: id },
+          { code: id },
+        ],
+      },
     });
 
     if (!course) {
-      // Check fallback by slug
-      course = await prisma.course.findUnique({
-        where: { slug: id },
-      });
-    }
-
-    if (!course) {
+      // Mock / static dummy course or already purged from database
       return NextResponse.json(
-        { error: "Course not found" },
-        { status: 404 }
+        {
+          success: true,
+          message: "Mock course cleared",
+          deletedId: id,
+        },
+        { status: 200 }
       );
     }
 
@@ -54,7 +58,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: true,
-        message: "Course deleted successfully",
+        message: "Course deleted from database",
         deletedId: course.id,
       },
       { status: 200 }
