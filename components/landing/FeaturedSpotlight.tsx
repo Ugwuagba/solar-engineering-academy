@@ -12,8 +12,12 @@ import {
   ShieldCheck
 } from "lucide-react";
 
-export default function FeaturedSpotlight() {
-  const highlights = [
+interface FeaturedSpotlightProps {
+  course?: any;
+}
+
+export default function FeaturedSpotlight({ course }: FeaturedSpotlightProps) {
+  const defaultHighlights = [
     "Load Analysis, Power Consumption & Energy Auditing",
     "Solar PV Modules & Extreme Voc Temperature Limits",
     "Battery Technologies: LiFePO4 vs Lead-Acid C-Rates",
@@ -21,6 +25,22 @@ export default function FeaturedSpotlight() {
     "Pure Sine Wave Inverters & Harmonic Distortion",
     "The Solar Companion: Quick Lookup Calculations",
   ];
+
+  const highlights: string[] =
+    Array.isArray(course?.whatYouWillLearn) && course.whatYouWillLearn.length > 0
+      ? (course.whatYouWillLearn.slice(0, 6) as string[])
+      : defaultHighlights;
+
+  const targetSlug = course?.slug || "courses";
+  const targetTitle = course?.title || "Solar Installation 101: System Design & Maintenance";
+  const targetCode = course?.code || "SOLAR-101";
+  const targetPrice = course?.priceNgn || "₦5,000";
+  const targetHours = course?.contactHours || 40;
+  const targetModulesCount = course?.modules?.length || 10;
+  const targetAttachment = course?.fieldAttachment || "2–4 Months Practical Field Attachment with Partners";
+  const targetDescription =
+    course?.description ||
+    "Master end-to-end solar engineering from foundational photovoltaic physics to sizing commercial three-phase hybrid inverters, assembling lithium battery racks, and performing professional power audits.";
 
   return (
     <section className="py-24 lg:py-28 bg-slate-50 border-y border-slate-200">
@@ -31,7 +51,7 @@ export default function FeaturedSpotlight() {
             ACADEMY FLAGSHIP PROGRAM
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Solar Installation 101: System Design & Maintenance
+            {targetTitle}
           </h2>
           <p className="text-base text-slate-600 mt-3 font-normal">
             Practical, industry-standard engineering training paired with verified on-site field attachment.
@@ -53,29 +73,29 @@ export default function FeaturedSpotlight() {
               {/* Prominent Badges Row */}
               <div className="flex items-center flex-wrap gap-2.5">
                 <span className="px-3.5 py-1.5 rounded-lg bg-blue-50 text-[#2B82C9] border border-blue-200 font-mono text-xs font-black tracking-wide">
-                  SOLAR-101
+                  {targetCode}
                 </span>
                 <span className="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-bold uppercase flex items-center gap-1.5">
                   <BookOpen className="w-3.5 h-3.5 text-[#2B82C9]" />
-                  10 Comprehensive Chapters
+                  {targetModulesCount} Comprehensive Chapters
                 </span>
                 <span className="px-3.5 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-amber-600" />
-                  40 Contact Hours
+                  {targetHours} Contact Hours
                 </span>
                 <span className="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 animate-pulse">
                   <Briefcase className="w-3.5 h-3.5 text-white" />
-                  2–4 Months Practical Field Attachment with Partners
+                  {targetAttachment}
                 </span>
               </div>
 
               {/* Title & Description */}
               <div>
                 <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                  Solar System Design, Installation & Maintenance
+                  {targetTitle}
                 </h3>
                 <p className="text-sm text-slate-600 mt-3 leading-relaxed font-normal">
-                  Master end-to-end solar engineering from foundational photovoltaic physics to sizing commercial three-phase hybrid inverters, assembling lithium battery racks, and performing professional power audits.
+                  {targetDescription}
                 </p>
               </div>
 
@@ -97,14 +117,14 @@ export default function FeaturedSpotlight() {
                 </div>
               </div>
 
-              {/* Curriculum Key Highlights (10 Main Chapters) */}
+              {/* Curriculum Key Highlights */}
               <div className="space-y-3 pt-1">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-[#2B82C9]" />
-                  <span>10 Main Chapters & Hands-on Modules</span>
+                  <span>Key Course Learning Modules</span>
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-600">
-                  {highlights.map((item, idx) => (
+                  {highlights.map((item: string, idx: number) => (
                     <div key={idx} className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-[#2B82C9] shrink-0 mt-0.5" />
                       <span className="font-medium">{item}</span>
@@ -119,17 +139,18 @@ export default function FeaturedSpotlight() {
               <div>
                 <span className="text-[11px] font-mono uppercase text-slate-500 block">Tuition & Attachment</span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-slate-900 font-mono">$350</span>
-                  <span className="text-sm font-bold text-slate-500 font-mono">/ ₦150,000</span>
+                  <span className="text-3xl font-black text-slate-900 font-mono">
+                    {targetPrice}
+                  </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <Link
-                  href="/courses/solar-installation-101"
+                  href={`/courses/${targetSlug}`}
                   className="px-8 py-4 rounded-xl bg-[#2B82C9] hover:bg-[#226ba8] active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-[#2B82C9]/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <span>Enroll in Academy</span>
+                  <span>Enroll in Program</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -149,14 +170,14 @@ export default function FeaturedSpotlight() {
             {/* Play Button Overlay */}
             <div className="relative z-10 text-center space-y-4 p-6">
               <Link
-                href="/courses/solar-installation-101"
+                href={`/courses/${targetSlug}`}
                 className="w-20 h-20 mx-auto rounded-full bg-white/95 hover:bg-white text-[#2B82C9] flex items-center justify-center shadow-2xl backdrop-blur-xs group-hover:scale-110 transition-all duration-300 cursor-pointer"
               >
                 <Play className="w-8 h-8 fill-current translate-x-0.5" />
               </Link>
               <div className="space-y-1">
                 <p className="text-white font-bold text-base">Watch Course Preview</p>
-                <p className="text-slate-300 text-xs font-mono">Module 1: Photovoltaic Physics & Radiation</p>
+                <p className="text-slate-300 text-xs font-mono">{targetCode} Masterclass</p>
               </div>
             </div>
 
@@ -164,7 +185,7 @@ export default function FeaturedSpotlight() {
             <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white bg-slate-900/80 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/10">
               <div className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-amber-400" />
-                <span className="font-mono font-medium">40 Contact Hours</span>
+                <span className="font-mono font-medium">{targetHours} Contact Hours</span>
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />

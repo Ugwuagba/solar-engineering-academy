@@ -58,7 +58,7 @@ export default function SolarCompanionSection() {
           </div>
 
           <Link
-            href="/courses/solar-installation-101"
+            href="/courses"
             className="px-6 py-3 rounded-xl border border-slate-200 bg-white hover:border-[#2B82C9] hover:bg-slate-50 text-slate-700 hover:text-[#2B82C9] text-xs font-bold self-start lg:self-auto flex items-center gap-2 shadow-2xs transition-all cursor-pointer"
           >
             <span>Access Complete Companion</span>

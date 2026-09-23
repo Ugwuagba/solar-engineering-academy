@@ -145,7 +145,12 @@ function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse
 export async function getAllCourses(): Promise<SeedCourse[]> {
   try {
     const dbCourses = await prisma.course.findMany({
-      where: { isPublished: true },
+      where: {
+        OR: [
+          { status: "PUBLISHED" },
+          { isPublished: true },
+        ],
+      },
       include: {
         modules: {
           orderBy: { sortOrder: "asc" },
@@ -166,14 +171,17 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
     if (dbCourses && dbCourses.length > 0) {
       return dbCourses.map((c) => {
         const seedMatch = SEED_COURSES.find((s) => s.code === c.code || s.slug === c.slug);
-        return mapPrismaCourseToSeedCourse(c, seedMatch);
+        return {
+          ...mapPrismaCourseToSeedCourse(c, seedMatch),
+          id: c.id,
+        };
       });
     }
+    return [];
   } catch (error) {
-    console.warn("Prisma query failed, serving seed curriculum data:", (error as Error).message);
+    console.warn("Prisma query failed:", (error as Error).message);
+    return [];
   }
-
-  return SEED_COURSES;
 }
 
 export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> {

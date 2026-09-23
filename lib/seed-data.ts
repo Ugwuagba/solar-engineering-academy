@@ -27,6 +27,7 @@ export interface SeedModule {
 }
 
 export interface SeedCourse {
+  id?: string;
   code: string;
   title: string;
   subtitle?: string;

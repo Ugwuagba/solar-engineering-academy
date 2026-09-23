@@ -1,3 +1,4 @@
+import prisma from "@/lib/db";
 import HeroSection from "@/components/landing/HeroSection";
 import CourseCarouselSection from "@/components/landing/CourseCarouselSection";
 import IndustrialPillars from "@/components/landing/IndustrialPillars";
@@ -8,20 +9,100 @@ import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
 
 export const revalidate = 60;
 
-export default function HomePage() {
+function parseJsonArray<T = string>(raw: any, fallback: T[] = []): T[] {
+  if (!raw) return fallback;
+  if (Array.isArray(raw)) return raw;
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export default async function HomePage() {
+  const dbCourses = await prisma.course.findMany({
+    where: {
+      OR: [
+        { status: "PUBLISHED" },
+        { isPublished: true },
+      ],
+    },
+    orderBy: { createdAt: "desc" },
+    include: {
+      modules: {
+        orderBy: { sortOrder: "asc" },
+        include: {
+          lessons: { orderBy: { sortOrder: "asc" } },
+        },
+      },
+    },
+  });
+
+  const courses = dbCourses.map((c) => {
+    const whatYouWillLearn = parseJsonArray<string>(c.whatYoullLearn, [
+      "Scientific solar PV design according to international IEC/IEEE standards",
+      "Sizing battery energy storage systems (BESS) for continuous operation",
+      "Comprehensive single-line diagrams (SLD) and protective earthing",
+      "Hands-on equipment commissioning, hybrid inverter programming, and fault diagnostics",
+    ]);
+
+    const totalLessons = (c.modules || []).reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
+    const priceNgn = `₦${Number(c.price || 0).toLocaleString()}`;
+    const originalPriceNgn = c.originalPrice ? `₦${Number(c.originalPrice).toLocaleString()}` : undefined;
+
+    return {
+      id: c.id,
+      code: c.code,
+      title: c.title,
+      slug: c.slug,
+      description: c.description || "Practical, industry-standard engineering training paired with verified field attachment.",
+      level: (c.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED") || "INTRODUCTORY",
+      deliveryType: (c.deliveryType as "SELF_PACED" | "COHORT") || "SELF_PACED",
+      contactHours: c.contactHours || 40,
+      price: c.price,
+      priceNgn,
+      originalPriceNgn,
+      rating: 4.9,
+      ratingCount: 120,
+      thumbnailImage: c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
+      thumbnailUrl: c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
+      badge: c.badge || (c.code === "SI101" ? "Bestseller" : "New Masterclass"),
+      instructor: c.instructorName || "Engr. Asanga (Certified Solar Professional)",
+      fieldAttachment: "2–4 Months Practical Field Attachment with Partners",
+      isPublished: true,
+      whatYouWillLearn,
+      modules: c.modules.map((m) => ({
+        title: m.title,
+        sortOrder: m.sortOrder,
+        lessons: m.lessons.map((l) => ({
+          title: l.title,
+          sortOrder: l.sortOrder,
+          videoUrl: l.videoUrl || "",
+          durationSec: l.durationSec || 1800,
+          contentMarkdown: l.contentMarkdown || "",
+          isFreePreview: l.isFreePreview ?? false,
+        })),
+      })),
+      totalLessons,
+    };
+  });
+
+  const primaryCourse = courses[0] || null;
+
   return (
     <div className="relative bg-white">
       {/* 1. Full-Bleed Cinematic Hero Section with Framer Motion */}
-      <HeroSection />
+      <HeroSection courses={courses} primaryCourse={primaryCourse} />
 
-      {/* 2. Udemy-Style Interactive Course Carousel Section */}
-      <CourseCarouselSection />
+      {/* 2. Dynamic Course Showcase & Infinite Scrolling Marquee */}
+      <CourseCarouselSection courses={courses} />
 
-      {/* 3. Flagship Course Spotlight ("ACADEMY FLAGSHIP PROGRAM" - Solar Installation 101 by Engr. Asanga) */}
-      <FeaturedSpotlight />
+      {/* 3. Flagship Course Spotlight */}
+      <FeaturedSpotlight course={primaryCourse} />
 
       {/* 4. Engineered Systems & Capabilities ("Integrated Solar Technologies & Solutions" 4-card grid) */}
-      <IndustrialPillars />
+      <IndustrialPillars courses={courses} />
 
       {/* 5. Social Proof & Verified Testimonials */}
       <SocialProofSection />

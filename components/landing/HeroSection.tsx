@@ -7,11 +7,7 @@ import {
   ArrowRight, 
   Clock, 
   CheckCircle2, 
-  Play, 
-  BarChart3, 
-  Award, 
-  ShieldCheck, 
-  Briefcase 
+  Play 
 } from "lucide-react";
 
 interface CoursePreviewData {
@@ -22,6 +18,7 @@ interface CoursePreviewData {
   previewThumbnail: string;
   highlights: string[];
   slug: string;
+  priceNgn?: string;
 }
 
 interface SlideData {
@@ -37,83 +34,79 @@ interface SlideData {
   coursePreview: CoursePreviewData;
 }
 
-const slides: SlideData[] = [
-  {
-    id: 1,
-    image: "/images/hero/hero-commercial.jpg",
-    eyebrow: "SUBWAY ENERGY LIMITED • RC: 1837154",
-    title: "Engineering Utility-Scale Solar Infrastructure",
-    description: "High-efficiency commercial PV arrays and mini-grid installations built for continuous industrial power.",
-    primaryCtaText: "Our Energy Solutions",
-    primaryCtaHref: "#solutions",
-    secondaryCtaText: "Explore Academy",
-    secondaryCtaHref: "/courses",
-    coursePreview: {
-      courseTitle: "Commercial & Industrial Solar PV Design",
-      courseCode: "PVOL 101",
-      contactHours: "40 Contact Hours",
-      level: "Professional Foundation",
-      previewThumbnail: "/images/solutions/factory-roof.jpg",
-      highlights: [
-        "Utility-Scale Single-Line Diagrams",
-        "Medium-Voltage Interconnection",
-        "Transformer & Inverter Sizing"
-      ],
-      slug: "pvol-101"
-    }
-  },
-  {
-    id: 2,
-    image: "/images/hero/hero-urban.jpg",
-    eyebrow: "SMART STORAGE & HYBRID SYSTEMS",
-    title: "Intelligent Commercial Energy Storage",
-    description: "Advanced hybrid inverters and lithium storage systems engineered for reliability, safety, and peak demand shaving.",
-    primaryCtaText: "Explore Commercial Systems",
-    primaryCtaHref: "#solutions",
-    secondaryCtaText: "View Specifications",
-    secondaryCtaHref: "/courses",
-    coursePreview: {
-      courseTitle: "Battery Energy Storage Systems (BESS) & Safety",
-      courseCode: "BESS 201",
-      contactHours: "24 Contact Hours",
-      level: "Advanced Technical",
-      previewThumbnail: "/images/hero/hero-urban.jpg",
-      highlights: [
-        "Lithium & Flow Battery Chemistry",
-        "Peak-Shaving & Demand Management",
-        "Thermal Runaway & Fire Safety"
-      ],
-      slug: "bess-201"
-    }
-  },
-  {
-    id: 3,
-    image: "/images/hero/hero-academy.jpg",
-    eyebrow: "SUBWAY SCHOOLS • ACCREDITED TRAINING",
-    title: "Training the Next Generation of Solar Engineers",
-    description: "10 comprehensive modules by Engr. Asanga paired with 2-4 months intensive hands-on field attachment.",
-    primaryCtaText: "Enroll in Academy",
-    primaryCtaHref: "/courses/solar-installation-101",
-    secondaryCtaText: "Download Syllabus",
-    secondaryCtaHref: "/courses",
-    coursePreview: {
-      courseTitle: "Solar System Design, Installation & Maintenance",
-      courseCode: "Solar Installation 101",
-      contactHours: "40 Contact Hours",
-      level: "Comprehensive Masterclass",
-      previewThumbnail: "/images/hero/hero-academy.jpg",
-      highlights: [
-        "Masterclass by Engr. Asanga",
-        "10 Comprehensive Chapters + Companion",
-        "Includes 2-4 Months Practical Field Attachment"
-      ],
-      slug: "solar-installation-101"
-    }
-  }
-];
+interface HeroSectionProps {
+  courses?: any[];
+  primaryCourse?: any;
+}
 
-export default function HeroSection() {
+export default function HeroSection({ courses = [] }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Identify course 101 and course 102 from database courses
+  const course101 = courses.find((c) => c.code === "SI101" || c.slug.includes("101")) || courses[0];
+  const course102 = courses.find((c) => c.code === "SI102" || c.slug.includes("102")) || courses[1] || courses[0];
+
+  const slug101 = course101?.slug || "solar-installation-101-6402";
+  const slug102 = course102?.slug || "solar-installation-102";
+
+  const slides: SlideData[] = [
+    {
+      id: 1,
+      image: "/images/hero/hero-academy.jpg",
+      eyebrow: "SUBWAY SCHOOLS • ACCREDITED TRAINING",
+      title: course101?.title || "Solar Installation 101",
+      description:
+        "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices.",
+      primaryCtaText: "Enroll in Academy",
+      primaryCtaHref: `/courses/${slug101}`,
+      secondaryCtaText: "View Course Syllabus",
+      secondaryCtaHref: `/courses/${slug101}#curriculum`,
+      coursePreview: {
+        courseTitle: course101?.title || "Solar Installation 101",
+        courseCode: course101?.code || "SI101",
+        contactHours: `${course101?.contactHours || 40} Contact Hours`,
+        level: course101?.level || "Introductory / Foundational",
+        previewThumbnail: course101?.thumbnailImage || course101?.thumbnailUrl || "/images/hero/hero-academy.jpg",
+        highlights: (course101?.whatYouWillLearn && course101.whatYouWillLearn.length > 0)
+          ? course101.whatYouWillLearn.slice(0, 3)
+          : [
+              "Master solar PV system sizing & precision power audits",
+              "Design commercial inverters & battery backup systems",
+              "Includes 2–4 months practical partner attachment"
+            ],
+        slug: slug101,
+        priceNgn: course101?.priceNgn || `₦${Number(course101?.price || 5000).toLocaleString()}`,
+      },
+    },
+    {
+      id: 2,
+      image: "/images/hero/hero-commercial.jpg",
+      eyebrow: "SUBWAY SCHOOLS • ADVANCED ENGINEERING",
+      title: course102?.title || "SOLAR INSTALLATION 102",
+      description:
+        "Advanced commercial and industrial microgrid design, battery energy storage systems (BESS), and hybrid system commissioning.",
+      primaryCtaText: "Enroll in Academy",
+      primaryCtaHref: `/courses/${slug102}`,
+      secondaryCtaText: "View Course Syllabus",
+      secondaryCtaHref: `/courses/${slug102}#curriculum`,
+      coursePreview: {
+        courseTitle: course102?.title || "SOLAR INSTALLATION 102",
+        courseCode: course102?.code || "SI102",
+        contactHours: `${course102?.contactHours || 40} Contact Hours`,
+        level: course102?.level || "Intermediate / Advanced",
+        previewThumbnail: course102?.thumbnailImage || course102?.thumbnailUrl || "/images/hero/hero-commercial.jpg",
+        highlights: (course102?.whatYouWillLearn && course102.whatYouWillLearn.length > 0)
+          ? course102.whatYouWillLearn.slice(0, 3)
+          : [
+              "Utility-Scale C&I Solar Arrays & Single-Line Diagrams",
+              "Harmonic Analysis & Medium-Voltage Interconnection",
+              "BESS, Battery Chemistry & Multi-Megawatt Inverters"
+            ],
+        slug: slug102,
+        priceNgn: course102?.priceNgn || `₦${Number(course102?.price || 15000).toLocaleString()}`,
+      },
+    },
+  ];
 
   // Automatic interval timer running synchronously every 8 seconds
   useEffect(() => {
@@ -121,12 +114,12 @@ export default function HeroSection() {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 8000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
-  const slide = slides[currentSlide];
+  const slide = slides[currentSlide % slides.length];
 
   return (
-    <section className="relative min-h-[90vh] lg:min-h-[720px] w-full overflow-hidden bg-transparent flex flex-col justify-between select-none py-10 lg:py-14">
+    <section className="relative min-h-[90vh] lg:min-h-[680px] w-full overflow-hidden bg-transparent flex flex-col justify-between select-none py-10 lg:py-14">
       {/* 1. Background Image with AnimatePresence and Zoom-In Transition */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-950 via-slate-900 to-[#080f1e] overflow-hidden">
         {/* Subtle Shimmer Skeleton while media mounts */}
@@ -225,10 +218,17 @@ export default function HeroSection() {
                   <span className="bg-sky-500/20 text-sky-300 font-mono text-xs px-2.5 py-1 rounded-full border border-sky-400/30">
                     {slide.coursePreview.courseCode}
                   </span>
-                  <span className="text-amber-400 text-xs font-semibold flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{slide.coursePreview.contactHours}</span>
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {slide.coursePreview.priceNgn && (
+                      <span className="text-emerald-400 text-xs font-mono font-bold">
+                        {slide.coursePreview.priceNgn}
+                      </span>
+                    )}
+                    <span className="text-amber-400 text-xs font-semibold flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{slide.coursePreview.contactHours}</span>
+                    </span>
+                  </div>
                 </div>
 
                 {/* Thumbnail Container (160px height with subtle play overlay) */}
@@ -285,10 +285,10 @@ export default function HeroSection() {
       </div>
 
       {/* 3. Carousel Indicator Dots (Subway Blue & White) */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-center">
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2 flex items-center justify-center">
         <div className="flex items-center gap-2.5">
           {slides.map((s, idx) => {
-            const isActive = idx === currentSlide;
+            const isActive = idx === (currentSlide % slides.length);
             return (
               <button
                 key={s.id}
@@ -310,43 +310,6 @@ export default function HeroSection() {
               </button>
             );
           })}
-        </div>
-      </div>
-
-      {/* 4. Floating Frosted-Glass Metric Accents Bar */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-2">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 p-3 sm:p-3.5 rounded-xl text-white hover:border-white/25 hover:bg-slate-900/75 transition-all">
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-base sm:text-lg font-black font-mono">15+ Years</span>
-              <BarChart3 className="w-4 h-4 text-[#2B82C9]" />
-            </div>
-            <p className="text-[11px] sm:text-xs font-medium text-slate-300">Power Engineering</p>
-          </div>
-
-          <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 p-3 sm:p-3.5 rounded-xl text-white hover:border-white/25 hover:bg-slate-900/75 transition-all">
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-base sm:text-lg font-black font-mono text-[#E13B2B]">20+ Years</span>
-              <Award className="w-4 h-4 text-[#E13B2B]" />
-            </div>
-            <p className="text-[11px] sm:text-xs font-medium text-slate-300">Lead Instructor Experience</p>
-          </div>
-
-          <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 p-3 sm:p-3.5 rounded-xl text-white hover:border-white/25 hover:bg-slate-900/75 transition-all">
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-base sm:text-lg font-black font-mono text-[#2B82C9]">40 Hours</span>
-              <ShieldCheck className="w-4 h-4 text-[#2B82C9]" />
-            </div>
-            <p className="text-[11px] sm:text-xs font-medium text-slate-300">Accredited Technical Training</p>
-          </div>
-
-          <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 p-3 sm:p-3.5 rounded-xl text-white hover:border-white/25 hover:bg-slate-900/75 transition-all">
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-base sm:text-lg font-black font-mono text-emerald-400">2–4 Months</span>
-              <Briefcase className="w-4 h-4 text-emerald-400" />
-            </div>
-            <p className="text-[11px] sm:text-xs font-medium text-slate-300">Practical Field Attachment</p>
-          </div>
         </div>
       </div>
     </section>
