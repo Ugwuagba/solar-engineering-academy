@@ -49,6 +49,18 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
   const slug101 = course101?.slug || "solar-installation-101-6402";
   const slug102 = course102?.slug || "solar-installation-102";
 
+  const outcomes101: string[] =
+    (Array.isArray(course101?.learningOutcomes) && course101.learningOutcomes.length > 0 && course101.learningOutcomes) ||
+    (Array.isArray(course101?.whatYouWillLearn) && course101.whatYouWillLearn.length > 0 && course101.whatYouWillLearn) ||
+    (Array.isArray(course101?.outcomes) && course101.outcomes.length > 0 && course101.outcomes) ||
+    [];
+
+  const outcomes102: string[] =
+    (Array.isArray(course102?.learningOutcomes) && course102.learningOutcomes.length > 0 && course102.learningOutcomes) ||
+    (Array.isArray(course102?.whatYouWillLearn) && course102.whatYouWillLearn.length > 0 && course102.whatYouWillLearn) ||
+    (Array.isArray(course102?.outcomes) && course102.outcomes.length > 0 && course102.outcomes) ||
+    [];
+
   const slides: SlideData[] = [
     {
       id: 1,
@@ -56,6 +68,8 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
       eyebrow: "SUBWAY SCHOOLS • ACCREDITED TRAINING",
       title: course101?.title || "Solar Installation 101",
       description:
+        course101?.shortDescription ||
+        course101?.subtitle ||
         "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices.",
       primaryCtaText: "Enroll in Academy",
       primaryCtaHref: `/courses/${slug101}`,
@@ -67,12 +81,13 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
         contactHours: `${course101?.contactHours || 40} Contact Hours`,
         level: course101?.level || "Introductory / Foundational",
         previewThumbnail: course101?.thumbnailImage || course101?.thumbnailUrl || "/images/hero/hero-academy.jpg",
-        highlights: (course101?.whatYouWillLearn && course101.whatYouWillLearn.length > 0)
-          ? course101.whatYouWillLearn.slice(0, 3)
+        highlights: outcomes101.length > 0
+          ? outcomes101.slice(0, 4)
           : [
               "Master solar PV system sizing & precision power audits",
               "Design commercial inverters & battery backup systems",
-              "Includes 2–4 months practical partner attachment"
+              "Subway Schools verified engineering certificate",
+              "Hands-on equipment commissioning and fault diagnostics"
             ],
         slug: slug101,
         priceNgn: course101?.priceNgn || `₦${Number(course101?.price || 5000).toLocaleString()}`,
@@ -84,7 +99,7 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
       eyebrow: "SUBWAY SCHOOLS • ADVANCED ENGINEERING",
       title: course102?.title || "SOLAR INSTALLATION 102",
       description:
-        "Advanced commercial and industrial microgrid design, battery energy storage systems (BESS), and hybrid system commissioning.",
+        "Professional solar training designed to master photovoltaic component selection, inverter configurations, battery sizing, and certified system design.",
       primaryCtaText: "Enroll in Academy",
       primaryCtaHref: `/courses/${slug102}`,
       secondaryCtaText: "View Course Syllabus",
@@ -95,12 +110,13 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
         contactHours: `${course102?.contactHours || 40} Contact Hours`,
         level: course102?.level || "Intermediate / Advanced",
         previewThumbnail: course102?.thumbnailImage || course102?.thumbnailUrl || "/images/hero/hero-commercial.jpg",
-        highlights: (course102?.whatYouWillLearn && course102.whatYouWillLearn.length > 0)
-          ? course102.whatYouWillLearn.slice(0, 3)
+        highlights: outcomes102.length > 0
+          ? outcomes102.slice(0, 4)
           : [
-              "Utility-Scale C&I Solar Arrays & Single-Line Diagrams",
-              "Harmonic Analysis & Medium-Voltage Interconnection",
-              "BESS, Battery Chemistry & Multi-Megawatt Inverters"
+              "Identify the major components required for a solar PV system.",
+              "Describe the purpose and operation of each major component.",
+              "Read and interpret relevant component specifications.",
+              "Apply appropriate sizing principles to solar system components."
             ],
         slug: slug102,
         priceNgn: course102?.priceNgn || `₦${Number(course102?.price || 15000).toLocaleString()}`,
@@ -108,11 +124,14 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
     },
   ];
 
-  // Automatic interval timer running synchronously every 8 seconds
+  // Automatic interval timer running synchronously every 60 seconds (1 minute)
+  const SLIDE_INTERVAL = 60000; // 60,000 ms = 1 minute
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 8000);
+    }, SLIDE_INTERVAL);
+
     return () => clearInterval(timer);
   }, [slides.length]);
 
@@ -260,14 +279,20 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
                   {slide.coursePreview.courseTitle}
                 </h3>
 
-                {/* Quick Specs List */}
+                {/* Key Course Learning Modules Checklist */}
                 <div className="space-y-2">
-                  {slide.coursePreview.highlights.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm text-slate-200">
-                      <CheckCircle2 className="w-4 h-4 text-[#2B82C9] shrink-0" />
-                      <span className="line-clamp-1">{item}</span>
-                    </div>
-                  ))}
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1.5 font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#2B82C9]" />
+                    <span>KEY COURSE LEARNING MODULES</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {slide.coursePreview.highlights.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-xs text-slate-200">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#2B82C9] shrink-0 mt-0.5" />
+                        <span className="line-clamp-2 leading-relaxed">{item}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Card Action Button */}

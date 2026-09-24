@@ -17,30 +17,36 @@ interface FeaturedSpotlightProps {
 }
 
 export default function FeaturedSpotlight({ course }: FeaturedSpotlightProps) {
+  const outcomes =
+    (Array.isArray(course?.learningOutcomes) && course.learningOutcomes.length > 0 && course.learningOutcomes) ||
+    (Array.isArray(course?.outcomes) && course.outcomes.length > 0 && course.outcomes) ||
+    (Array.isArray(course?.whatYouWillLearn) && course.whatYouWillLearn.length > 0 && course.whatYouWillLearn) ||
+    [];
+
   const defaultHighlights = [
-    "Load Analysis, Power Consumption & Energy Auditing",
-    "Solar PV Modules & Extreme Voc Temperature Limits",
-    "Battery Technologies: LiFePO4 vs Lead-Acid C-Rates",
-    "Solar Charge Controllers (PWM vs MPPT Tracking)",
-    "Pure Sine Wave Inverters & Harmonic Distortion",
-    "The Solar Companion: Quick Lookup Calculations",
+    "Identify the major components required for a solar PV system.",
+    "Describe the purpose and operation of each major component.",
+    "Read and interpret relevant component specifications.",
+    "Differentiate between various component configurations.",
+    "Explain the factors that influence component selection.",
+    "Apply appropriate sizing principles to solar system components.",
   ];
 
   const highlights: string[] =
-    Array.isArray(course?.whatYouWillLearn) && course.whatYouWillLearn.length > 0
-      ? (course.whatYouWillLearn.slice(0, 6) as string[])
+    outcomes.length > 0
+      ? (outcomes.slice(0, 6) as string[])
       : defaultHighlights;
 
-  const targetSlug = course?.slug || "courses";
-  const targetTitle = course?.title || "Solar Installation 101: System Design & Maintenance";
-  const targetCode = course?.code || "SOLAR-101";
-  const targetPrice = course?.priceNgn || "₦5,000";
+  const targetSlug = course?.slug || "solar-installation-102";
+  const targetTitle = course?.title || "SOLAR INSTALLATION 102";
+  const targetCode = course?.code || "SI102";
+  const targetPrice = course?.priceNgn || "₦15,000";
   const targetHours = course?.contactHours || 40;
   const targetModulesCount = course?.modules?.length || 10;
-  const targetAttachment = course?.fieldAttachment || "2–4 Months Practical Field Attachment with Partners";
   const targetDescription =
-    course?.description ||
-    "Master end-to-end solar engineering from foundational photovoltaic physics to sizing commercial three-phase hybrid inverters, assembling lithium battery racks, and performing professional power audits.";
+    course?.shortDescription ||
+    course?.subtitle ||
+    "Professional solar training designed to master photovoltaic component selection, inverter configurations, battery sizing, and certified system design.";
 
   return (
     <section className="py-24 lg:py-28 bg-slate-50 border-y border-slate-200">
@@ -54,7 +60,7 @@ export default function FeaturedSpotlight({ course }: FeaturedSpotlightProps) {
             {targetTitle}
           </h2>
           <p className="text-base text-slate-600 mt-3 font-normal">
-            Practical, industry-standard engineering training paired with verified on-site field attachment.
+            Practical, industry-standard engineering training paired with verified official accreditation.
           </p>
         </div>
 
@@ -83,9 +89,9 @@ export default function FeaturedSpotlight({ course }: FeaturedSpotlightProps) {
                   <Clock className="w-3.5 h-3.5 text-amber-600" />
                   {targetHours} Contact Hours
                 </span>
-                <span className="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 animate-pulse">
-                  <Briefcase className="w-3.5 h-3.5 text-white" />
-                  {targetAttachment}
+                <span className="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-xs flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-white" />
+                  Official Accredited Certificate
                 </span>
               </div>
 
@@ -137,7 +143,7 @@ export default function FeaturedSpotlight({ course }: FeaturedSpotlightProps) {
             {/* Price & Standout Enrollment CTA */}
             <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <span className="text-[11px] font-mono uppercase text-slate-500 block">Tuition & Attachment</span>
+                <span className="text-[11px] font-mono uppercase text-slate-500 block">Tuition & Certification</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-black text-slate-900 font-mono">
                     {targetPrice}

@@ -84,7 +84,7 @@ export default function CourseCard({ course }: { course: SeedCourse }) {
 
         {/* Description */}
         <p className="text-sm text-slate-600 line-clamp-3 mb-5 leading-relaxed">
-          {course.description}
+          {(course as any).shortDescription || course.description}
         </p>
 
         {/* Practical Field Attachment Highlight */}

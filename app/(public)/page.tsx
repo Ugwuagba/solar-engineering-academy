@@ -55,8 +55,13 @@ export default async function HomePage() {
       id: c.id,
       code: c.code,
       title: c.title,
+      subtitle: c.subtitle,
       slug: c.slug,
-      description: c.description || "Practical, industry-standard engineering training paired with verified field attachment.",
+      description: c.description || "Practical, industry-standard engineering training paired with verified official accreditation.",
+      shortDescription:
+        c.code === "SI102"
+          ? "Professional solar training designed to master photovoltaic component selection, inverter configurations, battery sizing, and certified system design."
+          : (c.subtitle || "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices."),
       level: (c.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED") || "INTRODUCTORY",
       deliveryType: (c.deliveryType as "SELF_PACED" | "COHORT") || "SELF_PACED",
       contactHours: c.contactHours || 40,
@@ -69,9 +74,11 @@ export default async function HomePage() {
       thumbnailUrl: c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
       badge: c.badge || (c.code === "SI101" ? "Bestseller" : "New Masterclass"),
       instructor: c.instructorName || "Engr. Asanga (Certified Solar Professional)",
-      fieldAttachment: "2–4 Months Practical Field Attachment with Partners",
+      fieldAttachment: "Official Accredited Certificate",
       isPublished: true,
       whatYouWillLearn,
+      learningOutcomes: whatYouWillLearn,
+      outcomes: whatYouWillLearn,
       modules: c.modules.map((m) => ({
         title: m.title,
         sortOrder: m.sortOrder,
@@ -88,7 +95,10 @@ export default async function HomePage() {
     };
   });
 
-  const primaryCourse = courses[0] || null;
+  const primaryCourse =
+    courses.find((c) => c.code === "SI102" || c.slug.includes("102")) ||
+    courses[0] ||
+    null;
 
   return (
     <div className="relative bg-white">
