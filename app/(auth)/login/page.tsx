@@ -9,7 +9,7 @@ import { ShieldAlert, ArrowRight, Lock, Mail, ShieldCheck, CheckCircle2, KeyRoun
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/courses";
+  const callbackUrl = searchParams.get("callbackUrl") || searchParams.get("redirect") || "/courses";
   const verifiedSuccess = searchParams.get("verified") === "true";
   const emailParam = searchParams.get("email") || "";
 

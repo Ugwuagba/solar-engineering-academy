@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { 
   Play, 
   Share2, 
@@ -9,7 +10,8 @@ import {
   Clock, 
   Zap,
   Calendar,
-  Check
+  Check,
+  Loader2
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
@@ -17,10 +19,12 @@ import VideoPreviewModal from "./VideoPreviewModal";
 
 export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
   const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
   const [selectedCohort, setSelectedCohort] = useState<string>(
     course.cohorts && course.cohorts.length > 0 ? course.cohorts[0].name : ""
   );
   const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -37,12 +41,47 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleEnroll = () => {
-    setIsProcessing(true);
-    setTimeout(() => {
+  const handleEnroll = async () => {
+    if (authStatus === "loading") return;
+
+    // 1. If unauthenticated, redirect to login with return path
+    if (!session?.user) {
+      router.push(`/login?redirect=/courses/${course.slug}`);
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      setErrorMessage(null);
+
+      // 2. Initialize Flutterwave payment transaction
+      const res = await fetch("/api/payments/flutterwave/initialize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId: course.id || course.code,
+          courseSlug: course.slug,
+          amount: course.price || 5000,
+          email: session.user.email,
+          name: session.user.name,
+          userId: session.user.id,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.status === "success" && data?.link) {
+        // 3. Direct browser redirection to Flutterwave secure payment page
+        window.location.href = data.link;
+      } else {
+        setErrorMessage(data?.message || "Failed to initialize payment gateway. Please try again.");
+        setIsProcessing(false);
+      }
+    } catch (err: any) {
+      console.error("[Enrollment Error]:", err);
+      setErrorMessage("Could not reach payment servers. Please check your internet connection.");
       setIsProcessing(false);
-      router.push(`/learn/${course.slug}`);
-    }, 600);
+    }
   };
 
   const handleShare = () => {
@@ -146,6 +185,13 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
             </div>
           )}
 
+          {/* Error Notice */}
+          {errorMessage && (
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+              {errorMessage}
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="space-y-2.5">
             <button
@@ -153,8 +199,17 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
               disabled={isProcessing}
               className="w-full py-3.5 rounded-xl bg-[#2B82C9] hover:bg-[#226ba8] active:scale-[0.98] text-white font-bold text-sm sm:text-base shadow-lg shadow-[#2B82C9]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
-              <Zap className="w-4 h-4 fill-current" />
-              <span>{isProcessing ? "Processing Enrollment..." : "Add to cart"}</span>
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Connecting to Flutterwave...</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 fill-current" />
+                  <span>Enroll in Academy</span>
+                </>
+              )}
             </button>
 
             <button
@@ -162,7 +217,7 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
               disabled={isProcessing}
               className="w-full py-3.5 rounded-xl border-2 border-slate-900 hover:bg-slate-900 hover:text-white active:scale-[0.98] text-slate-900 font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
-              <span>Buy now</span>
+              <span>{isProcessing ? "Processing..." : "Buy Now"}</span>
             </button>
           </div>
 

@@ -1,9 +1,59 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Clock, ArrowRight, Award, Users, CheckCircle, User, Check, Sparkles } from "lucide-react";
+import { Clock, ArrowRight, Award, Users, CheckCircle, User, Check, Sparkles, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
 
 export default function CourseCard({ course }: { course: SeedCourse | any }) {
+  const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleEnroll = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (authStatus === "loading") return;
+
+    if (!session?.user) {
+      router.push(`/login?redirect=/courses/${course.slug}`);
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      const res = await fetch("/api/payments/flutterwave/initialize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId: course.id || course.code,
+          courseSlug: course.slug,
+          amount: course.price || 5000,
+          email: session.user.email,
+          name: session.user.name,
+          userId: session.user.id,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.status === "success" && data?.link) {
+        window.location.href = data.link;
+      } else {
+        alert(data?.message || "Failed to initialize payment gateway. Please try again.");
+        setIsProcessing(false);
+      }
+    } catch (err: any) {
+      console.error("[Card Enrollment Error]:", err);
+      alert("Could not connect to payment gateway. Please check your internet connection.");
+      setIsProcessing(false);
+    }
+  };
+
   const levelBadge = {
     INTRODUCTORY: "bg-emerald-50 text-emerald-700 border-emerald-200",
     INTERMEDIATE: "bg-blue-50 text-[#2B82C9] border-blue-200",
@@ -183,13 +233,23 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
             <span className="text-xl font-mono font-black text-slate-900">{priceFormatted}</span>
           </div>
 
-          <Link
-            href={`/courses/${course.slug}`}
-            className="w-full py-2.5 bg-[#2B82C9] hover:bg-[#226ba8] active:scale-[0.98] text-white text-xs font-bold rounded-xl text-center shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+          <button
+            onClick={handleEnroll}
+            disabled={isProcessing}
+            className="w-full py-2.5 bg-[#2B82C9] hover:bg-[#226ba8] active:scale-[0.98] text-white text-xs font-bold rounded-xl text-center shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
           >
-            <span>Enroll in Academy</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Connecting to Gateway...</span>
+              </>
+            ) : (
+              <>
+                <span>Enroll in Academy</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </>
+            )}
+          </button>
 
           <Link
             href={`/courses/${course.slug}#curriculum`}
