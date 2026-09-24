@@ -14,9 +14,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Subway Energy Limited & Subway Schools | Industrial Solar Engineering & Academy",
+  title: "Subway Schools | Building Africa's Next Generation of Energy Professionals",
   description:
-    "Subway Energy Limited (RC: 1837154) — '...light up your world'. Next-generation solar engineering, commercial power auditing, and certified academy training featuring Engr. Asanga's comprehensive masterclass with 2-4 months practical partner field attachment.",
+    "Subway Schools & Subway Energy Limited (RC: 1837154) — Accredited solar engineering and energy storage training featuring practical partner field attachments.",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    apple: "/apple-icon.png",
+  },
   keywords: [
     "Subway Energy Limited",
     "Subway Schools",
