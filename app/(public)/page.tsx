@@ -1,8 +1,6 @@
 import prisma from "@/lib/db";
 import HeroSection from "@/components/landing/HeroSection";
 import CourseCarouselSection from "@/components/landing/CourseCarouselSection";
-import IndustrialPillars from "@/components/landing/IndustrialPillars";
-import FeaturedSpotlight from "@/components/landing/FeaturedSpotlight";
 import SocialProofSection from "@/components/landing/SocialProofSection";
 import Link from "next/link";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
@@ -21,25 +19,30 @@ function parseJsonArray<T = string>(raw: any, fallback: T[] = []): T[] {
 }
 
 export default async function HomePage() {
-  const dbCourses = await prisma.course.findMany({
-    where: {
-      OR: [
-        { status: "PUBLISHED" },
-        { isPublished: true },
-      ],
-    },
-    orderBy: { createdAt: "desc" },
-    include: {
-      modules: {
-        orderBy: { sortOrder: "asc" },
-        include: {
-          lessons: { orderBy: { sortOrder: "asc" } },
+  let dbCourses: any[] = [];
+  try {
+    dbCourses = await prisma.course.findMany({
+      where: {
+        OR: [
+          { status: "PUBLISHED" },
+          { isPublished: true },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        modules: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            lessons: { orderBy: { sortOrder: "asc" } },
+          },
         },
       },
-    },
-  });
+    });
+  } catch (err) {
+    console.error("Database connection issue in HomePage, continuing gracefully:", err);
+  }
 
-  const courses = dbCourses.map((c) => {
+  const courses = dbCourses.map((c: any) => {
     const whatYouWillLearn = parseJsonArray<string>(c.whatYoullLearn, [
       "Scientific solar PV design according to international IEC/IEEE standards",
       "Sizing battery energy storage systems (BESS) for continuous operation",
@@ -47,7 +50,7 @@ export default async function HomePage() {
       "Hands-on equipment commissioning, hybrid inverter programming, and fault diagnostics",
     ]);
 
-    const totalLessons = (c.modules || []).reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
+    const totalLessons = (c.modules || []).reduce((sum: number, m: any) => sum + (m.lessons?.length || 0), 0);
     const priceNgn = `₦${Number(c.price || 0).toLocaleString()}`;
     const originalPriceNgn = c.originalPrice ? `₦${Number(c.originalPrice).toLocaleString()}` : undefined;
 
@@ -79,10 +82,10 @@ export default async function HomePage() {
       whatYouWillLearn,
       learningOutcomes: whatYouWillLearn,
       outcomes: whatYouWillLearn,
-      modules: c.modules.map((m) => ({
+      modules: (c.modules || []).map((m: any) => ({
         title: m.title,
         sortOrder: m.sortOrder,
-        lessons: m.lessons.map((l) => ({
+        lessons: (m.lessons || []).map((l: any) => ({
           title: l.title,
           sortOrder: l.sortOrder,
           videoUrl: l.videoUrl || "",
@@ -95,8 +98,17 @@ export default async function HomePage() {
     };
   });
 
+  // Ensure Solar Installation 101 is first (left) and Solar Installation 102 is second (right)
+  courses.sort((a, b) => {
+    if (a.code === "SI101" || a.slug.includes("101")) return -1;
+    if (b.code === "SI101" || b.slug.includes("101")) return 1;
+    if (a.code === "SI102" || a.slug.includes("102")) return 1;
+    if (b.code === "SI102" || b.slug.includes("102")) return -1;
+    return 0;
+  });
+
   const primaryCourse =
-    courses.find((c) => c.code === "SI102" || c.slug.includes("102")) ||
+    courses.find((c) => c.code === "SI101" || c.slug.includes("101")) ||
     courses[0] ||
     null;
 
@@ -108,13 +120,7 @@ export default async function HomePage() {
       {/* 2. Dynamic Course Showcase & Infinite Scrolling Marquee */}
       <CourseCarouselSection courses={courses} />
 
-      {/* 3. Flagship Course Spotlight */}
-      <FeaturedSpotlight course={primaryCourse} />
-
-      {/* 4. Engineered Systems & Capabilities ("Integrated Solar Technologies & Solutions" 4-card grid) */}
-      <IndustrialPillars courses={courses} />
-
-      {/* 5. Social Proof & Verified Testimonials */}
+      {/* 3. Social Proof & Verified Testimonials */}
       <SocialProofSection />
 
       {/* 6. Photo-Driven Industrial CTA Banner */}

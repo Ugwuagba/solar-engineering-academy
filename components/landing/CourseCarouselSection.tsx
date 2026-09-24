@@ -28,7 +28,7 @@ export default function CourseCarouselSection({ courses = [] }: CourseCarouselSe
             Skills to Transform Your Energy Career
           </h2>
           <p className="text-base text-slate-600 mt-3 font-normal leading-relaxed">
-            From foundational solar PV principles to high-voltage industrial engineering, Subway Schools supports your professional accreditation with hands-on field attachment.
+            From foundational solar PV principles to high-voltage industrial engineering, Subway Schools supports your professional accreditation with hands-on training.
           </p>
         </div>
 
@@ -53,7 +53,7 @@ export default function CourseCarouselSection({ courses = [] }: CourseCarouselSe
                   </span>
                   <div className="flex items-center gap-1 text-[11px] font-mono text-slate-400">
                     <Clock className="w-3 h-3 text-amber-500" />
-                    <span>{c.contactHours}h</span>
+                    <span>{c.trainingHours || `${c.code === "SI101" ? 8 : c.code === "SI102" ? 15 : (c.contactHours || 40)}h`}</span>
                   </div>
                   <span className="font-mono text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
                     {c.priceNgn}

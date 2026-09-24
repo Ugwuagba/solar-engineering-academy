@@ -5,21 +5,8 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowRight, 
-  Clock, 
-  CheckCircle2, 
-  Play 
+  Clock 
 } from "lucide-react";
-
-interface CoursePreviewData {
-  courseTitle: string;
-  courseCode: string;
-  contactHours: string;
-  level: string;
-  previewThumbnail: string;
-  highlights: string[];
-  slug: string;
-  priceNgn?: string;
-}
 
 interface SlideData {
   id: number;
@@ -27,11 +14,13 @@ interface SlideData {
   eyebrow: string;
   title: string;
   description: string;
+  courseCode: string;
+  trainingHours: string;
+  priceNgn: string;
   primaryCtaText: string;
   primaryCtaHref: string;
   secondaryCtaText: string;
   secondaryCtaHref: string;
-  coursePreview: CoursePreviewData;
 }
 
 interface HeroSectionProps {
@@ -49,18 +38,6 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
   const slug101 = course101?.slug || "solar-installation-101-6402";
   const slug102 = course102?.slug || "solar-installation-102";
 
-  const outcomes101: string[] =
-    (Array.isArray(course101?.learningOutcomes) && course101.learningOutcomes.length > 0 && course101.learningOutcomes) ||
-    (Array.isArray(course101?.whatYouWillLearn) && course101.whatYouWillLearn.length > 0 && course101.whatYouWillLearn) ||
-    (Array.isArray(course101?.outcomes) && course101.outcomes.length > 0 && course101.outcomes) ||
-    [];
-
-  const outcomes102: string[] =
-    (Array.isArray(course102?.learningOutcomes) && course102.learningOutcomes.length > 0 && course102.learningOutcomes) ||
-    (Array.isArray(course102?.whatYouWillLearn) && course102.whatYouWillLearn.length > 0 && course102.whatYouWillLearn) ||
-    (Array.isArray(course102?.outcomes) && course102.outcomes.length > 0 && course102.outcomes) ||
-    [];
-
   const slides: SlideData[] = [
     {
       id: 1,
@@ -71,27 +48,13 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
         course101?.shortDescription ||
         course101?.subtitle ||
         "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices.",
+      courseCode: course101?.code || "SI101",
+      trainingHours: `${course101?.contactHours || 8} Training Hours`,
+      priceNgn: course101?.priceNgn || `₦${Number(course101?.price || 5000).toLocaleString()}`,
       primaryCtaText: "Enroll in Academy",
       primaryCtaHref: `/courses/${slug101}`,
       secondaryCtaText: "View Course Syllabus",
       secondaryCtaHref: `/courses/${slug101}#curriculum`,
-      coursePreview: {
-        courseTitle: course101?.title || "Solar Installation 101",
-        courseCode: course101?.code || "SI101",
-        contactHours: `${course101?.contactHours || 40} Contact Hours`,
-        level: course101?.level || "Introductory / Foundational",
-        previewThumbnail: course101?.thumbnailImage || course101?.thumbnailUrl || "/images/hero/hero-academy.jpg",
-        highlights: outcomes101.length > 0
-          ? outcomes101.slice(0, 4)
-          : [
-              "Master solar PV system sizing & precision power audits",
-              "Design commercial inverters & battery backup systems",
-              "Subway Schools verified engineering certificate",
-              "Hands-on equipment commissioning and fault diagnostics"
-            ],
-        slug: slug101,
-        priceNgn: course101?.priceNgn || `₦${Number(course101?.price || 5000).toLocaleString()}`,
-      },
     },
     {
       id: 2,
@@ -100,27 +63,13 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
       title: course102?.title || "SOLAR INSTALLATION 102",
       description:
         "Professional solar training designed to master photovoltaic component selection, inverter configurations, battery sizing, and certified system design.",
+      courseCode: course102?.code || "SI102",
+      trainingHours: `${course102?.contactHours || 15} Training Hours`,
+      priceNgn: course102?.priceNgn || `₦${Number(course102?.price || 15000).toLocaleString()}`,
       primaryCtaText: "Enroll in Academy",
       primaryCtaHref: `/courses/${slug102}`,
       secondaryCtaText: "View Course Syllabus",
       secondaryCtaHref: `/courses/${slug102}#curriculum`,
-      coursePreview: {
-        courseTitle: course102?.title || "SOLAR INSTALLATION 102",
-        courseCode: course102?.code || "SI102",
-        contactHours: `${course102?.contactHours || 40} Contact Hours`,
-        level: course102?.level || "Intermediate / Advanced",
-        previewThumbnail: course102?.thumbnailImage || course102?.thumbnailUrl || "/images/hero/hero-commercial.jpg",
-        highlights: outcomes102.length > 0
-          ? outcomes102.slice(0, 4)
-          : [
-              "Identify the major components required for a solar PV system.",
-              "Describe the purpose and operation of each major component.",
-              "Read and interpret relevant component specifications.",
-              "Apply appropriate sizing principles to solar system components."
-            ],
-        slug: slug102,
-        priceNgn: course102?.priceNgn || `₦${Number(course102?.price || 15000).toLocaleString()}`,
-      },
     },
   ];
 
@@ -138,7 +87,7 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
   const slide = slides[currentSlide % slides.length];
 
   return (
-    <section className="relative min-h-[90vh] lg:min-h-[680px] w-full overflow-hidden bg-transparent flex flex-col justify-between select-none py-10 lg:py-14">
+    <section className="relative min-h-[85vh] lg:min-h-[640px] w-full overflow-hidden bg-transparent flex flex-col justify-between select-none py-12 lg:py-16">
       {/* 1. Background Image with AnimatePresence and Zoom-In Transition */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-950 via-slate-900 to-[#080f1e] overflow-hidden">
         {/* Subtle Shimmer Skeleton while media mounts */}
@@ -165,147 +114,72 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
         </AnimatePresence>
 
         {/* Lighter, high-visibility dual-layer gradient overlays making solar photography distinctly visible */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/65 via-slate-900/35 to-slate-950/15" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080f1e]/80 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/45 to-slate-950/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080f1e]/85 via-transparent to-black/30" />
       </div>
 
-      {/* 2. Responsive 2-Column Hero Content Container */}
+      {/* 2. Full-Width Responsive Hero Content Container */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex flex-col justify-center my-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          
-          {/* Left Column (60% on desktop): Headline, Eyebrow, Subtitle & CTAs */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentSlide}
-                initial={{ opacity: 0, y: 22 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="space-y-4 sm:space-y-6"
-              >
-                {/* Eyebrow Pill */}
-                <div className="text-sky-400 font-semibold uppercase tracking-widest text-xs flex items-center gap-2 drop-shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-                  <span>{slide.eyebrow}</span>
+        <div className="max-w-3xl lg:max-w-4xl">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide}
+              initial={{ opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="space-y-5 sm:space-y-6"
+            >
+              {/* Eyebrow Pill */}
+              <div className="text-sky-400 font-semibold uppercase tracking-widest text-xs flex items-center gap-2 drop-shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+                <span>{slide.eyebrow}</span>
+              </div>
+
+              {/* Main Headline */}
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12] text-balance drop-shadow-md [text-shadow:_0_2px_10px_rgb(0_0_0_/_60%)]">
+                {slide.title}
+              </h1>
+
+              {/* Subtitle */}
+              <p className="text-slate-100 text-base sm:text-lg lg:text-xl max-w-2xl font-normal leading-relaxed text-balance drop-shadow-sm [text-shadow:_0_1px_8px_rgb(0_0_0_/_50%)]">
+                {slide.description}
+              </p>
+
+              {/* Relocated Course Price & Training Duration Badge */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 font-mono font-bold text-sm backdrop-blur-md shadow-xs">
+                  <span className="text-xs uppercase tracking-wider text-emerald-200/80 font-sans font-semibold">Tuition</span>
+                  <span className="text-white text-base font-extrabold">{slide.priceNgn}</span>
                 </div>
-
-                {/* Main Headline */}
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-white leading-[1.12] text-balance drop-shadow-md [text-shadow:_0_2px_10px_rgb(0_0_0_/_60%)]">
-                  {slide.title}
-                </h1>
-
-                {/* Subtitle */}
-                <p className="text-slate-100 text-sm sm:text-base lg:text-lg max-w-xl font-normal leading-relaxed text-balance drop-shadow-sm [text-shadow:_0_1px_8px_rgb(0_0_0_/_50%)]">
-                  {slide.description}
-                </p>
-
-                {/* Dual Standout Buttons */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
-                  <Link
-                    href={slide.primaryCtaHref}
-                    className="bg-[#2B82C9] hover:bg-sky-600 active:scale-[0.98] text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer"
-                  >
-                    <span>{slide.primaryCtaText}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-
-                  <Link
-                    href={slide.secondaryCtaHref}
-                    className="backdrop-blur-md bg-white/10 hover:bg-white/20 active:scale-[0.98] border border-white/20 text-white font-medium px-8 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>{slide.secondaryCtaText}</span>
-                  </Link>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/10 border border-white/20 text-slate-200 text-sm font-medium backdrop-blur-md shadow-xs">
+                  <Clock className="w-4 h-4 text-amber-400" />
+                  <span>{slide.trainingHours}</span>
                 </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Right Column (40% on desktop): Dynamic edX-Style Glassmorphic Course Preview Card */}
-          <div className="lg:col-span-5 w-full flex justify-center lg:justify-end">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentSlide}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="backdrop-blur-xl bg-slate-900/80 border border-white/20 rounded-2xl p-5 sm:p-6 shadow-2xl text-white max-w-md w-full mx-auto"
-              >
-                {/* Top Badge Row */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="bg-sky-500/20 text-sky-300 font-mono text-xs px-2.5 py-1 rounded-full border border-sky-400/30">
-                    {slide.coursePreview.courseCode}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {slide.coursePreview.priceNgn && (
-                      <span className="text-emerald-400 text-xs font-mono font-bold">
-                        {slide.coursePreview.priceNgn}
-                      </span>
-                    )}
-                    <span className="text-amber-400 text-xs font-semibold flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>{slide.coursePreview.contactHours}</span>
-                    </span>
-                  </div>
+                <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/20 border border-sky-400/30 text-sky-200 text-xs font-mono font-bold backdrop-blur-md">
+                  <span>{slide.courseCode}</span>
                 </div>
+              </div>
 
-                {/* Thumbnail Container (160px height with subtle play overlay) */}
-                <div className="h-[160px] rounded-xl overflow-hidden relative my-4 bg-gradient-to-br from-slate-950 to-slate-900 group">
-                  <img
-                    src={slide.coursePreview.previewThumbnail}
-                    alt={slide.coursePreview.courseTitle}
-                    loading={currentSlide === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-black/30 to-transparent" />
-                  
-                  {/* Subtle Play Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Play className="w-5 h-5 text-white fill-current ml-0.5" />
-                    </div>
-                  </div>
-
-                  {/* Level tag in corner */}
-                  <span className="absolute bottom-2.5 left-2.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-black/60 backdrop-blur-xs px-2 py-0.5 rounded text-white/90">
-                    {slide.coursePreview.level}
-                  </span>
-                </div>
-
-                {/* Course Title */}
-                <h3 className="text-lg font-bold text-white tracking-tight leading-snug line-clamp-2 mb-3">
-                  {slide.coursePreview.courseTitle}
-                </h3>
-
-                {/* Key Course Learning Modules Checklist */}
-                <div className="space-y-2">
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1.5 font-bold">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#2B82C9]" />
-                    <span>KEY COURSE LEARNING MODULES</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    {slide.coursePreview.highlights.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs text-slate-200">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#2B82C9] shrink-0 mt-0.5" />
-                        <span className="line-clamp-2 leading-relaxed">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Card Action Button */}
+              {/* Dual Standout Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <Link
-                  href={`/courses/${slide.coursePreview.slug}`}
-                  className="bg-white hover:bg-slate-100 active:scale-[0.98] text-slate-900 font-semibold py-3 rounded-xl transition-all shadow-md text-center block text-sm mt-5 cursor-pointer"
+                  href={slide.primaryCtaHref}
+                  className="bg-[#2B82C9] hover:bg-sky-600 active:scale-[0.98] text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer text-base"
                 >
-                  View Course & Syllabus →
+                  <span>{slide.primaryCtaText}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
-              </motion.div>
-            </AnimatePresence>
-          </div>
 
+                <Link
+                  href={slide.secondaryCtaHref}
+                  className="backdrop-blur-md bg-white/10 hover:bg-white/20 active:scale-[0.98] border border-white/20 text-white font-medium px-8 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-base"
+                >
+                  <span>{slide.secondaryCtaText}</span>
+                </Link>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 
