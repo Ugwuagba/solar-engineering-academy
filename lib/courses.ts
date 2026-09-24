@@ -44,6 +44,7 @@ function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse
     : seedMatch?.discountPercentage;
 
   return {
+    id: c.id,
     code: c.code,
     title: c.title,
     subtitle: c.subtitle || seedMatch?.subtitle || c.description?.slice(0, 150) + "...",
@@ -53,6 +54,7 @@ function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse
     deliveryType: (c.deliveryType as "SELF_PACED" | "COHORT") || "SELF_PACED",
     contactHours: c.contactHours || 40,
     price: c.price,
+    originalPrice: c.originalPrice,
     priceNgn,
     originalPriceNgn,
     discountPercentage,
@@ -119,6 +121,7 @@ function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse
       title: m.title,
       sortOrder: m.sortOrder ?? mIdx + 1,
       lessons: (m.lessons || []).map((l: any, lIdx: number) => ({
+        id: l.id,
         title: l.title,
         sortOrder: l.sortOrder ?? lIdx + 1,
         videoUrl: l.videoUrl || "",
@@ -186,8 +189,17 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
 
 export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> {
   try {
-    const course = await prisma.course.findUnique({
-      where: { slug },
+    const course = await prisma.course.findFirst({
+      where: {
+        OR: [
+          { slug },
+          { slug: { startsWith: slug } },
+          { id: slug },
+          { code: slug },
+          ...(slug.toLowerCase().includes("101") ? [{ code: "SI101" }, { slug: "solar-installation-101-6402" }, { slug: "solar-installation-101" }] : []),
+          ...(slug.toLowerCase().includes("102") ? [{ code: "SI102" }, { slug: "solar-installation-102" }] : []),
+        ],
+      },
       include: {
         modules: {
           orderBy: { sortOrder: "asc" },
@@ -208,8 +220,8 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
       const seedMatch = SEED_COURSES.find((s) => s.code === course.code || s.slug === course.slug);
       return mapPrismaCourseToSeedCourse(course, seedMatch);
     }
-  } catch {
-    // Fall back to seed data
+  } catch (err) {
+    console.error("[getCourseBySlug Error]:", err);
   }
 
   const normalizedSlug = slug.toLowerCase();

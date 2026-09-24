@@ -17,6 +17,7 @@ model User {
   enrollments     Enrollment[]
   certificates    Certificate[]
   quizAttempts    QuizAttempt[]
+  lessonProgresses LessonProgress[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
@@ -90,6 +91,7 @@ model Lesson {
   technicalSheetUrl String?
   isFreePreview     Boolean    @default(false)
   progresses        Progress[]
+  lessonProgresses  LessonProgress[]
   createdAt         DateTime   @default(now())
 }
 
@@ -178,4 +180,20 @@ model OtpVerification {
   createdAt DateTime @default(now())
 
   @@index([email])
+}
+
+model LessonProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  lessonId     String
+  courseId     String
+  completed    Boolean  @default(false)
+  lastPosition Int      @default(0) // timestamp in seconds
+  updatedAt    DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId, courseId])
 }

@@ -61,7 +61,7 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
         body: JSON.stringify({
           courseId: course.id || course.code,
           courseSlug: course.slug,
-          amount: course.price || 5000,
+          amount: course.price !== undefined ? Number(course.price) : 5000,
           email: session.user.email,
           name: session.user.name,
           userId: session.user.id,
@@ -131,18 +131,26 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
           <div>
             <div className="flex items-baseline gap-3">
               <span className="text-3xl sm:text-4xl font-black text-slate-900 font-mono tracking-tight">
-                {course.priceNgn || formatCurrency(course.price)}
+                ₦{Number(course.price || 0).toLocaleString()}
               </span>
-              {course.originalPriceNgn && (
+              {course.originalPrice && course.originalPrice > course.price ? (
+                <span className="text-base font-semibold text-slate-400 line-through font-mono">
+                  ₦{Number(course.originalPrice).toLocaleString()}
+                </span>
+              ) : course.originalPriceNgn ? (
                 <span className="text-base font-semibold text-slate-400 line-through font-mono">
                   {course.originalPriceNgn}
                 </span>
-              )}
-              {course.discountPercentage && (
+              ) : null}
+              {course.originalPrice && course.originalPrice > course.price ? (
+                <span className="text-xs font-bold text-[#D74000] bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
+                  {Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100)}% off
+                </span>
+              ) : course.discountPercentage ? (
                 <span className="text-xs font-bold text-[#D74000] bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
                   {course.discountPercentage}% off
                 </span>
-              )}
+              ) : null}
             </div>
 
             {/* Urgency Callout */}

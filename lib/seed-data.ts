@@ -6,6 +6,7 @@ export interface SeedQuestion {
 }
 
 export interface SeedLesson {
+  id?: string;
   title: string;
   sortOrder: number;
   videoUrl: string;
@@ -39,6 +40,7 @@ export interface SeedCourse {
   deliveryType: "SELF_PACED" | "COHORT";
   contactHours: number;
   price: number;
+  originalPrice?: number;
   priceNgn?: string;
   originalPriceNgn?: string;
   discountPercentage?: number;
@@ -81,10 +83,10 @@ export const SEED_COURSES: SeedCourse[] = [
     level: "INTERMEDIATE",
     deliveryType: "SELF_PACED",
     contactHours: 48,
-    price: 350,
-    priceNgn: "₦150,000",
-    originalPriceNgn: "₦180,000",
-    discountPercentage: 17,
+    price: 200,
+    priceNgn: "₦200",
+    originalPriceNgn: "₦10,000",
+    discountPercentage: 98,
     rating: 4.9,
     ratingCount: 2450,
     studentsCount: 14200,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,7 +10,26 @@ export async function POST(req: NextRequest) {
 
     const courseId = body.courseId;
     const courseSlug = body.courseSlug || body.slug || "";
-    const amount = Number(body.amount) || 5000;
+    
+    // Resolve exact course price from passed body or database
+    let resolvedAmount = typeof body.amount === "number" ? body.amount : (body.amount ? Number(body.amount) : undefined);
+
+    if ((resolvedAmount === undefined || isNaN(resolvedAmount)) && (courseId || courseSlug)) {
+      const dbCourse = await prisma.course.findFirst({
+        where: {
+          OR: [
+            ...(courseId ? [{ id: courseId }, { code: courseId }] : []),
+            ...(courseSlug ? [{ slug: courseSlug }, { slug: { startsWith: courseSlug } }] : []),
+          ],
+        },
+        select: { price: true },
+      });
+      if (dbCourse && typeof dbCourse.price === "number") {
+        resolvedAmount = dbCourse.price;
+      }
+    }
+
+    const amount = (resolvedAmount !== undefined && !isNaN(resolvedAmount)) ? resolvedAmount : 5000;
     const email = body.email || session?.user?.email;
     const name = body.name || session?.user?.name || "Student Candidate";
     const userId = body.userId || session?.user?.id;

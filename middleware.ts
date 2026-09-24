@@ -25,7 +25,7 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
         // Gated classroom requires authenticated session
-        if (path.startsWith("/learn")) {
+        if (path.startsWith("/learn") || path.startsWith("/classroom")) {
           return !!token;
         }
         // Admin panel requires authenticated session
@@ -42,5 +42,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/learn/:path*", "/admin/:path*"],
+  matcher: ["/learn/:path*", "/classroom/:path*", "/classroom", "/admin/:path*"],
 };

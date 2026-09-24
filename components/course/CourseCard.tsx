@@ -32,7 +32,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
         body: JSON.stringify({
           courseId: course.id || course.code,
           courseSlug: course.slug,
-          amount: course.price || 5000,
+          amount: course.price !== undefined ? Number(course.price) : 5000,
           email: session.user.email,
           name: session.user.name,
           userId: session.user.id,
@@ -77,7 +77,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
       "Equipment commissioning, hybrid inverter programming, and fault diagnostics",
     ];
 
-  const priceFormatted = course.priceNgn || formatCurrency(course.price || 0);
+  const priceFormatted = `₦${Number(course.price || 0).toLocaleString()}`;
 
   return (
     <div className="deye-card relative group bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-2xl hover:border-[#2B82C9]/60 transition-all duration-300 flex flex-col justify-between overflow-hidden">
