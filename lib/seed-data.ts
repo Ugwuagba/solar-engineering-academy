@@ -1258,89 +1258,6 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     ]
   },
 
-  // 4. Introduction to Commercial, Industrial and Mini Grid Solar System Design, Installation and Maintenance
-  {
-    code: "CIGID101",
-    title: "Introduction to Commercial, Industrial and Mini Grid Solar System Design, Installation and Maintenance",
-    subtitle: "Foundational Engineering for Megawatt Rooftop Arrays, Industrial Three-Phase Hybrid Systems, and Rural Microgrids",
-    slug: "intro-commercial-industrial-minigrid",
-    instructor: "Engr. Asanga & Power Systems Faculty",
-    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
-    description:
-      "Bridge the gap between residential setups and heavy commercial/industrial infrastructure. Learn three-phase 415V/480V electrical distribution, commercial cable sizing, roof structural integrity checks, and mini-grid architecture.",
-    level: "INTERMEDIATE",
-    deliveryType: "SELF_PACED",
-    contactHours: 36,
-    price: 360,
-    priceNgn: "₦160,000",
-    originalPriceNgn: "₦195,000",
-    discountPercentage: 18,
-    rating: 4.9,
-    ratingCount: 1310,
-    studentsCount: 7420,
-    thumbnailImage: "/images/courses/course-4-c-and-i-intro.jpg",
-    badge: "Accredited",
-    isPublished: true,
-    whatYouWillLearn: [
-      "Understand the electrical and structural fundamentals of commercial rooftop and ground-mount PV",
-      "Analyze three-phase industrial electrical distribution boards and tie-in points",
-      "Select commercial string inverters and centralized inverter stations",
-      "Comply with HSE working-at-heights and industrial electrical safety protocols",
-      "Understand mini-grid power balance and distribution principles"
-    ],
-    requirements: [
-      "Basic electrical or solar foundation recommended",
-      "Familiarity with AC power systems (voltage, current, frequency)"
-    ],
-    targetAudience: [
-      "Solar technicians aiming to enter commercial and industrial sectors",
-      "Industrial facility managers and plant engineers",
-      "Renewable energy project coordinators"
-    ],
-    includes: [
-      "36 hours of focused commercial solar video lectures",
-      "C&I Single Line Diagram Templates",
-      "Rooftop Ballasted Mounting Structural Guide",
-      "Official Subway Schools Accredited Certificate of Completion",
-      "Verifiable digital credential & portfolio badge"
-    ],
-    tools: [
-      {
-        title: "Commercial PV BOQ & Materials Takeoff Worksheet",
-        format: ".XLSX",
-        fileSize: "3.5 MB",
-        description: "Comprehensive bill of quantities generator for industrial commercial rooftop installations."
-      }
-    ],
-    modules: [
-      {
-        title: "Module 1: Three-Phase Commercial Electrical Distribution",
-        sortOrder: 1,
-        lessons: [
-          {
-            title: "Lesson 1.1: 415V/480V 3-Phase Busbar Interconnection & Main Switchboards",
-            sortOrder: 1,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-            durationSec: 1800,
-            isFreePreview: true,
-            contentMarkdown: "### Industrial Switchboards\nSupply-side vs load-side interconnection rules and busbar ampacity rating checks."
-          }
-        ],
-        quiz: {
-          title: "Module 1 Quiz: Commercial Distribution",
-          passingScore: 70,
-          questions: [
-            {
-              text: "What is the standard line-to-line AC voltage for commercial three-phase distribution in Nigeria and the UK?",
-              options: ["220V", "400V - 415V", "600V", "1000V"],
-              correctOptionIndex: 1,
-              explanation: "Commercial 3-phase low voltage distribution operates at 400V to 415V line-to-line (230V line-to-neutral)."
-            }
-          ]
-        }
-      }
-    ]
-  },
 
   // 5. Advance Commercial Solar System Design, Installation and maintenance Training
   {
@@ -1510,89 +1427,6 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     ]
   },
 
-  // 7. Introduction to Battery Fabrication
-  {
-    code: "BATT101",
-    title: "Introduction to Battery Fabrication",
-    subtitle: "Hands-on Cell Sorting, Internal Resistance Testing, Spot Welding Nickel Strips & Building Safe Lithium-Ion Battery Packs",
-    slug: "intro-battery-fabrication",
-    instructor: "Engr. Asanga & Battery Cell Specialists",
-    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
-    description:
-      "A hands-on practical masterclass teaching you how to fabricate custom lithium battery packs from scratch. Master cell chemistry, internal resistance grading, spot-welding nickel tabs, BMS installation, and pack thermal protection.",
-    level: "INTRODUCTORY",
-    deliveryType: "SELF_PACED",
-    contactHours: 24,
-    price: 280,
-    priceNgn: "₦125,000",
-    originalPriceNgn: "₦155,000",
-    discountPercentage: 19,
-    rating: 4.8,
-    ratingCount: 1420,
-    studentsCount: 9300,
-    thumbnailImage: "/images/courses/course-7-battery-fabrication.jpg",
-    badge: "Practical Workshop",
-    isPublished: true,
-    whatYouWillLearn: [
-      "Differentiate between 18650, 21700, 32700, and prismatic lithium cell chemistries",
-      "Use internal resistance (mΩ) meters and capacity testers to grade and match cells",
-      "Operate precision capacitive and transformer spot welders with pure nickel strips",
-      "Calculate series (S) and parallel (P) configurations for required voltage and amp-hours",
-      "Wire Battery Management System (BMS) balance leads, temperature sensors, and main terminals"
-    ],
-    requirements: [
-      "Basic interest in electronics and electrical safety",
-      "No previous fabrication experience required"
-    ],
-    targetAudience: [
-      "Solar technicians wanting to build and repair custom lithium batteries",
-      "Electronics technicians and makers",
-      "Entrepreneurs wanting to start a battery assembly business"
-    ],
-    includes: [
-      "24 hours step-by-step practical video demonstrations",
-      "Battery Pack Series/Parallel Configuration Matrix",
-      "BMS Wiring Diagrams & Safety Guidelines",
-      "Official Subway Schools Accredited Certificate of Completion",
-      "Verifiable digital credential & portfolio badge"
-    ],
-    tools: [
-      {
-        title: "Lithium Pack Sizing & Busbar Current Density Sheet",
-        format: ".XLSX",
-        fileSize: "2.1 MB",
-        description: "Calculates nickel strip width/thickness requirements for target continuous discharge ampacity."
-      }
-    ],
-    modules: [
-      {
-        title: "Module 1: Lithium Cell Selection & Internal Resistance Grading",
-        sortOrder: 1,
-        lessons: [
-          {
-            title: "Lesson 1.1: Cell Chemistry Comparison: Li-Ion NMC vs LiFePO4",
-            sortOrder: 1,
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-            durationSec: 1800,
-            isFreePreview: true,
-            contentMarkdown: "### Lithium Chemistries\nNominal voltages (3.2V for LFP vs 3.7V for NMC), cycle life, and thermal runaway thresholds."
-          }
-        ],
-        quiz: {
-          title: "Module 1 Quiz: Cell Selection",
-          passingScore: 70,
-          questions: [
-            {
-              text: "What is the nominal voltage of a single Lithium Iron Phosphate (LiFePO4) cell?",
-              options: ["1.2V", "2.0V", "3.2V", "3.7V"],
-              correctOptionIndex: 2,
-              explanation: "LiFePO4 cells operate at a nominal voltage of 3.2V (fully charged at 3.65V, discharged at 2.5V)."
-            }
-          ]
-        }
-      }
-    ]
-  },
 
   // 8. Advance Battery Demystified Training
   {
@@ -1626,7 +1460,7 @@ $$\\text{Min MPPT Voltage } V_{\\text{mp-min}} = V_{\\text{mp-stc}} \\times \\le
     ],
     requirements: [
       "Understanding of basic electrical circuits and battery terminology",
-      "Completion of Introduction to Battery Fabrication or equivalent experience"
+      "Completion of battery fundamentals or equivalent experience"
     ],
     targetAudience: [
       "Advanced solar installers and battery technicians",

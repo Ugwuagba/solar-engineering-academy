@@ -43,7 +43,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           success: true,
-          message: "Mock course cleared",
+          message: "Course removed",
           deletedId: id,
         },
         { status: 200 }
@@ -58,7 +58,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: true,
-        message: "Course deleted from database",
+        message: "Course removed",
         deletedId: course.id,
       },
       { status: 200 }

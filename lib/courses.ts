@@ -214,8 +214,8 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
 
   const normalizedSlug = slug.toLowerCase();
   if (normalizedSlug === "pvol-101" || normalizedSlug === "pvol101" || normalizedSlug === "commercial-industrial-solar") {
-    const pvolMatch = SEED_COURSES.find((c) => c.slug === "intro-commercial-industrial-minigrid" || c.code === "CIGID101");
-    if (pvolMatch) return { ...pvolMatch, slug: "commercial-industrial-solar", code: "CIGID 101", title: "Commercial & Industrial (C&I) Mini-Grid Design" };
+    const pvolMatch = SEED_COURSES.find((c) => c.slug === "advance-commercial-solar-training" || c.code === "CIGID201");
+    if (pvolMatch) return { ...pvolMatch, slug: "commercial-industrial-solar", code: "CIGID 201", title: "Commercial & Industrial (C&I) Mini-Grid Design" };
   }
   if (normalizedSlug === "bess-201" || normalizedSlug === "bess201") {
     const bessMatch = SEED_COURSES.find((c) => c.slug === "advance-battery-demystified-training" || c.code === "BATT201");

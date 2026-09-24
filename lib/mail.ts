@@ -1,26 +1,21 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
-function getSmtpTransporter() {
-  const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT || "465", 10);
-  const secure = process.env.SMTP_SECURE === "true" || port === 465;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-
-  if (host && user && pass) {
-    return nodemailer.createTransport({
-      host,
-      port,
-      secure,
-      auth: {
-        user,
-        pass,
-      },
-    });
-  }
-  return null;
-}
+export const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || "102.212.246.122",
+  port: Number(process.env.SMTP_PORT) || 587,
+  secure: false, // Required for port 587 STARTTLS
+  auth: {
+    user: process.env.SMTP_USER || "admission@subwayschools.com", // Exact singular match
+    pass: process.env.SMTP_PASS || "@Asanga123",
+  },
+  tls: {
+    rejectUnauthorized: false, // Prevents certificate hostname mismatch drops
+  },
+  pool: true,
+  maxConnections: 3,
+  maxMessages: 50,
+});
 
 /**
  * Send 6-digit OTP verification email via official SMTP (Subway Schools)
@@ -36,7 +31,7 @@ export async function sendVerificationOtpEmail(
   // Always log to terminal so local testing and offline execution are never blocked
   console.log(`[OTP DISPATCH -> ${email}]: ${code}`);
 
-  const from = process.env.EMAIL_FROM || "Subway Schools <admissions@subwayschools.com>";
+  const from = process.env.EMAIL_FROM || "Subway Schools <admission@subwayschools.com>";
   const greeting = name ? `Hello ${name},` : "Hello,";
   const subject = `${code} is your Subway Schools verification code`;
 
@@ -99,22 +94,19 @@ export async function sendVerificationOtpEmail(
     </html>
   `;
 
-  // 1. Prioritize SMTP (Subway Schools Official Mail)
-  const smtpTransporter = getSmtpTransporter();
-  if (smtpTransporter) {
-    try {
-      const info = await smtpTransporter.sendMail({
-        from,
-        to: email,
-        subject,
-        html,
-      });
-      console.log(`[SMTP Success]: Verification OTP dispatched to ${email}: ${info.messageId}`);
-      return { success: true, data: info };
-    } catch (smtpErr) {
-      console.error("[SMTP Error]: Failed sending via SMTP:", smtpErr);
-      // Fall through to Resend fallback if configured
-    }
+  // 1. Prioritize SMTP (Subway Schools Official Mail via direct cPanel IP)
+  try {
+    const info = await transporter.sendMail({
+      from,
+      to: email,
+      subject,
+      html,
+    });
+    console.log(`[SMTP Success]: Verification OTP dispatched to ${email}: ${info.messageId}`);
+    return { success: true, data: info };
+  } catch (smtpErr) {
+    console.error("[SMTP Error]: Failed sending via SMTP:", smtpErr);
+    // Fall through to Resend fallback if configured
   }
 
   // 2. Fallback to Resend SDK if RESEND_API_KEY is available

@@ -71,7 +71,7 @@ export default function ClassroomPage({
   const progressPct = Math.min(100, Math.round((currentLessonGlobalNumber / totalLessons) * 100));
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[#F8FAFC] text-slate-900 flex flex-col">
+    <div className="h-screen overflow-hidden bg-[#F8FAFC] text-slate-900 flex flex-col">
       {/* Top Classroom Bar */}
       <header className="h-16 border-b border-slate-200/80 bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-2xs z-20">
         <div className="flex items-center gap-3">
@@ -124,9 +124,9 @@ export default function ClassroomPage({
       </header>
 
       {/* Main Split Player Layout */}
-      <div className="w-full flex-1 min-h-0 lg:h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-12 overflow-visible lg:overflow-hidden">
-        {/* Left / Center: Active Player or Quiz View */}
-        <main className="w-full lg:col-span-8 h-auto lg:h-full overflow-y-visible lg:overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-6">
+      <div className="w-full flex-1 min-h-0 h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+        {/* Left Column (Video & Lesson info) */}
+        <main className="w-full lg:col-span-8 h-full overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-6">
           {!isQuizMode ? (
             /* Video Lecture Mode */
             <div className="max-w-4xl mx-auto space-y-6">
@@ -327,8 +327,8 @@ export default function ClassroomPage({
           )}
         </main>
 
-        {/* Right Sidebar: Modules & Lessons Drawer */}
-        <aside className="w-full lg:col-span-4 h-auto lg:h-full overflow-y-visible lg:overflow-y-auto border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 p-4 custom-scrollbar bg-white shadow-xs">
+        {/* Right Column (Course Curriculum & Modules) */}
+        <aside className="w-full lg:col-span-4 h-full overflow-y-auto border-l border-slate-200 dark:border-slate-800 p-4 custom-scrollbar bg-white shadow-xs">
           {/* Pinned Curriculum Header */}
           <div className="sticky -top-4 -mx-4 px-4 pt-4 pb-3 bg-white border-b border-slate-200 dark:border-slate-800 z-10 mb-4 shadow-2xs">
             <div className="flex items-center justify-between">
