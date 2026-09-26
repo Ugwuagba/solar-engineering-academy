@@ -176,7 +176,7 @@ export async function sendEnrollmentReceiptEmail({
     ? paymentDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }) 
     : String(paymentDate);
 
-  const rawPhone = process.env.NEXT_PUBLIC_INSTRUCTOR_WHATSAPP || "+2348000000000";
+  const rawPhone = process.env.NEXT_PUBLIC_INSTRUCTOR_WHATSAPP || "2347012715632";
   const cleanPhone = rawPhone.replace(/[^0-9]/g, "");
   const whatsappMsg = `Hi, I paid for ${courseTitle}. I'd like to get access to the videos.\n\nStudent: ${studentName || toEmail}\nRef: ${txRef}`;
   const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappMsg)}`;
