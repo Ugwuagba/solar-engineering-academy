@@ -11,16 +11,29 @@ import {
   Check,
   RotateCcw,
   Sparkles,
-  Award
+  Award,
+  X
 } from "lucide-react";
 import { SeedCourse, SeedLesson, SeedModule } from "@/lib/seed-data";
 import { formatDuration } from "@/lib/utils";
+
+function WhatsAppIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.031 2C6.505 2 2.012 6.484 2.009 12.008c-.001 1.764.461 3.488 1.339 5.008L2 22l5.127-1.325c1.472.802 3.13 1.226 4.819 1.227h.005c5.524 0 10.017-4.484 10.02-10.009A9.957 9.957 0 0 0 19.08 4.93 9.943 9.943 0 0 0 12.031 2zm0 18.232h-.004a8.238 8.238 0 0 1-4.204-1.155l-.302-.179-3.123.807.832-3.042-.197-.313a8.194 8.194 0 0 1-1.258-4.341c.002-4.551 3.708-8.254 8.263-8.254 2.207.001 4.28 1.05 5.84 2.61a8.212 8.212 0 0 1 2.418 5.836c-.002 4.552-3.708 8.256-8.268 8.256zm4.53-6.182c-.248-.124-1.468-.724-1.696-.807-.228-.083-.394-.124-.56.124-.166.248-.642.807-.787.973-.145.166-.29.186-.538.062-.248-.124-1.047-.386-1.995-1.23-.738-.658-1.237-1.47-1.382-1.718-.145-.248-.015-.382.109-.505.112-.111.248-.29.373-.435.124-.145.166-.248.248-.414.083-.166.042-.311-.02-.435-.063-.124-.56-1.349-.767-1.848-.202-.486-.407-.42-.56-.428l-.477-.009c-.166 0-.435.062-.663.311-.228.249-.87 0.85-.87 2.073s.891 2.404 1.015 2.57c.125.166 1.753 2.677 4.248 3.754.593.256 1.057.409 1.418.524.597.19 1.141.163 1.571.099.479-.072 1.468-.6 1.675-1.18.207-.58.207-1.077.145-1.18-.062-.104-.228-.166-.477-.29z"/>
+    </svg>
+  );
+}
 
 interface ClassroomPlayerProps {
   course: SeedCourse;
   initialProgress?: Record<string, { completed: boolean; lastPosition: number }>;
   requestedLessonId?: string;
   userId?: string;
+  paymentStatus?: string;
+  txRef?: string;
+  studentName?: string;
+  studentEmail?: string;
 }
 
 export default function ClassroomPlayer({
@@ -28,6 +41,10 @@ export default function ClassroomPlayer({
   initialProgress = {},
   requestedLessonId,
   userId,
+  paymentStatus,
+  txRef,
+  studentName,
+  studentEmail,
 }: ClassroomPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastSavedTimeRef = useRef<number>(0);
@@ -92,6 +109,33 @@ export default function ClassroomPlayer({
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [resumeNotification, setResumeNotification] = useState<string | null>(null);
   const [isSavingProgress, setIsSavingProgress] = useState(false);
+
+  // Payment onboarding and celebration modal state
+  const [showPaymentSuccessModal, setShowPaymentSuccessModal] = useState(paymentStatus === "success");
+  const [showPaymentSuccessBanner, setShowPaymentSuccessBanner] = useState(paymentStatus === "success");
+  const [activeTxRef, setActiveTxRef] = useState(txRef || "");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isSuccess = urlParams.get("payment") === "success" || paymentStatus === "success";
+      const ref = urlParams.get("tx_ref") || txRef || "";
+      if (isSuccess) {
+        setShowPaymentSuccessModal(true);
+        setShowPaymentSuccessBanner(true);
+      }
+      if (ref) {
+        setActiveTxRef(ref);
+      }
+    }
+  }, [paymentStatus, txRef]);
+
+  // Clean WhatsApp phone number & prefilled message generator
+  const rawPhone = process.env.NEXT_PUBLIC_INSTRUCTOR_WHATSAPP || "+2348000000000";
+  const cleanPhone = rawPhone.replace(/[^0-9]/g, "");
+  const studentIdentifier = studentName || studentEmail || (userId ? `Student (${userId.slice(0, 8)})` : "Enrolled Student");
+  const rawMessage = `Hi, I paid for ${course.title}. I'd like to get access to the videos.\n\nStudent: ${studentIdentifier}\nRef: ${activeTxRef || "Enrolled"}`;
+  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(rawMessage)}`;
 
   // Quiz state
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
@@ -350,6 +394,50 @@ export default function ClassroomPlayer({
       <div className="w-full flex-1 min-h-0 h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
         {/* Left Column (Video & Lesson info) */}
         <main className="w-full lg:col-span-8 h-full overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-6">
+          {/* Celebratory Post-Payment Banner */}
+          {showPaymentSuccessBanner && (
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-sky-500/10 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                  <WhatsAppIcon className="w-5 h-5 fill-current" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                      Payment Confirmed
+                    </span>
+                    {activeTxRef && (
+                      <span className="text-xs font-mono text-slate-500">Ref: {activeTxRef}</span>
+                    )}
+                  </div>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 mt-1">
+                    Welcome to {course.title}!
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5 max-w-xl leading-relaxed">
+                    Your tuition payment has been verified. Connect directly with the lead instructor on WhatsApp to get access to offline video downloads and private masterclass support.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 text-xs font-bold rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-4 h-4 fill-current" />
+                  <span>Reach Out to Instructor for Videos</span>
+                </a>
+                <button
+                  onClick={() => setShowPaymentSuccessBanner(false)}
+                  className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                  title="Dismiss banner"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
           {!isQuizMode ? (
             /* Video Lecture Mode */
             <div className="max-w-4xl mx-auto space-y-6">
@@ -397,8 +485,19 @@ export default function ClassroomPlayer({
                   </p>
                 </div>
 
-                {/* Action Buttons: Mark Complete & Quiz */}
+                {/* Action Buttons: Mark Complete, WhatsApp Outreach, & Quiz */}
                 <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 text-xs font-bold rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center gap-2 shadow-xs transition-all cursor-pointer"
+                    title="Reach Out to Instructor for Videos on WhatsApp"
+                  >
+                    <WhatsAppIcon className="w-4 h-4 fill-current" />
+                    <span>Reach Out to Instructor for Videos</span>
+                  </a>
+
                   <button
                     onClick={handleToggleComplete}
                     className={`px-4 py-2.5 text-xs font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
@@ -606,6 +705,30 @@ export default function ClassroomPlayer({
             </div>
           </div>
 
+          {/* Persistent Instructor Assistance & Video Access Card in Sidebar */}
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50/50 to-white border border-emerald-200/80 shadow-2xs space-y-3 mb-4">
+            <div className="flex items-start gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-xs">
+                <WhatsAppIcon className="w-4 h-4 fill-current" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-900 leading-tight">Instructor Assistance</h4>
+                <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
+                  Need direct video access or technical guidance from Engr. Asanga?
+                </p>
+              </div>
+            </div>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+            >
+              <WhatsAppIcon className="w-4 h-4 fill-current" />
+              <span>Chat with Instructor on WhatsApp</span>
+            </a>
+          </div>
+
           <div className="space-y-4">
             {course.modules.map((mod, mIdx) => {
               const isActiveMod = mIdx === activeModuleIdx;
@@ -705,6 +828,61 @@ export default function ClassroomPlayer({
           </div>
         </aside>
       </div>
+
+      {/* Celebratory Welcome Modal when arriving directly from checkout (?payment=success) */}
+      {showPaymentSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center space-y-5 shadow-2xl border border-slate-100 relative">
+            <button
+              onClick={() => setShowPaymentSuccessModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-[#25D366] border border-emerald-200 flex items-center justify-center mx-auto shadow-inner">
+              <WhatsAppIcon className="w-9 h-9 fill-current" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-mono font-bold">
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                <span>ENROLLMENT ACTIVATED</span>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                Welcome to the Academy!
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed max-w-xs mx-auto">
+                Your tuition for <strong>{course.title}</strong> is confirmed. Reach out directly to your instructor on WhatsApp to receive video access, engineering files, and your cohort orientation:
+              </p>
+              {activeTxRef && (
+                <div className="text-[11px] font-mono text-slate-500 bg-slate-50 py-1.5 px-3 rounded-lg border border-slate-200/80">
+                  Payment Ref: <strong className="text-slate-800">{activeTxRef}</strong>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2.5 pt-2">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3.5 px-6 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-sm shadow-md shadow-[#25D366]/30 flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+              >
+                <WhatsAppIcon className="w-5 h-5 fill-current" />
+                <span>Reach Out to Instructor for Videos</span>
+              </a>
+              <button
+                onClick={() => setShowPaymentSuccessModal(false)}
+                className="w-full py-2.5 px-4 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Continue to Course Player
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

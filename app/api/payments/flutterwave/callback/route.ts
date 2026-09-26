@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { sendEnrollmentReceiptEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -83,7 +84,7 @@ export async function GET(req: NextRequest) {
     });
 
     // 3. Resolve User in DB (by userId or customer email)
-    const user = await prisma.user.findFirst({
+    let user = await prisma.user.findFirst({
       where: {
         OR: [
           ...(metaUserId ? [{ id: metaUserId }] : []),
@@ -92,7 +93,27 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    // Auto-create user profile if paying student has not registered yet
+    if (!user && customerEmail) {
+      try {
+        const studentName = tx.customer?.name || "Student Candidate";
+        user = await prisma.user.create({
+          data: {
+            email: customerEmail,
+            name: studentName,
+            passwordHash: "enrolled_via_flutterwave",
+            role: "STUDENT",
+            isEmailVerified: true,
+          },
+        });
+        console.log(`[User Auto-Created on Payment]: ${user.email} (${user.id})`);
+      } catch (userCreateErr) {
+        console.warn("[User Auto-Create Warning]:", userCreateErr);
+      }
+    }
+
     const activeSlug = course?.slug || metaCourseSlug || targetSlug;
+    const finalTxRef = tx.tx_ref || tx_ref || "";
 
     // 4. Activate enrollment in Prisma if user & course exist
     if (user && course) {
@@ -115,6 +136,23 @@ export async function GET(req: NextRequest) {
         },
       });
       console.log(`[Enrollment Activated]: User '${user.email}' enrolled in course '${course.title}'`);
+
+      // Asynchronously trigger automated enrollment receipt email (safe try/catch)
+      if (customerEmail) {
+        try {
+          await sendEnrollmentReceiptEmail({
+            toEmail: customerEmail,
+            studentName: user.name || tx.customer?.name || undefined,
+            courseTitle: course.title,
+            courseSlug: activeSlug,
+            amount: Number(tx.amount) || course.price || 0,
+            txRef: finalTxRef,
+            paymentDate: new Date(),
+          });
+        } catch (emailErr) {
+          console.error("[Email Receipt Error in Callback]:", emailErr);
+        }
+      }
     } else {
       console.warn(
         `[Enrollment Notice]: Could not resolve user (${user ? user.id : "null"}) or course (${course ? course.id : "null"}). Meta:`,
@@ -122,8 +160,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // 5. Redirect student directly into the classroom
-    return NextResponse.redirect(`${appUrl}/learn/${activeSlug}?payment=success`);
+    // 5. Redirect student directly into the classroom with payment success & tx_ref
+    return NextResponse.redirect(
+      `${appUrl}/learn/${activeSlug}?payment=success&tx_ref=${encodeURIComponent(finalTxRef)}`
+    );
   } catch (err: any) {
     console.error("[Flutterwave Callback Error]:", err);
     return NextResponse.redirect(`${appUrl}/courses/${targetSlug}?payment=error`);

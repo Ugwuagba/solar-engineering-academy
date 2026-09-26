@@ -1,5 +1,8 @@
 export { 
   transporter, 
   sendVerificationOtpEmail, 
-  sendOtpEmail 
+  sendOtpEmail,
+  sendEnrollmentReceiptEmail,
+  type EnrollmentReceiptParams
 } from "./mail";
+

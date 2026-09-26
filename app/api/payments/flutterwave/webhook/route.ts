@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { sendEnrollmentReceiptEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       });
 
       // Resolve user in DB
-      const user = await prisma.user.findFirst({
+      let user = await prisma.user.findFirst({
         where: {
           OR: [
             ...(metaUserId ? [{ id: metaUserId }] : []),
@@ -45,6 +46,25 @@ export async function POST(req: NextRequest) {
           ],
         },
       });
+
+      // Auto-create user profile if paying student has not registered yet
+      if (!user && customerEmail) {
+        try {
+          const studentName = data.customer?.name || "Student Candidate";
+          user = await prisma.user.create({
+            data: {
+              email: customerEmail,
+              name: studentName,
+              passwordHash: "enrolled_via_flutterwave",
+              role: "STUDENT",
+              isEmailVerified: true,
+            },
+          });
+          console.log(`[User Auto-Created in Webhook]: ${user.email} (${user.id})`);
+        } catch (userCreateErr) {
+          console.warn("[User Auto-Create Warning in Webhook]:", userCreateErr);
+        }
+      }
 
       if (user && course) {
         await prisma.enrollment.upsert({
@@ -66,6 +86,23 @@ export async function POST(req: NextRequest) {
           },
         });
         console.log(`[Flutterwave Webhook Success]: Enrollment verified active for ${user.email} in ${course.title}`);
+
+        // Asynchronously trigger automated enrollment receipt email (safe try/catch)
+        if (customerEmail) {
+          try {
+            await sendEnrollmentReceiptEmail({
+              toEmail: customerEmail,
+              studentName: user.name || data.customer?.name || undefined,
+              courseTitle: course.title,
+              courseSlug: metaCourseSlug || course.slug,
+              amount: Number(data.amount) || course.price || 0,
+              txRef: data.tx_ref || "",
+              paymentDate: new Date(),
+            });
+          } catch (emailErr) {
+            console.error("[Email Receipt Error in Webhook]:", emailErr);
+          }
+        }
       }
     }
 

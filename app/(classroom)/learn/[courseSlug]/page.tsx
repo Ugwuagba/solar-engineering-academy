@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 interface ClassroomPageProps {
   params: Promise<{ courseSlug: string }>;
-  searchParams: Promise<{ lesson?: string }>;
+  searchParams: Promise<{ lesson?: string; payment?: string; tx_ref?: string }>;
 }
 
 export default async function ClassroomPage({
@@ -17,7 +17,7 @@ export default async function ClassroomPage({
   searchParams,
 }: ClassroomPageProps) {
   const { courseSlug } = await params;
-  const { lesson } = await searchParams;
+  const { lesson, payment, tx_ref } = await searchParams;
   const session = await getServerSession(authOptions);
 
   const course = await getCourseBySlug(courseSlug);
@@ -55,6 +55,10 @@ export default async function ClassroomPage({
       initialProgress={initialProgress}
       requestedLessonId={lesson}
       userId={session?.user?.id}
+      paymentStatus={payment}
+      txRef={tx_ref}
+      studentName={session?.user?.name || undefined}
+      studentEmail={session?.user?.email || undefined}
     />
   );
 }
