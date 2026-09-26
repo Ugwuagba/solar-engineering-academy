@@ -3,7 +3,6 @@ import Link from "next/link";
 import { 
   ChevronRight, 
   Award, 
-  Briefcase, 
   Star, 
   Globe, 
   MessageSquare, 
@@ -19,7 +18,6 @@ import {
 import { getCourseBySlug } from "@/lib/courses";
 import SyllabusAccordion from "@/components/course/SyllabusAccordion";
 import EnrollmentWidget from "@/components/course/EnrollmentWidget";
-import ToolDownloads from "@/components/course/ToolDownloads";
 
 export default async function CourseDetailPage({
   params,
@@ -351,13 +349,6 @@ export default async function CourseDetailPage({
                   </p>
                 </div>
               </div>
-
-              {/* Technical Sizing Tools & Downloads Section */}
-              {course.tools && course.tools.length > 0 && (
-                <div className="rounded-xl p-6 sm:p-8 border border-slate-200 bg-white shadow-xs">
-                  <ToolDownloads tools={course.tools} />
-                </div>
-              )}
 
             </div>
 
