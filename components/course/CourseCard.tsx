@@ -80,7 +80,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
   const priceFormatted = `₦${Number(course.price || 0).toLocaleString()}`;
 
   return (
-    <div className="deye-card relative group bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-2xl hover:border-[#2B82C9]/60 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+    <div className="deye-card relative group bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-2xl hover:border-[#2B82C9]/60 transition-all duration-300 flex flex-col justify-between overflow-hidden h-full">
       {/* Top Blue Accent Line */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-[#2B82C9] opacity-70 group-hover:opacity-100 transition-opacity z-10" />
 

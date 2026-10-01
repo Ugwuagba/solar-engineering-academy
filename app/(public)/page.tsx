@@ -42,6 +42,18 @@ export default async function HomePage() {
     console.error("Database connection issue in HomePage, continuing gracefully:", err);
   }
 
+  if (dbCourses.length === 0) {
+    try {
+      const { getAllCourses } = await import("@/lib/courses");
+      const fallbackCourses = await getAllCourses();
+      if (fallbackCourses && fallbackCourses.length > 0) {
+        dbCourses = fallbackCourses as any;
+      }
+    } catch (e) {
+      console.warn("Fallback course loading failed:", e);
+    }
+  }
+
   const courses = dbCourses.map((c: any) => {
     const whatYouWillLearn = parseJsonArray<string>(c.whatYoullLearn, [
       "Scientific solar PV design according to international IEC/IEEE standards",
@@ -62,22 +74,23 @@ export default async function HomePage() {
       slug: c.slug,
       description: c.description || "Practical, industry-standard engineering training paired with verified official accreditation.",
       shortDescription:
-        c.code === "SI102"
+        c.shortDescription ||
+        (c.code === "SI102"
           ? "Professional solar training designed to master photovoltaic component selection, inverter configurations, battery sizing, and certified system design."
-          : (c.subtitle || "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices."),
+          : (c.subtitle || (c.description ? c.description.slice(0, 150) + "..." : "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices."))),
       level: (c.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED") || "INTRODUCTORY",
       deliveryType: (c.deliveryType as "SELF_PACED" | "COHORT") || "SELF_PACED",
       contactHours: c.contactHours || 40,
       price: c.price,
       priceNgn,
       originalPriceNgn,
-      rating: 4.9,
-      ratingCount: 120,
-      thumbnailImage: c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
-      thumbnailUrl: c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
+      rating: c.rating || 4.9,
+      ratingCount: c.ratingCount || 120,
+      thumbnailImage: c.thumbnailImage || c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
+      thumbnailUrl: c.thumbnailImage || c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
       badge: c.badge || (c.code === "SI101" ? "Bestseller" : "New Masterclass"),
-      instructor: c.instructorName || "Engr. Asanga (Certified Solar Professional)",
-      fieldAttachment: "Official Accredited Certificate",
+      instructor: c.instructorName || c.instructor || "Engr. Asanga (Certified Solar Professional)",
+      fieldAttachment: c.fieldAttachment || "Official Accredited Certificate",
       isPublished: true,
       whatYouWillLearn,
       learningOutcomes: whatYouWillLearn,
