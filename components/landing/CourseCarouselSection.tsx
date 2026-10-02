@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Sparkles, Zap, Clock } from "lucide-react";
-import CourseSlider from "@/components/courses/CourseSlider";
+import { ArrowRight, Sparkles, Zap, Clock, Award } from "lucide-react";
+import CourseCard from "@/components/course/CourseCard";
 
 interface CourseCarouselSectionProps {
   courses?: any[];
 }
 
 export default function CourseCarouselSection({ courses = [] }: CourseCarouselSectionProps) {
-  // If the carousel requires multiple items for infinite CSS loop animation, loop over the active courses array
+  // If the marquee requires multiple items for infinite CSS loop animation, loop over the active courses array
   const displayCourses =
     courses.length > 0 && courses.length < 4
       ? [...courses, ...courses, ...courses, ...courses]
@@ -65,8 +65,22 @@ export default function CourseCarouselSection({ courses = [] }: CourseCarouselSe
           </div>
         )}
 
-        {/* 2. Udemy-Style Single-Line Course Carousel Slider */}
-        <CourseSlider courses={courses} />
+        {/* 2. Unified Responsive Course Grid */}
+        {courses.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {courses.map((course: any) => (
+              <CourseCard key={course.id || course.slug} course={course} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-slate-300 max-w-md mx-auto">
+            <Award className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+            <h3 className="text-base font-bold text-slate-800">New Cohorts in Preparation</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Check back soon or contact admissions for upcoming cohort schedules.
+            </p>
+          </div>
+        )}
 
         {/* 3. Catalog Footer CTA */}
         <div className="mt-14 text-center">
