@@ -80,7 +80,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
   const priceFormatted = `₦${Number(course.price || 0).toLocaleString()}`;
 
   return (
-    <div className="deye-card relative group bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-2xl hover:border-[#2B82C9]/60 transition-all duration-300 flex flex-col justify-between overflow-hidden h-full">
+    <div className="deye-card relative group bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-2xl hover:border-blue-500 transition-all duration-300 flex flex-col justify-between overflow-hidden h-full">
       {/* Top Blue Accent Line */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-[#2B82C9] opacity-70 group-hover:opacity-100 transition-opacity z-10" />
 
@@ -181,12 +181,12 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
         </div>
       </div>
 
-      {/* --- 2. UDEMY-STYLE DESKTOP HOVER POPOVER OVERLAY --- */}
-      <div className="hidden lg:flex absolute inset-0 z-30 bg-white/98 backdrop-blur-md p-6 rounded-2xl shadow-2xl border-2 border-[#2B82C9] flex-col justify-between opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 transform scale-98 group-hover:scale-100">
-        <div className="space-y-3">
+      {/* --- 2. PURE WHITE HOVER POPOVER OVERLAY --- */}
+      <div className="hidden lg:flex absolute inset-0 z-30 bg-white border-2 border-blue-500 rounded-2xl overflow-hidden shadow-2xl flex-col justify-between h-full p-5 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200">
+        <div className="space-y-2.5">
           {/* Header Tag */}
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#2B82C9] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
               {course.code} • MASTERCLASS
             </span>
             <span className="text-[10px] font-medium text-slate-400 font-mono">
@@ -195,7 +195,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
           </div>
 
           {/* Course Title */}
-          <h4 className="text-base font-bold text-slate-900 leading-snug">
+          <h4 className="text-base text-slate-900 font-bold leading-snug line-clamp-2">
             {course.title}
           </h4>
 
@@ -211,32 +211,32 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
 
           {/* What You'll Learn Checklist */}
           <div className="pt-2 border-t border-slate-100">
-            <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-[#2B82C9]" />
-              <span>What You&apos;ll Learn</span>
+            <p className="text-slate-900 font-bold text-xs tracking-wider uppercase mb-2 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+              <span>WHAT YOU&apos;LL LEARN</span>
             </p>
-            <div className="space-y-1.5">
-              {outcomes.slice(0, 4).map((outcome: string, idx: number) => (
-                <div key={idx} className="flex items-start gap-2 text-xs text-slate-700">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span className="line-clamp-2 leading-relaxed">{outcome}</span>
-                </div>
+            <ul className="space-y-1.5">
+              {outcomes.slice(0, 3).map((item: string, idx: number) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                  <span className="text-slate-700 text-xs line-clamp-2 leading-relaxed">{item}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
 
         {/* Hover Popover Bottom Actions */}
-        <div className="pt-4 border-t border-slate-100 space-y-2">
-          <div className="flex items-baseline justify-between mb-1">
-            <span className="text-xs text-slate-500 font-medium">Tuition Fee</span>
-            <span className="text-xl font-mono font-black text-slate-900">{priceFormatted}</span>
+        <div className="mt-auto pt-3 border-t border-slate-100">
+          <div className="flex items-baseline justify-between mb-2">
+            <span className="text-slate-500 text-xs">Tuition Fee</span>
+            <span className="text-slate-900 font-extrabold text-xl font-mono">{priceFormatted}</span>
           </div>
 
           <button
             onClick={handleEnroll}
             disabled={isProcessing}
-            className="w-full py-2.5 bg-[#2B82C9] hover:bg-[#226ba8] active:scale-[0.98] text-white text-xs font-bold rounded-xl text-center shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-medium rounded-xl text-center shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 text-xs"
           >
             {isProcessing ? (
               <>
@@ -253,7 +253,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
 
           <Link
             href={`/courses/${course.slug}#curriculum`}
-            className="w-full py-2 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 text-xs font-semibold rounded-xl text-center transition-all block cursor-pointer"
+            className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium rounded-xl py-2.5 text-center block mt-2 transition-colors cursor-pointer text-xs"
           >
             View Course Syllabus
           </Link>
