@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ShieldAlert, ArrowRight, Lock, Mail, ShieldCheck, CheckCircle2, KeyRound } from "lucide-react";
+import { ShieldAlert, ArrowRight, Lock, Mail, CheckCircle2, KeyRound } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -44,32 +44,10 @@ function LoginForm() {
     }
   };
 
-  const handleQuickFillAdmin = () => {
-    setEmail("admin@solaracademy.org");
-    setPassword("SolarAdmin2026!");
-  };
-
   const isEmailUnverified = error?.toLowerCase().includes("verify your email");
 
   return (
     <div className="glass-panel py-8 px-6 sm:px-8 rounded-2xl border border-slate-800 space-y-6">
-      {/* Quick 1-Click Demo Fillers */}
-      <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-        <span className="text-[11px] font-mono text-slate-400 block text-center uppercase tracking-wider">
-          Quick 1-Click Evaluation Credentials:
-        </span>
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={handleQuickFillAdmin}
-            className="py-1.5 px-4 text-xs font-medium rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-            <span>Admin Fast-Fill</span>
-          </button>
-        </div>
-      </div>
-
       {verifiedSuccess && (
         <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2.5">
           <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
