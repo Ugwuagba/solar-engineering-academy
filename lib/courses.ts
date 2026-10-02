@@ -180,10 +180,10 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
         };
       });
     }
-    return [];
+    return SEED_COURSES;
   } catch (error) {
-    console.warn("Prisma query failed:", (error as Error).message);
-    return [];
+    console.warn("Prisma query failed, falling back to seed courses:", (error as Error).message);
+    return SEED_COURSES;
   }
 }
 

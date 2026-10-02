@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowRight, 
@@ -102,12 +103,13 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
             transition={{ duration: 1.0, ease: "easeInOut" }}
             className="absolute inset-0 w-full h-full"
           >
-            <img
+            <Image
               src={slide.image}
               alt={slide.title}
-              loading={currentSlide === 0 ? "eager" : "lazy"}
-              fetchPriority={currentSlide === 0 ? "high" : "auto"}
-              decoding="async"
+              fill
+              priority={currentSlide === 0}
+              loading={currentSlide === 0 ? undefined : "lazy"}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="w-full h-full object-cover object-center"
             />
           </motion.div>

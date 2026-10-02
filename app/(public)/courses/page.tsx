@@ -1,7 +1,7 @@
 import { getAllCourses } from "@/lib/courses";
 import CoursesCatalogClient from "@/components/course/CoursesCatalogClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Accredited Solar & Storage Programs | Subway Schools",

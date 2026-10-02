@@ -15,9 +15,45 @@ import {
   FileText,
   Smartphone
 } from "lucide-react";
-import { getCourseBySlug } from "@/lib/courses";
+import { getCourseBySlug, getAllCourses } from "@/lib/courses";
 import SyllabusAccordion from "@/components/course/SyllabusAccordion";
 import EnrollmentWidget from "@/components/course/EnrollmentWidget";
+
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  try {
+    const courses = await getAllCourses();
+    return courses.map((course) => ({
+      slug: course.slug,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const course = await getCourseBySlug(slug);
+  if (!course) {
+    return {
+      title: "Course Not Found | Subway Schools",
+    };
+  }
+  return {
+    title: `${course.title} | Subway Schools`,
+    description: course.subtitle || course.description?.slice(0, 160) || "Accredited solar engineering training program.",
+    openGraph: {
+      title: course.title,
+      description: course.subtitle || course.description?.slice(0, 160),
+      images: [course.thumbnailImage || "/images/courses/course-1-solar-intro.jpg"],
+    },
+  };
+}
 
 export default async function CourseDetailPage({
   params,

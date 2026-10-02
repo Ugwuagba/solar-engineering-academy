@@ -17,6 +17,11 @@ export default withAuth(
       return NextResponse.redirect(new URL("/courses?error=AdminAccessRequired", req.url));
     }
 
+    // Dashboard alias route directly redirects to classroom for authenticated students
+    if (path === "/dashboard" || path.startsWith("/dashboard")) {
+      return NextResponse.redirect(new URL("/classroom", req.url));
+    }
+
     return NextResponse.next();
   },
   {
@@ -24,8 +29,12 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
-        // Gated classroom requires authenticated session
-        if (path.startsWith("/learn") || path.startsWith("/classroom")) {
+        // Gated classroom and dashboard require authenticated session
+        if (
+          path.startsWith("/learn") ||
+          path.startsWith("/classroom") ||
+          path.startsWith("/dashboard")
+        ) {
           return !!token;
         }
         // Admin panel requires authenticated session
@@ -42,5 +51,12 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/learn/:path*", "/classroom/:path*", "/classroom", "/admin/:path*"],
+  matcher: [
+    "/learn/:path*",
+    "/classroom/:path*",
+    "/classroom",
+    "/dashboard/:path*",
+    "/dashboard",
+    "/admin/:path*",
+  ],
 };

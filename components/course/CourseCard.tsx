@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { Clock, ArrowRight, Award, Users, CheckCircle, User, Check, Sparkles, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
@@ -87,10 +88,13 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
       {/* --- 1. DEFAULT COMPACT CARD SURFACE --- */}
       <div className="flex flex-col h-full justify-between">
         {/* Course Thumbnail Image Banner */}
-        <Link href={`/courses/${course.slug}`} className="block relative w-full h-48 sm:h-52 overflow-hidden bg-slate-900 shrink-0">
-          <img
+        <Link href={`/courses/${course.slug}`} className="block relative aspect-video w-full overflow-hidden rounded-t-xl bg-slate-100 dark:bg-slate-800 shrink-0">
+          <Image
             src={course.thumbnailImage || course.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg"}
             alt={course.title}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            loading="lazy"
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/30" />

@@ -3,6 +3,7 @@ import HeroSection from "@/components/landing/HeroSection";
 import CourseCarouselSection from "@/components/landing/CourseCarouselSection";
 import SocialProofSection from "@/components/landing/SocialProofSection";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
 
 export const revalidate = 60;
@@ -139,9 +140,12 @@ export default async function HomePage() {
       {/* 6. Photo-Driven Industrial CTA Banner */}
       <section id="about" className="relative py-24 lg:py-32 bg-slate-950 text-white overflow-hidden">
         {/* Full-bleed background photo */}
-        <img
+        <Image
           src="/images/hero/hero-commercial.jpg"
           alt="Commercial Rooftop Solar Installation"
+          fill
+          sizes="100vw"
+          loading="lazy"
           className="absolute inset-0 w-full h-full object-cover object-center opacity-30"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-900/60" />

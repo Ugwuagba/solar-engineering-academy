@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { 
   Play, 
@@ -166,9 +167,12 @@ export default function FeaturedSpotlight({ course }: FeaturedSpotlightProps) {
           {/* Right Column: Large Video / Inverter Installation Preview */}
           <div className="lg:col-span-5 relative min-h-[380px] lg:min-h-full bg-slate-950 flex items-center justify-center overflow-hidden group">
             {/* Background Image of Inverter & Solar Installation */}
-            <img
+            <Image
               src="/images/solutions/solutions-inverters.jpg"
               alt="Solar Inverter & Battery Installation"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              loading="lazy"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/45 to-slate-950/20" />

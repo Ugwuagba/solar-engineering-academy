@@ -3,16 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { 
-  Play, 
-  Share2, 
-  Gift, 
-  Clock, 
-  Zap,
-  Calendar,
-  Check,
-  Loader2
-} from "lucide-react";
+import Image from "next/image";
+import { Play, Check, Loader2, Clock, Calendar, Zap, Share2, Gift } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
 import VideoPreviewModal from "./VideoPreviewModal";
@@ -102,9 +94,12 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
             isScrolled ? "max-h-0 opacity-0 pointer-events-none" : "max-h-[240px] aspect-video opacity-100"
           }`}
         >
-          <img
+          <Image
             src={course.thumbnailImage || "/images/courses/course-1-solar-intro.jpg"}
             alt={course.title}
+            fill
+            sizes="(max-width: 1024px) 100vw, 400px"
+            loading="lazy"
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-80"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-black/40 to-black/30 group-hover:bg-black/40 transition-colors" />

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Clock, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function IndustrialPillars({ courses = [] }: { courses?: any[] }) {
   const course101 = courses.find((c) => c.code === "SI101" || c.slug.includes("101")) || courses[0];
@@ -79,9 +80,12 @@ export default function IndustrialPillars({ courses = [] }: { courses?: any[] })
               <div>
                 {/* Image Preview Container */}
                 <div className="relative h-60 sm:h-64 w-full overflow-hidden bg-slate-950">
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    loading="lazy"
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/20" />
