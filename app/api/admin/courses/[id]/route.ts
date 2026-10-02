@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function DELETE(
   req: NextRequest,
@@ -54,6 +55,16 @@ export async function DELETE(
     await prisma.course.delete({
       where: { id: course.id },
     });
+
+    try {
+      revalidatePath("/");
+      revalidatePath("/courses");
+      if (course.slug) {
+        revalidatePath(`/courses/${course.slug}`);
+      }
+    } catch (e) {
+      console.warn("Revalidation warning in course delete:", e);
+    }
 
     return NextResponse.json(
       {
@@ -155,6 +166,19 @@ export async function PATCH(
       where: { id: course.id },
       data: updateData,
     });
+
+    try {
+      revalidatePath("/");
+      revalidatePath("/courses");
+      if (updated.slug) {
+        revalidatePath(`/courses/${updated.slug}`);
+      }
+      if (course.slug && course.slug !== updated.slug) {
+        revalidatePath(`/courses/${course.slug}`);
+      }
+    } catch (e) {
+      console.warn("Revalidation warning in course update:", e);
+    }
 
     return NextResponse.json({
       success: true,

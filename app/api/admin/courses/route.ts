@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const questionSchema = z.object({
@@ -202,6 +203,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    try {
+      revalidatePath("/");
+      revalidatePath("/courses");
+      if (createdCourse.slug) {
+        revalidatePath(`/courses/${createdCourse.slug}`);
+      }
+    } catch (e) {
+      console.warn("Revalidation warning in course create:", e);
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -229,7 +240,7 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   try {
     const courses = await prisma.course.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       include: {
         modules: {
           orderBy: { sortOrder: "asc" },
@@ -258,6 +269,7 @@ export async function GET() {
         contactHours: c.contactHours,
         isPublished: c.isPublished,
         status: c.status || (c.isPublished ? "PUBLISHED" : "DRAFT"),
+        order: c.order ?? 0,
         moduleCount: c.modules.length,
         lessonCount: c.modules.reduce((sum, m) => sum + m.lessons.length, 0),
         quizCount: c.modules.filter((m) => !!m.quiz).length,

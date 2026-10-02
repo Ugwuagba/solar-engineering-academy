@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
   try {
@@ -216,6 +217,16 @@ export async function POST(req: NextRequest) {
           },
         },
       });
+    }
+
+    try {
+      revalidatePath("/");
+      revalidatePath("/courses");
+      if (savedCourse.slug) {
+        revalidatePath(`/courses/${savedCourse.slug}`);
+      }
+    } catch (e) {
+      console.warn("Revalidation warning in draft route:", e);
     }
 
     return NextResponse.json({

@@ -1,5 +1,5 @@
 import prisma from "@/lib/db";
-import { SEED_COURSES, SeedCourse } from "@/lib/seed-data";
+import type { SeedCourse } from "@/lib/seed-data";
 import { formatDuration } from "@/lib/utils";
 
 function parseJsonArray<T = string>(raw: string | null | undefined, fallback: T[] = []): T[] {
@@ -16,10 +16,10 @@ function formatNaira(amount: number): string {
   return `₦${Number(amount || 0).toLocaleString()}`;
 }
 
-function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse {
+function mapPrismaCourseToSeedCourse(c: any): SeedCourse {
   const whatYouWillLearn = parseJsonArray<string>(
     c.whatYoullLearn,
-    seedMatch?.whatYouWillLearn || [
+    [
       "Scientific solar PV design according to international IEC/IEEE & Nigerian NEC standards",
       "Sizing battery energy storage systems (BESS) for zero-flicker commercial microgrids",
       "Comprehensive single-line diagrams (SLD) and protective earthing calculations",
@@ -29,7 +29,7 @@ function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse
 
   const includes = parseJsonArray<string>(
     c.includesList,
-    seedMatch?.includes || [
+    [
       `${c.contactHours || 40} Contact Hours of Accredited Technical Training`,
       "Official Subway Schools Accredited Certificate of Completion",
       "Downloadable Technical Calculation Sheets & Handbooks",
@@ -38,60 +38,56 @@ function mapPrismaCourseToSeedCourse(c: any, seedMatch?: SeedCourse): SeedCourse
   );
 
   const priceNgn = formatNaira(c.price);
-  const originalPriceNgn = c.originalPrice ? formatNaira(c.originalPrice) : seedMatch?.originalPriceNgn;
+  const originalPriceNgn = c.originalPrice ? formatNaira(c.originalPrice) : undefined;
   const discountPercentage = c.originalPrice && c.originalPrice > c.price
     ? Math.round(((c.originalPrice - c.price) / c.originalPrice) * 100)
-    : seedMatch?.discountPercentage;
+    : undefined;
 
   return {
     id: c.id,
     code: c.code,
     title: c.title,
-    subtitle: c.subtitle || seedMatch?.subtitle || c.description?.slice(0, 150) + "...",
+    subtitle: c.subtitle || c.description?.slice(0, 150) + "...",
     slug: c.slug,
     description: c.description,
     level: (c.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED") || "INTRODUCTORY",
     deliveryType: (c.deliveryType as "SELF_PACED" | "COHORT") || "SELF_PACED",
     contactHours: c.contactHours || 40,
     price: c.price,
-    originalPrice: c.originalPrice,
+    originalPrice: c.originalPrice || undefined,
     priceNgn,
     originalPriceNgn,
     discountPercentage,
-    rating: seedMatch?.rating || 4.9,
-    ratingCount: seedMatch?.ratingCount || 120,
-    studentsCount: seedMatch?.studentsCount || 850,
-    thumbnailImage: c.thumbnailUrl || seedMatch?.thumbnailImage || "/images/courses/course-1-solar-intro.jpg",
-    badge: c.badge || seedMatch?.badge || (c.originalPrice ? "Special Offer" : "New Program"),
-    instructor: c.instructorName || seedMatch?.instructor || "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
-    fieldAttachment: seedMatch?.fieldAttachment || "Official Subway Schools Accredited Certificate of Completion",
+    rating: 4.9,
+    ratingCount: 120,
+    studentsCount: 850,
+    thumbnailImage: c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
+    badge: c.badge || (c.originalPrice ? "Special Offer" : "Accredited"),
+    instructor: c.instructorName || "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
+    fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     isPublished: c.isPublished ?? true,
     whatYouWillLearn,
     requirements: (Array.isArray(c.requirements) && c.requirements.length > 0)
       ? c.requirements
       : parseJsonArray<string>(
           c.requirements,
-          seedMatch?.requirements && seedMatch.requirements.length > 0
-            ? seedMatch.requirements
-            : [
-                "Basic understanding of electrical principles (Voltage, Current, Resistance)",
-                "A laptop or smartphone for technical calculation simulations",
-                "Commitment to complete technical assessments and coursework",
-              ]
+          [
+            "Basic understanding of electrical principles (Voltage, Current, Resistance)",
+            "A laptop or smartphone for technical calculation simulations",
+            "Commitment to complete technical assessments and coursework",
+          ]
         ),
     targetAudience: (Array.isArray(c.targetAudience) && c.targetAudience.length > 0)
       ? c.targetAudience
       : parseJsonArray<string>(
           c.targetAudience,
-          seedMatch?.targetAudience && seedMatch.targetAudience.length > 0
-            ? seedMatch.targetAudience
-            : [
-                "Electrical engineers, technicians, and installers aiming for commercial EPC mastery",
-                "Facility directors and solar business entrepreneurs building high-reliability mini-grids",
-              ]
+          [
+            "Electrical engineers, technicians, and installers aiming for commercial EPC mastery",
+            "Facility directors and solar business entrepreneurs building high-reliability mini-grids",
+          ]
         ),
     includes,
-    tools: seedMatch?.tools || [
+    tools: [
       {
         title: "Commercial Solar System Sizing Spreadsheet",
         format: "XLSX",
@@ -168,22 +164,19 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
           orderBy: { startDate: "asc" },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
 
     if (dbCourses && dbCourses.length > 0) {
-      return dbCourses.map((c) => {
-        const seedMatch = SEED_COURSES.find((s) => s.code === c.code || s.slug === c.slug);
-        return {
-          ...mapPrismaCourseToSeedCourse(c, seedMatch),
-          id: c.id,
-        };
-      });
+      return dbCourses.map((c) => ({
+        ...mapPrismaCourseToSeedCourse(c),
+        id: c.id,
+      }));
     }
-    return SEED_COURSES;
+    return [];
   } catch (error) {
-    console.warn("Prisma query failed, falling back to seed courses:", (error as Error).message);
-    return SEED_COURSES;
+    console.error("Prisma query failed:", (error as Error).message);
+    return [];
   }
 }
 
@@ -193,11 +186,9 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
       where: {
         OR: [
           { slug },
-          { slug: { startsWith: slug } },
           { id: slug },
           { code: slug },
-          ...(slug.toLowerCase().includes("101") ? [{ code: "SI101" }, { slug: "solar-installation-101-6402" }, { slug: "solar-installation-101" }] : []),
-          ...(slug.toLowerCase().includes("102") ? [{ code: "SI102" }, { slug: "solar-installation-102" }] : []),
+          { code: slug.toUpperCase() },
         ],
       },
       include: {
@@ -217,31 +208,11 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
     });
 
     if (course) {
-      const seedMatch = SEED_COURSES.find((s) => s.code === course.code || s.slug === course.slug);
-      return mapPrismaCourseToSeedCourse(course, seedMatch);
+      return mapPrismaCourseToSeedCourse(course);
     }
+    return null;
   } catch (err) {
     console.error("[getCourseBySlug Error]:", err);
+    return null;
   }
-
-  const normalizedSlug = slug.toLowerCase();
-  if (normalizedSlug === "pvol-101" || normalizedSlug === "pvol101" || normalizedSlug === "commercial-industrial-solar") {
-    const pvolMatch = SEED_COURSES.find((c) => c.slug === "advance-commercial-solar-training" || c.code === "CIGID201");
-    if (pvolMatch) return { ...pvolMatch, slug: "commercial-industrial-solar", code: "CIGID 201", title: "Commercial & Industrial (C&I) Mini-Grid Design" };
-  }
-  if (normalizedSlug === "bess-201" || normalizedSlug === "bess201") {
-    const bessMatch = SEED_COURSES.find((c) => c.slug === "advance-battery-demystified-training" || c.code === "BATT201");
-    if (bessMatch) return { ...bessMatch, slug: "bess-201", code: "BESS 201", title: "Battery Energy Storage Systems (BESS) & Safety" };
-  }
-  if (normalizedSlug === "power-audit-masterclass") {
-    const auditMatch = SEED_COURSES.find((c) => c.slug === "solar-installation-101");
-    if (auditMatch) return { ...auditMatch, slug: "power-audit-masterclass", code: "AUDIT 201", title: "Solar Power Auditing, Load Profiling & Sizing Masterclass" };
-  }
-  if (normalizedSlug === "solar-entrepreneurship") {
-    const entreMatch = SEED_COURSES.find((c) => c.slug === "solar-fast-track-blueprint");
-    if (entreMatch) return { ...entreMatch, slug: "solar-entrepreneurship", code: "ENTRE 301", title: "Solar Business, Contracting & Project Financing" };
-  }
-
-  const match = SEED_COURSES.find((c) => c.slug.toLowerCase() === normalizedSlug);
-  return match || null;
 }

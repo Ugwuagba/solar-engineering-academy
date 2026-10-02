@@ -45,6 +45,7 @@ model Course {
   thumbnailUrl   String?
   promoVideoUrl  String?
   badge          String?
+  order          Int           @default(0)
   modules        Module[]
   cohorts        Cohort[]
   enrollments    Enrollment[]

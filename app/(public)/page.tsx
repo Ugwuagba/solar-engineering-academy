@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
 
-export const revalidate = 60;
+export const revalidate = 86400;
 
 function parseJsonArray<T = string>(raw: any, fallback: T[] = []): T[] {
   if (!raw) return fallback;
@@ -29,7 +29,7 @@ export default async function HomePage() {
           { isPublished: true },
         ],
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       include: {
         modules: {
           orderBy: { sortOrder: "asc" },
@@ -41,18 +41,6 @@ export default async function HomePage() {
     });
   } catch (err) {
     console.error("Database connection issue in HomePage, continuing gracefully:", err);
-  }
-
-  if (dbCourses.length === 0) {
-    try {
-      const { getAllCourses } = await import("@/lib/courses");
-      const fallbackCourses = await getAllCourses();
-      if (fallbackCourses && fallbackCourses.length > 0) {
-        dbCourses = fallbackCourses as any;
-      }
-    } catch (e) {
-      console.warn("Fallback course loading failed:", e);
-    }
   }
 
   const courses = dbCourses.map((c: any) => {

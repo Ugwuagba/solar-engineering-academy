@@ -12,7 +12,7 @@ export async function GET() {
           { isPublished: true },
         ],
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       include: {
         modules: {
           orderBy: { sortOrder: "asc" },

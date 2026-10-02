@@ -18,7 +18,8 @@ import {
   AlertTriangle,
   Loader2,
   X,
-  Edit3
+  Edit3,
+  GripVertical
 } from "lucide-react";
 
 export default function AdminStudioPage() {
@@ -27,6 +28,9 @@ export default function AdminStudioPage() {
 
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; course: any | null }>({
     isOpen: false,
     course: null,
@@ -64,6 +68,74 @@ export default function AdminStudioPage() {
     setTimeout(() => {
       setToast(null);
     }, 4000);
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const reordered = [...courses];
+    const [moved] = reordered.splice(draggedIndex, 1);
+    reordered.splice(dropIndex, 0, moved);
+
+    // Optimistically update local state immediately
+    const updated = reordered.map((item, idx) => ({ ...item, order: idx }));
+    setCourses(updated);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+
+    // Persist new sequence in database via API
+    setIsSavingOrder(true);
+    try {
+      const payload = {
+        items: updated.map((item, idx) => ({
+          id: item.id || item.code,
+          order: idx,
+        })),
+      };
+
+      const res = await fetch("/api/admin/courses/reorder", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to persist new course sequence");
+      }
+
+      showToast("Course order updated and persisted successfully.", "success");
+    } catch (err: any) {
+      console.error("Failed to persist order:", err);
+      showToast(err.message || "Failed to save sequence", "error");
+      loadCourses();
+    } finally {
+      setIsSavingOrder(false);
+    }
   };
 
   const openDeleteModal = (course: any) => {
@@ -205,11 +277,19 @@ export default function AdminStudioPage() {
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
           <div className="px-6 py-4.5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-mono">
-                Curriculum & Program Inventory
-              </h3>
+              <div className="flex items-center gap-2.5">
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-mono">
+                  Curriculum & Program Inventory
+                </h3>
+                {isSavingOrder && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-[#2B82C9] border border-blue-200 animate-pulse">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>Saving order...</span>
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-slate-500">
-                Managed courses, milestone assessment thresholds, and partner placements
+                Drag rows with the grip handle to reorder catalog sequence • Managed courses, milestone assessment thresholds, and partner placements
               </p>
             </div>
             <span className="text-xs font-mono font-bold text-[#2B82C9] bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
@@ -243,53 +323,79 @@ export default function AdminStudioPage() {
             </div>
           ) : (
             <div className="divide-y divide-slate-200">
-              {courses.map((course) => {
+              {courses.map((course, idx) => {
                 const moduleCount = course.moduleCount ?? course.modules?.length ?? 0;
                 const lessonCount = course.lessonCount ?? course.modules?.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0) ?? 0;
                 const instructor = course.instructorName || course.instructor || "Subway Engineering Faculty";
                 const isDraft = course.status === "DRAFT" || course.isPublished === false;
+                const isDragged = draggedIndex === idx;
+                const isDragOver = dragOverIndex === idx;
 
                 return (
                   <div
                     key={course.id || course.code || course.slug}
-                    className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 hover:bg-slate-50/60 transition-colors"
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDrop={(e) => handleDrop(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    className={`p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 transition-all duration-150 select-none ${
+                      isDragged
+                        ? "opacity-40 bg-blue-50/70 border-2 border-dashed border-[#2B82C9] shadow-inner scale-[0.99]"
+                        : isDragOver
+                        ? "bg-sky-50/60 border-t-2 border-t-[#2B82C9] shadow-xs"
+                        : "hover:bg-slate-50/60 bg-white"
+                    }`}
                   >
-                    <div className="space-y-1.5 max-w-2xl">
-                      <div className="flex items-center gap-2.5 flex-wrap">
-                        <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded bg-blue-50 text-[#2B82C9] border border-blue-200">
-                          {course.code}
+                    <div className="flex items-start md:items-center gap-4 max-w-2xl">
+                      {/* Drag Handle with Grip icon and sequence badge */}
+                      <div
+                        className="cursor-grab active:cursor-grabbing p-1.5 -ml-1 rounded-lg text-slate-400 hover:text-[#2B82C9] hover:bg-blue-50 transition-colors flex items-center gap-1 shrink-0 select-none"
+                        title="Click and drag to reorder course sequence"
+                      >
+                        <GripVertical className="w-5 h-5 text-slate-400 hover:text-[#2B82C9]" />
+                        <span className="text-[11px] font-mono font-bold text-slate-400">
+                          #{idx + 1}
                         </span>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 uppercase">
-                          {course.level}
-                        </span>
-                        {isDraft ? (
-                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase font-mono flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                            <span>DRAFT</span>
-                          </span>
-                        ) : (
-                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase font-mono flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span>PUBLISHED</span>
-                          </span>
-                        )}
-                        {course.fieldAttachment && (
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-50 text-[#E13B2B] border border-red-200 flex items-center gap-1">
-                            <Briefcase className="w-3 h-3" />
-                            {course.fieldAttachment}
-                          </span>
-                        )}
                       </div>
-                      <h4 className="text-base font-bold text-slate-900">{course.title}</h4>
-                      <p className="text-xs text-slate-600 line-clamp-1">
-                        {course.description}
-                      </p>
-                      <div className="flex items-center flex-wrap gap-4 text-xs text-slate-500 pt-1 font-mono">
-                        <span>{course.contactHours} Contact Hours</span>
-                        <span>•</span>
-                        <span>{moduleCount} Modules ({lessonCount} Lessons)</span>
-                        <span>•</span>
-                        <span>{instructor}</span>
+
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded bg-blue-50 text-[#2B82C9] border border-blue-200">
+                            {course.code}
+                          </span>
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 uppercase">
+                            {course.level}
+                          </span>
+                          {isDraft ? (
+                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase font-mono flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                              <span>DRAFT</span>
+                            </span>
+                          ) : (
+                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase font-mono flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                              <span>PUBLISHED</span>
+                            </span>
+                          )}
+                          {course.fieldAttachment && (
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-50 text-[#E13B2B] border border-red-200 flex items-center gap-1">
+                              <Briefcase className="w-3 h-3" />
+                              {course.fieldAttachment}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-base font-bold text-slate-900">{course.title}</h4>
+                        <p className="text-xs text-slate-600 line-clamp-1">
+                          {course.description}
+                        </p>
+                        <div className="flex items-center flex-wrap gap-4 text-xs text-slate-500 pt-1 font-mono">
+                          <span>{course.contactHours} Contact Hours</span>
+                          <span>•</span>
+                          <span>{moduleCount} Modules ({lessonCount} Lessons)</span>
+                          <span>•</span>
+                          <span>{instructor}</span>
+                        </div>
                       </div>
                     </div>
 
