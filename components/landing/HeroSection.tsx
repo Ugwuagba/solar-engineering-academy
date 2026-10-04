@@ -32,47 +32,45 @@ interface HeroSectionProps {
 export default function HeroSection({ courses = [] }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Identify featured courses from the published database courses
-  const course1 = courses[0] || courses.find((c) => c.code === "SI101" || c.slug.includes("101")) || null;
-  const course2 = courses[1] || courses.find((c) => c.code === "SI102" || c.slug.includes("102")) || course1 || null;
+  // Identify course 101 and course 102 from database courses
+  const course101 = courses.find((c) => c.code === "SI101" || c.slug.includes("101")) || courses[0];
+  const course102 = courses.find((c) => c.code === "SI102" || c.slug.includes("102")) || courses[1] || courses[0];
 
-  const slug1 = course1?.slug || (course1?.code ? course1.code.toLowerCase() : "courses");
-  const slug2 = course2?.slug || (course2?.code ? course2.code.toLowerCase() : "courses");
+  const slug101 = course101?.slug || "solar-installation-101-6402";
+  const slug102 = course102?.slug || "solar-installation-102";
 
   const slides: SlideData[] = [
     {
       id: 1,
-      image: course1?.thumbnailImage || course1?.thumbnailUrl || "/images/hero/hero-academy.jpg",
+      image: "/images/hero/hero-academy.jpg",
       eyebrow: "SUBWAY SCHOOLS • ACCREDITED TRAINING",
-      title: course1?.title || "Solar Installation 101",
+      title: course101?.title || "Solar Installation 101",
       description:
-        course1?.shortDescription ||
-        course1?.subtitle ||
-        (course1?.description ? course1.description.slice(0, 160) + "..." : "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices."),
-      courseCode: course1?.code || "SI101",
-      trainingHours: `${course1?.contactHours || 8} Training Hours`,
-      priceNgn: course1?.priceNgn || `₦${Number(course1?.price || 5000).toLocaleString()}`,
+        course101?.shortDescription ||
+        course101?.subtitle ||
+        "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices.",
+      courseCode: course101?.code || "SI101",
+      trainingHours: `${course101?.contactHours || 8} Training Hours`,
+      priceNgn: course101?.priceNgn || `₦${Number(course101?.price || 5000).toLocaleString()}`,
       primaryCtaText: "Enroll in Academy",
-      primaryCtaHref: `/courses/${slug1}`,
+      primaryCtaHref: `/courses/${slug101}`,
       secondaryCtaText: "View Course Syllabus",
-      secondaryCtaHref: `/courses/${slug1}#curriculum`,
+      secondaryCtaHref: `/courses/${slug101}#curriculum`,
     },
     {
       id: 2,
-      image: course2?.thumbnailImage || course2?.thumbnailUrl || "/images/hero/hero-commercial.jpg",
+      image: "/images/hero/hero-commercial.jpg",
       eyebrow: "SUBWAY SCHOOLS • ADVANCED ENGINEERING",
-      title: course2?.title || "SOLAR INSTALLATION 102",
+      title: course102?.title || "SOLAR INSTALLATION 102",
       description:
-        course2?.shortDescription ||
-        course2?.subtitle ||
-        (course2?.description ? course2.description.slice(0, 160) + "..." : "Professional solar training designed to master photovoltaic component selection, inverter configurations, battery sizing, and certified system design."),
-      courseCode: course2?.code || "SI102",
-      trainingHours: `${course2?.contactHours || 15} Training Hours`,
-      priceNgn: course2?.priceNgn || `₦${Number(course2?.price || 15000).toLocaleString()}`,
+        "Professional solar training designed to master photovoltaic component selection, inverter configurations, battery sizing, and certified system design.",
+      courseCode: course102?.code || "SI102",
+      trainingHours: `${course102?.contactHours || 15} Training Hours`,
+      priceNgn: course102?.priceNgn || `₦${Number(course102?.price || 15000).toLocaleString()}`,
       primaryCtaText: "Enroll in Academy",
-      primaryCtaHref: `/courses/${slug2}`,
+      primaryCtaHref: `/courses/${slug102}`,
       secondaryCtaText: "View Course Syllabus",
-      secondaryCtaHref: `/courses/${slug2}#curriculum`,
+      secondaryCtaHref: `/courses/${slug102}#curriculum`,
     },
   ];
 

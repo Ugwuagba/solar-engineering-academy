@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400;
 
 function parseJsonArray<T = string>(raw: any, fallback: T[] = []): T[] {
   if (!raw) return fallback;
@@ -29,8 +29,7 @@ export default async function HomePage() {
           { isPublished: true },
         ],
       },
-      orderBy: { createdAt: "desc" },
-      take: 6,
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       include: {
         modules: {
           orderBy: { sortOrder: "asc" },
@@ -41,30 +40,7 @@ export default async function HomePage() {
       },
     });
   } catch (err) {
-    console.error("Database connection issue in HomePage, retrying once:", err);
-    try {
-      await new Promise((r) => setTimeout(r, 800));
-      dbCourses = await prisma.course.findMany({
-        where: {
-          OR: [
-            { status: "PUBLISHED" },
-            { isPublished: true },
-          ],
-        },
-        orderBy: { createdAt: "desc" },
-        take: 6,
-        include: {
-          modules: {
-            orderBy: { sortOrder: "asc" },
-            include: {
-              lessons: { orderBy: { sortOrder: "asc" } },
-            },
-          },
-        },
-      });
-    } catch (retryErr) {
-      console.error("Retry query failed in HomePage:", retryErr);
-    }
+    console.error("Database connection issue in HomePage, continuing gracefully:", err);
   }
 
   const courses = dbCourses.map((c: any) => {
@@ -124,7 +100,19 @@ export default async function HomePage() {
     };
   });
 
-  const primaryCourse = courses[0] || null;
+  // Ensure Solar Installation 101 is first (left) and Solar Installation 102 is second (right)
+  courses.sort((a, b) => {
+    if (a.code === "SI101" || a.slug.includes("101")) return -1;
+    if (b.code === "SI101" || b.slug.includes("101")) return 1;
+    if (a.code === "SI102" || a.slug.includes("102")) return 1;
+    if (b.code === "SI102" || b.slug.includes("102")) return -1;
+    return 0;
+  });
+
+  const primaryCourse =
+    courses.find((c) => c.code === "SI101" || c.slug.includes("101")) ||
+    courses[0] ||
+    null;
 
   return (
     <div className="relative bg-white">
