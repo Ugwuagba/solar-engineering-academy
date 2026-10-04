@@ -155,6 +155,7 @@ export default function FeaturedSpotlight({ course }: FeaturedSpotlightProps) {
               <div className="flex items-center gap-3">
                 <Link
                   href={`/courses/${targetSlug}`}
+                  prefetch={false}
                   className="px-8 py-4 rounded-xl bg-[#2B82C9] hover:bg-[#226ba8] active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-[#2B82C9]/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <span>Enroll in Program</span>
@@ -181,6 +182,7 @@ export default function FeaturedSpotlight({ course }: FeaturedSpotlightProps) {
             <div className="relative z-10 text-center space-y-4 p-6">
               <Link
                 href={`/courses/${targetSlug}`}
+                prefetch={false}
                 className="w-20 h-20 mx-auto rounded-full bg-white/95 hover:bg-white text-[#2B82C9] flex items-center justify-center shadow-2xl backdrop-blur-xs group-hover:scale-110 transition-all duration-300 cursor-pointer"
               >
                 <Play className="w-8 h-8 fill-current translate-x-0.5" />

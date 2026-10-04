@@ -88,7 +88,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
       {/* --- 1. DEFAULT COMPACT CARD SURFACE --- */}
       <div className="flex flex-col h-full justify-between">
         {/* Course Thumbnail Image Banner */}
-        <Link href={`/courses/${course.slug}`} className="block relative aspect-video w-full overflow-hidden rounded-t-xl bg-slate-100 dark:bg-slate-800 shrink-0">
+        <Link href={`/courses/${course.slug}`} prefetch={false} className="block relative aspect-video w-full overflow-hidden rounded-t-xl bg-slate-100 dark:bg-slate-800 shrink-0">
           <Image
             src={course.thumbnailImage || course.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg"}
             alt={course.title}
@@ -143,7 +143,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
 
             {/* Title */}
             <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#2B82C9] transition-colors leading-snug line-clamp-2">
-              <Link href={`/courses/${course.slug}`}>
+              <Link href={`/courses/${course.slug}`} prefetch={false}>
                 {course.title}
               </Link>
             </h3>
@@ -176,6 +176,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
 
             <Link
               href={`/courses/${course.slug}`}
+              prefetch={false}
               className="px-4 py-2 text-xs font-bold text-[#2B82C9] bg-blue-50 hover:bg-blue-100 active:scale-98 rounded-lg flex items-center gap-1.5 transition-all"
             >
               <span>View Syllabus</span>
@@ -257,6 +258,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
 
           <Link
             href={`/courses/${course.slug}#curriculum`}
+            prefetch={false}
             className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium rounded-xl py-2.5 text-center block mt-2 transition-colors cursor-pointer text-xs"
           >
             View Course Syllabus

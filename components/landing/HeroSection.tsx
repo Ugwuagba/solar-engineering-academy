@@ -167,6 +167,7 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <Link
                   href={slide.primaryCtaHref}
+                  prefetch={false}
                   className="bg-[#2B82C9] hover:bg-sky-600 active:scale-[0.98] text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer text-base"
                 >
                   <span>{slide.primaryCtaText}</span>
@@ -175,6 +176,7 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
 
                 <Link
                   href={slide.secondaryCtaHref}
+                  prefetch={false}
                   className="backdrop-blur-md bg-white/10 hover:bg-white/20 active:scale-[0.98] border border-white/20 text-white font-medium px-8 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-base"
                 >
                   <span>{slide.secondaryCtaText}</span>

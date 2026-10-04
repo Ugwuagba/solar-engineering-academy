@@ -154,6 +154,7 @@ export default function Navbar() {
                   <Link
                     key={course.href}
                     href={course.href}
+                    prefetch={false}
                     onClick={() => setExploreOpen(false)}
                     className="block px-4 py-2 hover:bg-slate-50 hover:text-[#2B82C9] transition-colors group/item"
                   >
@@ -230,6 +231,7 @@ export default function Navbar() {
           {isInstructorOrAdmin && (
             <Link
               href="/admin"
+              prefetch={false}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-sky-400 border border-sky-500/30 hover:bg-slate-700 hover:text-white transition-all shadow-sm shrink-0"
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
@@ -349,6 +351,7 @@ export default function Navbar() {
                   <Link
                     key={course.href}
                     href={course.href}
+                    prefetch={false}
                     onClick={() => setMobileMenuOpen(false)}
                     className="block py-1 text-xs font-semibold text-slate-700 hover:text-[#2B82C9]"
                   >
@@ -389,6 +392,7 @@ export default function Navbar() {
             {isInstructorOrAdmin && (
               <Link
                 href="/admin"
+                prefetch={false}
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 px-3.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-sky-400 border border-sky-500/30 hover:bg-slate-700 hover:text-white transition-all shadow-sm flex items-center justify-center gap-1.5"
               >

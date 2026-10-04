@@ -113,17 +113,17 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
               <li>
-                <Link href="/courses/solar-installation-101" className="hover:text-[#2B82C9] transition-colors font-medium text-slate-200">
+                <Link href="/courses/solar-installation-101" prefetch={false} className="hover:text-[#2B82C9] transition-colors font-medium text-slate-200">
                   Solar Installation 101 (Engr. Asanga)
                 </Link>
               </li>
               <li>
-                <Link href="/courses/pvol101" className="hover:text-[#2B82C9] transition-colors">
+                <Link href="/courses/pvol101" prefetch={false} className="hover:text-[#2B82C9] transition-colors">
                   Commercial PV Design (PVOL101)
                 </Link>
               </li>
               <li>
-                <Link href="/courses/bess201" className="hover:text-[#2B82C9] transition-colors">
+                <Link href="/courses/bess201" prefetch={false} className="hover:text-[#2B82C9] transition-colors">
                   Battery Storage Sizing (BESS201)
                 </Link>
               </li>
@@ -133,7 +133,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/courses/solar-installation-101#companion" className="hover:text-amber-400 transition-colors">
+                <Link href="/courses/solar-installation-101#companion" prefetch={false} className="hover:text-amber-400 transition-colors">
                   Solar Companion Handbook
                 </Link>
               </li>

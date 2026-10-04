@@ -166,7 +166,7 @@ export default async function ClassroomDashboardPage() {
                 >
                   <div>
                     {/* Course Thumbnail with Quick-Play Overlay */}
-                    <Link href={continueLink} className="block relative w-full h-48 overflow-hidden bg-slate-900 group">
+                    <Link href={continueLink} prefetch={false} className="block relative w-full h-48 overflow-hidden bg-slate-900 group">
                       <img
                         src={c.thumbnailUrl}
                         alt={c.title}
@@ -197,7 +197,7 @@ export default async function ClassroomDashboardPage() {
                     <div className="p-5 space-y-4">
                       <div>
                         <h3 className="text-base font-bold text-slate-900 group-hover:text-[#2B82C9] transition-colors leading-snug line-clamp-2">
-                          <Link href={continueLink}>{c.title}</Link>
+                          <Link href={continueLink} prefetch={false}>{c.title}</Link>
                         </h3>
                         <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                           <User className="w-3 h-3 text-slate-400 shrink-0" />
@@ -239,6 +239,7 @@ export default async function ClassroomDashboardPage() {
                   <div className="p-5 pt-0">
                     <Link
                       href={continueLink}
+                      prefetch={false}
                       className="w-full py-2.5 rounded-xl bg-[#2B82C9] hover:bg-[#226ba8] active:scale-[0.98] text-white font-bold text-xs shadow-sm hover:shadow flex items-center justify-center gap-2 transition-all cursor-pointer"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />

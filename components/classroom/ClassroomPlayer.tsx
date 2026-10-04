@@ -386,6 +386,7 @@ export default function ClassroomPlayer({
 
           <Link
             href={`/courses/${course.slug}`}
+            prefetch={false}
             className="hidden md:inline-flex px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors"
           >
             Course Details

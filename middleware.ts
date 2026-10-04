@@ -52,11 +52,13 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/learn/:path*",
-    "/classroom/:path*",
-    "/classroom",
-    "/dashboard/:path*",
-    "/dashboard",
-    "/admin/:path*",
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public images/assets (svg, png, jpg, jpeg, gif, webp, avif)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif)$).*)",
   ],
 };

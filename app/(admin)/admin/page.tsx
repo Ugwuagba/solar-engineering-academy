@@ -216,6 +216,7 @@ export default function AdminStudioPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/admin/students"
+              prefetch={false}
               className="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 hover:text-slate-900 flex items-center gap-2 shadow-2xs transition-all cursor-pointer bg-white"
             >
               <Users className="w-4 h-4 text-[#2B82C9]" />
@@ -223,6 +224,7 @@ export default function AdminStudioPage() {
             </Link>
             <Link
               href="/admin/courses/new"
+              prefetch={false}
               className="px-5 py-2.5 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
@@ -315,6 +317,7 @@ export default function AdminStudioPage() {
               </div>
               <Link
                 href="/admin/courses/new"
+                prefetch={false}
                 className="px-4 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -403,6 +406,7 @@ export default function AdminStudioPage() {
                       {isDraft ? (
                         <Link
                           href={`/admin/courses/${course.id || course.slug}/edit`}
+                          prefetch={false}
                           className="px-4 py-2 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
@@ -412,6 +416,7 @@ export default function AdminStudioPage() {
                         <>
                           <Link
                             href={`/courses/${course.slug}`}
+                            prefetch={false}
                             className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1.5"
                           >
                             <span>Public View</span>
@@ -419,12 +424,14 @@ export default function AdminStudioPage() {
                           </Link>
                           <Link
                             href={`/learn/${course.slug}`}
+                            prefetch={false}
                             className="px-3.5 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm transition-colors"
                           >
                             Enter Classroom
                           </Link>
                           <Link
                             href={`/admin/courses/${course.id || course.slug}/edit`}
+                            prefetch={false}
                             className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1"
                             title={`Edit ${course.title}`}
                           >

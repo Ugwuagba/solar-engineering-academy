@@ -133,6 +133,7 @@ export default function IndustrialPillars({ courses = [] }: { courses?: any[] })
 
                 <Link
                   href={item.href}
+                  prefetch={false}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-[#2B82C9] text-white text-xs font-bold transition-all shadow-xs group-hover:shadow-md cursor-pointer"
                 >
                   <span>Explore Course</span>

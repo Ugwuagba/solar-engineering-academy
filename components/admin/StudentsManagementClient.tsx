@@ -166,6 +166,7 @@ export default function StudentsManagementClient({
             <div className="flex items-center gap-2 mb-1.5">
               <Link
                 href="/admin"
+                prefetch={false}
                 className="text-xs font-semibold text-slate-500 hover:text-[#2B82C9] flex items-center gap-1 transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
@@ -196,6 +197,7 @@ export default function StudentsManagementClient({
             </button>
             <Link
               href="/admin/courses/new"
+              prefetch={false}
               className="px-4 py-2.5 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
               <BookOpen className="w-4 h-4" />

@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     cpus: 2,
   },
   images: {
+    minimumCacheTTL: 2592000, // 30 days cache for transformed edge images
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {

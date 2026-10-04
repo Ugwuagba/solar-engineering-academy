@@ -840,6 +840,7 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
           <div className="flex items-center gap-3">
             <Link
               href="/admin"
+              prefetch={false}
               className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
               title="Return to Admin Studio"
             >
