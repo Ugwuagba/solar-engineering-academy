@@ -48,96 +48,111 @@ async function main() {
   });
   console.log(`✓ Student user ready: ${student.email}`);
 
-  // 2. Seed Courses, Modules, Lessons, Quizzes, Questions
-  for (const courseData of SEED_COURSES) {
-    const course = await prisma.course.upsert({
-      where: { code: courseData.code },
-      update: {
-        title: courseData.title,
-        slug: courseData.slug,
-        description: courseData.description,
-        level: courseData.level,
-        deliveryType: courseData.deliveryType,
-        contactHours: courseData.contactHours,
-        price: courseData.price,
-        isPublished: courseData.isPublished,
-      },
-      create: {
-        code: courseData.code,
-        title: courseData.title,
-        slug: courseData.slug,
-        description: courseData.description,
-        level: courseData.level,
-        deliveryType: courseData.deliveryType,
-        contactHours: courseData.contactHours,
-        price: courseData.price,
-        isPublished: courseData.isPublished,
-      },
-    });
+  // 2. Seed Cohorts for all active courses in the database
+  const allDbCourses = await prisma.course.findMany();
+  console.log(`\n📅 Checking cohorts for ${allDbCourses.length} active database courses...`);
 
-    console.log(`\n📚 Populating curriculum for [${course.code}] ${course.title}...`);
-
-    // Clean existing modules for deterministic seeding
-    await prisma.module.deleteMany({
-      where: { courseId: course.id },
-    });
-
-    for (const modData of courseData.modules) {
-      const moduleRecord = await prisma.module.create({
-        data: {
-          courseId: course.id,
-          title: modData.title,
-          sortOrder: modData.sortOrder,
-          lessons: {
-            create: modData.lessons.map((lesson) => ({
-              title: lesson.title,
-              sortOrder: lesson.sortOrder,
-              videoUrl: lesson.videoUrl,
-              durationSec: lesson.durationSec,
-              contentMarkdown: lesson.contentMarkdown,
-              downloadableUrl: lesson.downloadableUrl || null,
-              isFreePreview: lesson.isFreePreview,
-            })),
+  for (const c of allDbCourses) {
+    const cohortCount = await prisma.cohort.count({ where: { courseId: c.id } });
+    if (cohortCount === 0) {
+      await prisma.cohort.createMany({
+        data: [
+          {
+            courseId: c.id,
+            name: `${c.code} • October 2026 Field Attachment Cohort`,
+            startDate: new Date("2026-10-15T09:00:00Z"),
+            endDate: new Date("2026-12-15T17:00:00Z"),
+            maxCapacity: 30,
           },
-          quiz: {
-            create: {
-              title: modData.quiz.title,
-              passingScore: modData.quiz.passingScore,
-              questions: {
-                create: modData.quiz.questions.map((q) => ({
-                  text: q.text,
-                  optionsJson: JSON.stringify(q.options),
-                  correctOptionIndex: q.correctOptionIndex,
-                  explanation: q.explanation,
-                })),
+          {
+            courseId: c.id,
+            name: `${c.code} • November 2026 Masterclass Cohort`,
+            startDate: new Date("2026-11-01T09:00:00Z"),
+            endDate: new Date("2027-01-01T17:00:00Z"),
+            maxCapacity: 35,
+          },
+        ],
+      });
+      console.log(`  ✓ Created 2 active cohorts for [${c.code}] ${c.title}`);
+    } else {
+      console.log(`  ✓ Retaining existing ${cohortCount} cohorts for [${c.code}]`);
+    }
+  }
+
+  // 3. Populate curriculum for any course that has 0 modules
+  for (const courseData of SEED_COURSES) {
+    // Check if course exists by code or slug
+    let course = await prisma.course.findFirst({
+      where: {
+        OR: [
+          { code: courseData.code },
+          { slug: courseData.slug },
+        ],
+      },
+    });
+
+    if (!course) {
+      course = await prisma.course.create({
+        data: {
+          code: courseData.code,
+          title: courseData.title,
+          slug: courseData.slug,
+          description: courseData.description,
+          level: courseData.level,
+          deliveryType: courseData.deliveryType,
+          contactHours: courseData.contactHours,
+          price: courseData.price,
+          isPublished: courseData.isPublished,
+          status: "PUBLISHED",
+        },
+      });
+      console.log(`\n📚 Created program [${course.code}] ${course.title}...`);
+    }
+
+    const existingModules = await prisma.module.count({ where: { courseId: course.id } });
+    if (existingModules === 0 && courseData.modules && courseData.modules.length > 0) {
+      console.log(`\n📚 Populating curriculum for [${course.code}] (${courseData.modules.length} modules)...`);
+      for (const modData of courseData.modules) {
+        const moduleRecord = await prisma.module.create({
+          data: {
+            courseId: course.id,
+            title: modData.title,
+            sortOrder: modData.sortOrder,
+            lessons: {
+              create: modData.lessons.map((lesson) => ({
+                title: lesson.title,
+                sortOrder: lesson.sortOrder,
+                videoUrl: lesson.videoUrl,
+                durationSec: lesson.durationSec,
+                contentMarkdown: lesson.contentMarkdown,
+                downloadableUrl: lesson.downloadableUrl || null,
+                isFreePreview: lesson.isFreePreview,
+              })),
+            },
+            quiz: {
+              create: {
+                title: modData.quiz.title,
+                passingScore: modData.quiz.passingScore,
+                questions: {
+                  create: modData.quiz.questions.map((q) => ({
+                    text: q.text,
+                    optionsJson: JSON.stringify(q.options),
+                    correctOptionIndex: q.correctOptionIndex,
+                    explanation: q.explanation,
+                  })),
+                },
               },
             },
           },
-        },
-      });
-
-      console.log(`  ✓ Module ${moduleRecord.sortOrder}: ${moduleRecord.title} (3 lessons + quiz)`);
-    }
-
-    // Cohorts if applicable
-    if (courseData.cohorts) {
-      await prisma.cohort.deleteMany({ where: { courseId: course.id } });
-      for (const cohort of courseData.cohorts) {
-        await prisma.cohort.create({
-          data: {
-            courseId: course.id,
-            name: cohort.name,
-            startDate: new Date(cohort.startDate),
-            endDate: new Date(cohort.endDate),
-            maxCapacity: cohort.maxCapacity,
-          },
         });
-        console.log(`  📅 Cohort scheduled: ${cohort.name}`);
+        console.log(`  ✓ Module ${moduleRecord.sortOrder}: ${moduleRecord.title} (3 lessons + quiz)`);
       }
+    } else {
+      console.log(`  ✓ Preserved existing ${existingModules} modules for [${course.code}]`);
     }
 
-    // Seed active enrollment for demo student in SOLAR101 & PVOL101
-    if (course.code === "SOLAR101" || course.code === "PVOL101") {
+    // Seed active demo enrollment for student in first courses if not enrolled
+    if (course.code === "SI101" || course.code === "SOLAR101") {
       const existingEnrollment = await prisma.enrollment.findUnique({
         where: {
           userId_courseId: {
@@ -161,7 +176,7 @@ async function main() {
     }
   }
 
-  console.log("\n✅ Subway Energy & Subway Schools database seeded successfully!");
+  console.log("\n✅ Subway Energy & Subway Schools database cohorts and curricula verified!");
 }
 
 main()
