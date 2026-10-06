@@ -6,22 +6,25 @@ import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import CourseCard from "@/components/course/CourseCard";
 import { SeedCourse } from "@/lib/seed-data";
+import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
 
 function CatalogContent({ initialCourses }: { initialCourses: SeedCourse[] }) {
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("query") || "";
 
+  const baseCourses = initialCourses && initialCourses.length > 0 ? initialCourses : ALL_FALLBACK_COURSES;
+
   const filteredCourses = useMemo(() => {
-    if (!urlQuery.trim()) return initialCourses;
+    if (!urlQuery.trim()) return baseCourses;
     const q = urlQuery.toLowerCase();
-    return initialCourses.filter((course) => {
+    return baseCourses.filter((course) => {
       const matchTitle = course.title.toLowerCase().includes(q);
       const matchCode = course.code.toLowerCase().includes(q);
       const matchDesc = course.description.toLowerCase().includes(q);
       const matchInstructor = (course.instructor || "").toLowerCase().includes(q);
       return matchTitle || matchCode || matchDesc || matchInstructor;
     });
-  }, [urlQuery, initialCourses]);
+  }, [urlQuery, baseCourses]);
 
   return (
     <div className="relative min-h-screen py-12 lg:py-16 bg-white">

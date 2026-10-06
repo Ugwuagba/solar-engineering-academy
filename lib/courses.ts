@@ -141,12 +141,14 @@ function mapPrismaCourseToSeedCourse(c: any): SeedCourse {
   };
 }
 
+import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
+
 export async function getAllCourses(): Promise<SeedCourse[]> {
   try {
-    const dbCourses = await prisma.course.findMany({
+    let dbCourses = await prisma.course.findMany({
       where: {
         OR: [
-          { status: "PUBLISHED" },
+          { status: { in: ["PUBLISHED", "published", "ACTIVE", "active", "OPEN", "open"] } },
           { isPublished: true },
         ],
       },
@@ -167,16 +169,39 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
 
+    // If no published courses match, loosen filter to fetch all database courses
+    if (!dbCourses || dbCourses.length === 0) {
+      dbCourses = await prisma.course.findMany({
+        include: {
+          modules: {
+            orderBy: { sortOrder: "asc" },
+            include: {
+              lessons: { orderBy: { sortOrder: "asc" } },
+              quiz: {
+                include: { questions: true },
+              },
+            },
+          },
+          cohorts: {
+            orderBy: { startDate: "asc" },
+          },
+        },
+        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+      });
+    }
+
     if (dbCourses && dbCourses.length > 0) {
       return dbCourses.map((c) => ({
         ...mapPrismaCourseToSeedCourse(c),
         id: c.id,
       }));
     }
-    return [];
+
+    console.warn("[getAllCourses] Database returned 0 courses, falling back to static catalog.");
+    return ALL_FALLBACK_COURSES;
   } catch (error) {
-    console.error("Prisma query failed:", (error as Error).message);
-    return [];
+    console.error("[getAllCourses] Prisma query failed, using static fallback catalog:", (error as Error).message);
+    return ALL_FALLBACK_COURSES;
   }
 }
 
@@ -210,9 +235,16 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
     if (course) {
       return mapPrismaCourseToSeedCourse(course);
     }
-    return null;
   } catch (err) {
     console.error("[getCourseBySlug Error]:", err);
-    return null;
   }
+
+  // Fallback to static catalog if database query fails or course is not yet synced
+  const fallback = ALL_FALLBACK_COURSES.find(
+    (c) =>
+      c.slug === slug ||
+      c.code.toLowerCase() === slug.toLowerCase() ||
+      c.code.toUpperCase() === slug.toUpperCase()
+  );
+  return fallback || null;
 }

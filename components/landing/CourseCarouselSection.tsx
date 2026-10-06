@@ -3,17 +3,20 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles, Zap, Clock, Award } from "lucide-react";
 import CourseCard from "@/components/course/CourseCard";
+import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
 
 interface CourseCarouselSectionProps {
   courses?: any[];
 }
 
 export default function CourseCarouselSection({ courses = [] }: CourseCarouselSectionProps) {
+  const activeCourses = courses && courses.length > 0 ? courses : ALL_FALLBACK_COURSES;
+
   // If the marquee requires multiple items for infinite CSS loop animation, loop over the active courses array
   const displayCourses =
-    courses.length > 0 && courses.length < 4
-      ? [...courses, ...courses, ...courses, ...courses]
-      : courses;
+    activeCourses.length > 0 && activeCourses.length < 4
+      ? [...activeCourses, ...activeCourses, ...activeCourses, ...activeCourses]
+      : activeCourses;
 
   return (
     <section className="bg-white py-16 lg:py-24 border-b border-slate-100 relative overflow-hidden">
@@ -67,9 +70,9 @@ export default function CourseCarouselSection({ courses = [] }: CourseCarouselSe
         )}
 
         {/* 2. Unified Responsive Course Grid */}
-        {courses.length > 0 ? (
+        {activeCourses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {courses.map((course: any) => (
+            {activeCourses.map((course: any) => (
               <CourseCard key={course.id || course.slug} course={course} />
             ))}
           </div>

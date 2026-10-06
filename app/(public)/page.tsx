@@ -6,7 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
 
+import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
+
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function parseJsonArray<T = string>(raw: any, fallback: T[] = []): T[] {
   if (!raw) return fallback;
@@ -25,7 +28,7 @@ export default async function HomePage() {
     dbCourses = await prisma.course.findMany({
       where: {
         OR: [
-          { status: "PUBLISHED" },
+          { status: { in: ["PUBLISHED", "published", "ACTIVE", "active", "OPEN", "open"] } },
           { isPublished: true },
         ],
       },
@@ -39,11 +42,29 @@ export default async function HomePage() {
         },
       },
     });
+
+    // If no courses found under filter, fetch all courses in the DB
+    if (!dbCourses || dbCourses.length === 0) {
+      dbCourses = await prisma.course.findMany({
+        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+        include: {
+          modules: {
+            orderBy: { sortOrder: "asc" },
+            include: {
+              lessons: { orderBy: { sortOrder: "asc" } },
+            },
+          },
+        },
+      });
+    }
   } catch (err) {
-    console.error("Database connection issue in HomePage, continuing gracefully:", err);
+    console.error("Database connection issue in HomePage, falling back to static catalog:", err);
   }
 
-  const courses = dbCourses.map((c: any) => {
+  // Fallback to static catalog if database returns 0 courses
+  const sourceCourses = (dbCourses && dbCourses.length > 0) ? dbCourses : ALL_FALLBACK_COURSES;
+
+  const courses = sourceCourses.map((c: any) => {
     const whatYouWillLearn = parseJsonArray<string>(c.whatYoullLearn, [
       "Scientific solar PV design according to international IEC/IEEE standards",
       "Sizing battery energy storage systems (BESS) for continuous operation",

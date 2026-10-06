@@ -126,18 +126,25 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
                 <span className="text-slate-400 font-normal">({(course.ratingCount || 120).toLocaleString()})</span>
               </div>
 
-              <div className="flex items-center gap-1 text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-                {course.deliveryType === "COHORT" ? (
-                  <>
-                    <Users className="w-3 h-3 text-[#2B82C9]" />
-                    <span>Scheduled Cohort</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-3 h-3 text-emerald-600" />
-                    <span>Self-Paced</span>
-                  </>
-                )}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <div className="flex items-center gap-1 text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                  {course.deliveryType === "COHORT" ? (
+                    <>
+                      <Users className="w-3 h-3 text-[#2B82C9]" />
+                      <span>Scheduled Cohort</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-3 h-3 text-emerald-600" />
+                      <span>Self-Paced</span>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Enrolling Now</span>
+                </div>
               </div>
             </div>
 
