@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
 
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 
 function parseJsonArray<T = string>(raw: any, fallback: T[] = []): T[] {
   if (!raw) return fallback;

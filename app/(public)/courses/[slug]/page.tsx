@@ -19,18 +19,7 @@ import { getCourseBySlug, getAllCourses } from "@/lib/courses";
 import SyllabusAccordion from "@/components/course/SyllabusAccordion";
 import EnrollmentWidget from "@/components/course/EnrollmentWidget";
 
-export const revalidate = 86400;
-
-export async function generateStaticParams() {
-  try {
-    const courses = await getAllCourses();
-    return courses.map((course) => ({
-      slug: course.slug,
-    }));
-  } catch {
-    return [];
-  }
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
