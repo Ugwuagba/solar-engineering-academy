@@ -8,6 +8,7 @@ import StudentsManagementClient, {
 } from "@/components/admin/StudentsManagementClient";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // Fallback seed records if live database connection is initializing or empty
 const FALLBACK_STUDENTS: RegisteredUser[] = [
