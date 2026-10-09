@@ -168,26 +168,6 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
 
-    // If no published courses match, loosen filter to fetch all database courses
-    if (!dbCourses || dbCourses.length === 0) {
-      dbCourses = await prisma.course.findMany({
-        include: {
-          modules: {
-            orderBy: { sortOrder: "asc" },
-            include: {
-              lessons: { orderBy: { sortOrder: "asc" } },
-              quiz: {
-                include: { questions: true },
-              },
-            },
-          },
-          cohorts: {
-            orderBy: { startDate: "asc" },
-          },
-        },
-        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-      });
-    }
 
     if (dbCourses && dbCourses.length > 0) {
       return dbCourses.map((c) => ({

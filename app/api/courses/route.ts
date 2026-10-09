@@ -29,25 +29,6 @@ export async function GET() {
       },
     });
 
-    if (!courses || courses.length === 0) {
-      courses = await prisma.course.findMany({
-        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-        include: {
-          modules: {
-            orderBy: { sortOrder: "asc" },
-            include: {
-              lessons: { orderBy: { sortOrder: "asc" } },
-              quiz: {
-                include: { questions: true },
-              },
-            },
-          },
-          cohorts: {
-            orderBy: { startDate: "asc" },
-          },
-        },
-      });
-    }
 
     return NextResponse.json({ courses: courses || [] });
   } catch (error: any) {

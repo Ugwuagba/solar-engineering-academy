@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
 import { Clock, ArrowRight, Award, Users, CheckCircle, User, Check, Sparkles, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
@@ -81,7 +80,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
   const priceFormatted = `₦${Number(course.price || 0).toLocaleString()}`;
 
   const [imageError, setImageError] = useState(false);
-  const thumbnail = !imageError ? (course.thumbnailUrl || course.imageUrl || course.thumbnailImage) : null;
+  const imageSrc = !imageError ? (course.thumbnailUrl || course.imageUrl) : null;
 
   return (
     <div className="deye-card relative group bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-2xl hover:border-blue-500 transition-all duration-300 flex flex-col justify-between overflow-hidden h-full">
@@ -92,14 +91,11 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
       <div className="flex flex-col h-full justify-between">
         {/* Course Thumbnail Image Banner */}
         <Link href={`/courses/${course.slug}`} prefetch={false} className="block relative aspect-video w-full overflow-hidden rounded-t-xl bg-slate-900 shrink-0">
-          {thumbnail ? (
-            <Image
-              src={thumbnail}
+          {imageSrc ? (
+            <img
+              src={course.thumbnailUrl || course.imageUrl}
               alt={course.title}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               loading="lazy"
-              unoptimized={typeof thumbnail === "string" && (thumbnail.startsWith("data:") || thumbnail.startsWith("http"))}
               onError={() => setImageError(true)}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             />
@@ -109,7 +105,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
               <span className="text-xs font-mono font-bold tracking-wider">{course.code}</span>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/30 pointer-events-none" />
           
           {/* Top Badges over image */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">

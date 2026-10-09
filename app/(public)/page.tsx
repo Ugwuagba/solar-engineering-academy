@@ -41,22 +41,8 @@ export default async function HomePage() {
       },
     });
 
-    // If no courses found under filter, fetch all courses in the DB
-    if (!dbCourses || dbCourses.length === 0) {
-      dbCourses = await prisma.course.findMany({
-        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-        include: {
-          modules: {
-            orderBy: { sortOrder: "asc" },
-            include: {
-              lessons: { orderBy: { sortOrder: "asc" } },
-            },
-          },
-        },
-      });
-    }
   } catch (err) {
-    console.error("Database connection issue in HomePage, falling back to static catalog:", err);
+    console.error("Database connection issue in HomePage:", err);
   }
 
   // Only render courses fetched directly from database
