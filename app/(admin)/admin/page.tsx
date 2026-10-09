@@ -20,11 +20,22 @@ export default async function AdminStudioPage() {
   const session = await getServerSession(authOptions);
 
   // 1. Dynamic Server Component Prisma Queries for Metric Cards
-  const [candidatesCount, enrollmentsCount, activeTracksCount, cohortsCount] = await Promise.all([
+  const [
+    candidatesCount,
+    enrollmentsCount,
+    activeTracksCount,
+    cohortsCount,
+    totalQuizAttempts,
+    passedQuizAttempts,
+    completedEnrollmentsCount,
+  ] = await Promise.all([
     prisma.user.count({ where: { role: "STUDENT" } }).catch(() => 0),
     prisma.enrollment.count().catch(() => 0),
     prisma.course.count().catch(() => 0),
     prisma.cohort.count().catch(() => 0),
+    prisma.quizAttempt.count().catch(() => 0),
+    prisma.quizAttempt.count({ where: { passed: true } }).catch(() => 0),
+    prisma.enrollment.count({ where: { status: "COMPLETED" } }).catch(() => 0),
   ]);
 
   // Total candidates (fallback to non-admin accounts if roles aren't partitioned)
@@ -39,6 +50,12 @@ export default async function AdminStudioPage() {
   const totalEnrollments = enrollmentsCount;
   const activeTracks = activeTracksCount;
   const scheduledCohorts = cohortsCount;
+
+  // Dynamic milestone pass rate calculation
+  const hasAssessmentData = totalQuizAttempts > 0;
+  const milestonePassRate = hasAssessmentData
+    ? `${((passedQuizAttempts / totalQuizAttempts) * 100).toFixed(1)}%`
+    : null;
 
   // 2. Fetch live curriculum inventory for the studio table
   let dbCourses: any[] = [];
@@ -171,14 +188,24 @@ export default async function AdminStudioPage() {
             </p>
           </div>
 
-          {/* Card 4: Total Enrollments */}
+          {/* Card 4: Milestone Pass Rate or Total Enrollments */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 uppercase font-mono">Total Enrollments</span>
+              <span className="text-xs font-bold text-slate-500 uppercase font-mono">
+                {hasAssessmentData ? "Milestone Pass Rate" : "Total Enrollments"}
+              </span>
               <Award className="w-5 h-5 text-amber-500" />
             </div>
-            <p className="text-3xl font-black text-slate-900 font-mono">{totalEnrollments.toLocaleString()}</p>
-            <p className="text-xs text-slate-500 mt-1">Verified Student Enrollments</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">
+              {hasAssessmentData ? milestonePassRate : totalEnrollments.toLocaleString()}
+            </p>
+            <p className="text-xs text-slate-500 mt-1">
+              {hasAssessmentData
+                ? `${passedQuizAttempts} of ${totalQuizAttempts} assessments passed`
+                : completedEnrollmentsCount > 0
+                ? `${completedEnrollmentsCount} completed track ${completedEnrollmentsCount === 1 ? "credential" : "credentials"}`
+                : "Verified student enrollments"}
+            </p>
           </div>
         </div>
 

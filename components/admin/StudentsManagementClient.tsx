@@ -111,6 +111,16 @@ export default function StudentsManagementClient({
     return initialStudents.filter((s) => s.isEmailVerified).length;
   }, [initialStudents]);
 
+  const completedEnrollmentsCount = useMemo(() => {
+    return initialEnrollments.filter((e) => e.status === "COMPLETED").length;
+  }, [initialEnrollments]);
+
+  const accreditationRate = useMemo(() => {
+    return initialEnrollments.length > 0
+      ? `${Math.round((completedEnrollmentsCount / initialEnrollments.length) * 100)}%`
+      : "0%";
+  }, [initialEnrollments, completedEnrollmentsCount]);
+
   // CSV Export Handler
   const handleExportCsv = () => {
     const today = new Date().toISOString().slice(0, 10);
@@ -245,8 +255,10 @@ export default function StudentsManagementClient({
               <span className="text-xs font-bold text-slate-500 uppercase font-mono">Accreditation Rate</span>
               <GraduationCap className="w-5 h-5 text-amber-500" />
             </div>
-            <p className="text-3xl font-black text-slate-900 font-mono">100%</p>
-            <p className="text-xs text-slate-500 mt-1">Verifiable Credentials</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">{accreditationRate}</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {completedEnrollmentsCount} of {initialEnrollments.length} completed tracks
+            </p>
           </div>
         </div>
 
