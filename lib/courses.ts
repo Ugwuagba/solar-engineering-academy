@@ -61,7 +61,8 @@ function mapPrismaCourseToSeedCourse(c: any): SeedCourse {
     rating: 4.9,
     ratingCount: 120,
     studentsCount: 850,
-    thumbnailImage: c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
+    thumbnailImage: c.thumbnailUrl || c.imageUrl || "",
+    thumbnailUrl: c.thumbnailUrl || c.imageUrl || "",
     badge: c.badge || (c.originalPrice ? "Special Offer" : "Accredited"),
     instructor: c.instructorName || "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
     fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
@@ -141,8 +142,6 @@ function mapPrismaCourseToSeedCourse(c: any): SeedCourse {
   };
 }
 
-import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
-
 export async function getAllCourses(): Promise<SeedCourse[]> {
   try {
     let dbCourses = await prisma.course.findMany({
@@ -197,11 +196,10 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
       }));
     }
 
-    console.warn("[getAllCourses] Database returned 0 courses, falling back to static catalog.");
-    return ALL_FALLBACK_COURSES;
+    return [];
   } catch (error) {
-    console.error("[getAllCourses] Prisma query failed, using static fallback catalog:", (error as Error).message);
-    return ALL_FALLBACK_COURSES;
+    console.error("[getAllCourses] Prisma query failed:", (error as Error).message);
+    return [];
   }
 }
 
@@ -239,12 +237,5 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
     console.error("[getCourseBySlug Error]:", err);
   }
 
-  // Fallback to static catalog if database query fails or course is not yet synced
-  const fallback = ALL_FALLBACK_COURSES.find(
-    (c) =>
-      c.slug === slug ||
-      c.code.toLowerCase() === slug.toLowerCase() ||
-      c.code.toUpperCase() === slug.toUpperCase()
-  );
-  return fallback || null;
+  return null;
 }

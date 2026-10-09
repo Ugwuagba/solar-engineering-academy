@@ -6,22 +6,21 @@ import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import CourseCard from "@/components/course/CourseCard";
 import { SeedCourse } from "@/lib/seed-data";
-import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
 
-function CatalogContent({ initialCourses }: { initialCourses: SeedCourse[] }) {
+function CatalogContent({ initialCourses = [] }: { initialCourses?: SeedCourse[] | any[] }) {
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("query") || "";
 
-  const baseCourses = initialCourses && initialCourses.length > 0 ? initialCourses : ALL_FALLBACK_COURSES;
+  const baseCourses = initialCourses || [];
 
   const filteredCourses = useMemo(() => {
     if (!urlQuery.trim()) return baseCourses;
     const q = urlQuery.toLowerCase();
     return baseCourses.filter((course) => {
-      const matchTitle = course.title.toLowerCase().includes(q);
-      const matchCode = course.code.toLowerCase().includes(q);
-      const matchDesc = course.description.toLowerCase().includes(q);
-      const matchInstructor = (course.instructor || "").toLowerCase().includes(q);
+      const matchTitle = (course.title || "").toLowerCase().includes(q);
+      const matchCode = (course.code || "").toLowerCase().includes(q);
+      const matchDesc = (course.description || "").toLowerCase().includes(q);
+      const matchInstructor = (course.instructor || course.instructorName || "").toLowerCase().includes(q);
       return matchTitle || matchCode || matchDesc || matchInstructor;
     });
   }, [urlQuery, baseCourses]);
@@ -48,19 +47,27 @@ function CatalogContent({ initialCourses }: { initialCourses: SeedCourse[] }) {
           {filteredCourses.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredCourses.map((course) => (
-                <CourseCard key={course.code} course={course} />
+                <CourseCard key={course.id || course.code || course.slug} course={course} />
               ))}
             </div>
           ) : (
             <div className="deye-card p-12 bg-white text-center space-y-3 border border-slate-200">
-              <p className="text-base text-slate-800 font-bold">No programs match &ldquo;{urlQuery}&rdquo;.</p>
-              <p className="text-xs text-slate-500">Try searching for other solar engineering topics or browse all programs.</p>
-              <Link
-                href="/courses"
-                className="mt-3 inline-block px-5 py-2.5 text-xs font-bold bg-[#2B82C9] text-white rounded-lg hover:bg-sky-600 transition-colors"
-              >
-                View All Programs
-              </Link>
+              <p className="text-base text-slate-800 font-bold">
+                {urlQuery.trim() ? `No programs match "${urlQuery}".` : "No programs currently available."}
+              </p>
+              <p className="text-xs text-slate-500">
+                {urlQuery.trim()
+                  ? "Try searching for other solar engineering topics or browse all programs."
+                  : "Check back soon for upcoming accredited cohorts."}
+              </p>
+              {urlQuery.trim() && (
+                <Link
+                  href="/courses"
+                  className="mt-3 inline-block px-5 py-2.5 text-xs font-bold bg-[#2B82C9] text-white rounded-lg hover:bg-sky-600 transition-colors"
+                >
+                  View All Programs
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -69,7 +76,7 @@ function CatalogContent({ initialCourses }: { initialCourses: SeedCourse[] }) {
   );
 }
 
-export default function CoursesCatalogClient({ initialCourses }: { initialCourses: SeedCourse[] }) {
+export default function CoursesCatalogClient({ initialCourses = [] }: { initialCourses?: SeedCourse[] | any[] }) {
   return (
     <Suspense
       fallback={

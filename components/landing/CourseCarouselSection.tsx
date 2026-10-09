@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles, Zap, Clock, Award } from "lucide-react";
 import CourseCard from "@/components/course/CourseCard";
-import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
 
 interface CourseCarouselSectionProps {
   courses?: any[];
 }
 
 export default function CourseCarouselSection({ courses = [] }: CourseCarouselSectionProps) {
-  const activeCourses = courses && courses.length > 0 ? courses : ALL_FALLBACK_COURSES;
+  const activeCourses = courses || [];
 
   // If the marquee requires multiple items for infinite CSS loop animation, loop over the active courses array
   const displayCourses =

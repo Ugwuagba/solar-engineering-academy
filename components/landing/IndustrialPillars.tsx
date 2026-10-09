@@ -20,7 +20,7 @@ export default function IndustrialPillars({ courses = [] }: { courses?: any[] })
       level: "Professional Foundation",
       description:
         "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices.",
-      image: course101?.thumbnailImage || course101?.thumbnailUrl || "/images/hero/hero-academy.jpg",
+      image: course101?.thumbnailUrl || course101?.imageUrl || course101?.thumbnailImage || "/images/hero/hero-academy.jpg",
       href: `/courses/${slug101}`,
       hours: `${course101?.contactHours || 40} Contact Hours`,
       price: course101?.priceNgn || "₦5,000",
@@ -37,7 +37,7 @@ export default function IndustrialPillars({ courses = [] }: { courses?: any[] })
       level: "Commercial & Industrial C&I",
       description:
         "Advanced commercial and industrial microgrid design, battery energy storage systems (BESS), and hybrid system commissioning.",
-      image: course102?.thumbnailImage || course102?.thumbnailUrl || "/images/solutions/solutions-inverters.jpg",
+      image: course102?.thumbnailUrl || course102?.imageUrl || course102?.thumbnailImage || "/images/solutions/solutions-inverters.jpg",
       href: `/courses/${slug102}`,
       hours: `${course102?.contactHours || 40} Contact Hours`,
       price: course102?.priceNgn || "₦15,000",

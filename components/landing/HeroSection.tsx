@@ -33,8 +33,8 @@ export default function HeroSection({ courses = [] }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Identify course 101 and course 102 from database courses
-  const course101 = courses.find((c) => c.code === "SI101" || c.slug.includes("101")) || courses[0];
-  const course102 = courses.find((c) => c.code === "SI102" || c.slug.includes("102")) || courses[1] || courses[0];
+  const course101 = courses.find((c) => c.code === "SI101" || c.slug?.includes("101")) || courses[0];
+  const course102 = courses.find((c) => c.code === "SI102" || c.slug?.includes("102")) || courses[1] || courses[0];
 
   const slug101 = course101?.slug || "solar-installation-101-6402";
   const slug102 = course102?.slug || "solar-installation-102";

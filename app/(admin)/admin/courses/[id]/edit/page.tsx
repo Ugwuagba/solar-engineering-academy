@@ -3,7 +3,6 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
 import CourseStudioForm from "@/components/admin/CourseStudioForm";
-import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -69,21 +68,6 @@ export default async function EditCoursePage({ params }: Props) {
     }
   } catch (error) {
     console.error("Error loading course from database:", error);
-  }
-
-  if (!course) {
-    const fallback = ALL_FALLBACK_COURSES.find(
-      (c) => c.id === id || c.slug === id || c.code.toLowerCase() === id.toLowerCase()
-    );
-    if (fallback) {
-      course = {
-        ...fallback,
-        instructorId: session?.user?.id || null,
-        instructorName: fallback.instructor || "Lead Solar Engineer (Director)",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-    }
   }
 
   if (!course) {

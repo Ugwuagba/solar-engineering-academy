@@ -80,6 +80,9 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
 
   const priceFormatted = `₦${Number(course.price || 0).toLocaleString()}`;
 
+  const [imageError, setImageError] = useState(false);
+  const thumbnail = !imageError ? (course.thumbnailUrl || course.imageUrl || course.thumbnailImage) : null;
+
   return (
     <div className="deye-card relative group bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-2xl hover:border-blue-500 transition-all duration-300 flex flex-col justify-between overflow-hidden h-full">
       {/* Top Blue Accent Line */}
@@ -88,15 +91,24 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
       {/* --- 1. DEFAULT COMPACT CARD SURFACE --- */}
       <div className="flex flex-col h-full justify-between">
         {/* Course Thumbnail Image Banner */}
-        <Link href={`/courses/${course.slug}`} prefetch={false} className="block relative aspect-video w-full overflow-hidden rounded-t-xl bg-slate-100 dark:bg-slate-800 shrink-0">
-          <Image
-            src={course.thumbnailImage || course.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg"}
-            alt={course.title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            loading="lazy"
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-          />
+        <Link href={`/courses/${course.slug}`} prefetch={false} className="block relative aspect-video w-full overflow-hidden rounded-t-xl bg-slate-900 shrink-0">
+          {thumbnail ? (
+            <Image
+              src={thumbnail}
+              alt={course.title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              loading="lazy"
+              unoptimized={typeof thumbnail === "string" && (thumbnail.startsWith("data:") || thumbnail.startsWith("http"))}
+              onError={() => setImageError(true)}
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 text-slate-300">
+              <Award className="w-8 h-8 text-[#2B82C9] mb-1.5 opacity-80" />
+              <span className="text-xs font-mono font-bold tracking-wider">{course.code}</span>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/30" />
           
           {/* Top Badges over image */}

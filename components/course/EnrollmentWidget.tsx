@@ -88,21 +88,31 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
     <>
       <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden transition-all duration-300">
         {/* 1. Video Preview Area (Udemy Exact Style - Collapses on desktop scroll) */}
-        <div 
-          onClick={() => setPreviewOpen(true)}
-          className={`relative w-full overflow-hidden bg-slate-950 cursor-pointer group transition-all duration-300 ease-in-out ${
-            isScrolled ? "max-h-0 opacity-0 pointer-events-none" : "max-h-[240px] aspect-video opacity-100"
-          }`}
-        >
-          <Image
-            src={course.thumbnailImage || "/images/courses/course-1-solar-intro.jpg"}
-            alt={course.title}
-            fill
-            sizes="(max-width: 1024px) 100vw, 400px"
-            loading="lazy"
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-80"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-black/40 to-black/30 group-hover:bg-black/40 transition-colors" />
+        {(() => {
+          const thumbnail = course.thumbnailUrl || (course as any).imageUrl || course.thumbnailImage;
+          return (
+            <div 
+              onClick={() => setPreviewOpen(true)}
+              className={`relative w-full overflow-hidden bg-slate-950 cursor-pointer group transition-all duration-300 ease-in-out ${
+                isScrolled ? "max-h-0 opacity-0 pointer-events-none" : "max-h-[240px] aspect-video opacity-100"
+              }`}
+            >
+              {thumbnail ? (
+                <Image
+                  src={thumbnail}
+                  alt={course.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 400px"
+                  loading="lazy"
+                  unoptimized={typeof thumbnail === "string" && (thumbnail.startsWith("data:") || thumbnail.startsWith("http"))}
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-80"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-black text-slate-400 opacity-80">
+                  <span className="font-mono text-xs font-bold">{course.code}</span>
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-black/40 to-black/30 group-hover:bg-black/40 transition-colors" />
 
           {/* Centered Circular Play Button */}
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">

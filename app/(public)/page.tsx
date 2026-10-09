@@ -6,8 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
 
-import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
-
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -61,8 +59,8 @@ export default async function HomePage() {
     console.error("Database connection issue in HomePage, falling back to static catalog:", err);
   }
 
-  // Fallback to static catalog if database returns 0 courses
-  const sourceCourses = (dbCourses && dbCourses.length > 0) ? dbCourses : ALL_FALLBACK_COURSES;
+  // Only render courses fetched directly from database
+  const sourceCourses = dbCourses || [];
 
   const courses = sourceCourses.map((c: any) => {
     const whatYouWillLearn = parseJsonArray<string>(c.whatYoullLearn, [
@@ -85,9 +83,8 @@ export default async function HomePage() {
       description: c.description || "Practical, industry-standard engineering training paired with verified official accreditation.",
       shortDescription:
         c.shortDescription ||
-        (c.code === "SI102"
-          ? "Professional solar training designed to master photovoltaic component selection, inverter configurations, battery sizing, and certified system design."
-          : (c.subtitle || (c.description ? c.description.slice(0, 150) + "..." : "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices."))),
+        c.subtitle ||
+        (c.description ? c.description.slice(0, 150) + "..." : "A comprehensive foundational program covering solar PV design, load auditing, balance of system components, and safe installation practices."),
       level: (c.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED") || "INTRODUCTORY",
       deliveryType: (c.deliveryType as "SELF_PACED" | "COHORT") || "SELF_PACED",
       contactHours: c.contactHours || 40,
@@ -96,9 +93,9 @@ export default async function HomePage() {
       originalPriceNgn,
       rating: c.rating || 4.9,
       ratingCount: c.ratingCount || 120,
-      thumbnailImage: c.thumbnailImage || c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
-      thumbnailUrl: c.thumbnailImage || c.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
-      badge: c.badge || (c.code === "SI101" ? "Bestseller" : "New Masterclass"),
+      thumbnailUrl: c.thumbnailUrl || c.imageUrl || c.thumbnailImage || "",
+      thumbnailImage: c.thumbnailUrl || c.imageUrl || c.thumbnailImage || "",
+      badge: c.badge || (c.originalPrice ? "Special Offer" : "Accredited"),
       instructor: c.instructorName || c.instructor || "Engr. Asanga (Certified Solar Professional)",
       fieldAttachment: c.fieldAttachment || "Official Accredited Certificate",
       isPublished: true,
@@ -123,15 +120,15 @@ export default async function HomePage() {
 
   // Ensure Solar Installation 101 is first (left) and Solar Installation 102 is second (right)
   courses.sort((a, b) => {
-    if (a.code === "SI101" || a.slug.includes("101")) return -1;
-    if (b.code === "SI101" || b.slug.includes("101")) return 1;
-    if (a.code === "SI102" || a.slug.includes("102")) return 1;
-    if (b.code === "SI102" || b.slug.includes("102")) return -1;
+    if (a.code === "SI101" || a.slug?.includes("101")) return -1;
+    if (b.code === "SI101" || b.slug?.includes("101")) return 1;
+    if (a.code === "SI102" || a.slug?.includes("102")) return 1;
+    if (b.code === "SI102" || b.slug?.includes("102")) return -1;
     return 0;
   });
 
   const primaryCourse =
-    courses.find((c) => c.code === "SI101" || c.slug.includes("101")) ||
+    courses.find((c) => c.code === "SI101" || c.slug?.includes("101")) ||
     courses[0] ||
     null;
 

@@ -1,9 +1,7 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/db";
 import { 
   Users, 
   BookOpen, 
@@ -11,217 +9,81 @@ import {
   Award, 
   CheckCircle2, 
   Plus, 
-  ArrowLeft, 
-  Briefcase, 
-  ExternalLink,
-  Trash2,
-  AlertTriangle,
-  Loader2,
-  X,
-  Edit3,
-  GripVertical
+  ArrowLeft 
 } from "lucide-react";
-import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
+import AdminStudioClient from "@/components/admin/AdminStudioClient";
 
-export default function AdminStudioPage() {
-  const router = useRouter();
-  const { data: session } = useSession();
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-  const [courses, setCourses] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const [isSavingOrder, setIsSavingOrder] = useState(false);
-  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; course: any | null }>({
-    isOpen: false,
-    course: null,
-  });
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" } | null>(null);
+export default async function AdminStudioPage() {
+  const session = await getServerSession(authOptions);
 
-  // Load courses directly from PostgreSQL database with resilient fallback
-  const loadCourses = async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch("/api/admin/courses", { cache: "no-store" });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.courses && Array.isArray(data.courses) && data.courses.length > 0) {
-          setCourses(data.courses);
-          return;
-        }
-      }
-      // Resilient fallback if API returns empty
-      setCourses(ALL_FALLBACK_COURSES.map((c, idx) => ({
-        id: c.id || c.code,
-        code: c.code,
-        title: c.title,
-        slug: c.slug,
-        level: c.level,
-        description: c.description,
-        instructorName: c.instructor || "Lead Solar Engineer (Director)",
-        price: c.price,
-        originalPrice: c.originalPrice,
-        contactHours: c.contactHours,
-        isPublished: true,
-        status: "PUBLISHED",
-        order: idx,
-        moduleCount: c.modules.length,
-        lessonCount: c.modules.reduce((sum, m) => sum + m.lessons.length, 0),
-        quizCount: c.modules.filter((m) => !!m.quiz).length,
-        createdAt: new Date().toISOString(),
-      })));
-    } catch (err) {
-      console.error("Error fetching courses in Admin Studio, falling back to static catalog:", err);
-      setCourses(ALL_FALLBACK_COURSES.map((c, idx) => ({
-        id: c.id || c.code,
-        code: c.code,
-        title: c.title,
-        slug: c.slug,
-        level: c.level,
-        description: c.description,
-        instructorName: c.instructor || "Lead Solar Engineer (Director)",
-        price: c.price,
-        originalPrice: c.originalPrice,
-        contactHours: c.contactHours,
-        isPublished: true,
-        status: "PUBLISHED",
-        order: idx,
-        moduleCount: c.modules.length,
-        lessonCount: c.modules.reduce((sum, m) => sum + m.lessons.length, 0),
-        quizCount: c.modules.filter((m) => !!m.quiz).length,
-        createdAt: new Date().toISOString(),
-      })));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // 1. Dynamic Server Component Prisma Queries for Metric Cards
+  const [candidatesCount, enrollmentsCount, activeTracksCount, cohortsCount] = await Promise.all([
+    prisma.user.count({ where: { role: "STUDENT" } }).catch(() => 0),
+    prisma.enrollment.count().catch(() => 0),
+    prisma.course.count().catch(() => 0),
+    prisma.cohort.count().catch(() => 0),
+  ]);
 
-  useEffect(() => {
-    loadCourses();
-  }, []);
+  // Total candidates (fallback to non-admin accounts if roles aren't partitioned)
+  let totalCandidates = candidatesCount;
+  if (totalCandidates === 0) {
+    totalCandidates = await prisma.user.count({ where: { role: { not: "ADMIN" } } }).catch(() => 0);
+  }
+  if (totalCandidates === 0) {
+    totalCandidates = await prisma.user.count().catch(() => 0);
+  }
 
-  const showToast = (message: string, type: "success" | "error" = "success") => {
-    setToast({ show: true, message, type });
-    setTimeout(() => {
-      setToast(null);
-    }, 4000);
-  };
+  const totalEnrollments = enrollmentsCount;
+  const activeTracks = activeTracksCount;
+  const scheduledCohorts = cohortsCount;
 
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", index.toString());
-  };
+  // 2. Fetch live curriculum inventory for the studio table
+  let dbCourses: any[] = [];
+  try {
+    dbCourses = await prisma.course.findMany({
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+      include: {
+        modules: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            lessons: {
+              orderBy: { sortOrder: "asc" },
+            },
+            quiz: true,
+          },
+        },
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching courses for Admin Studio Server Component:", err);
+  }
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    if (dragOverIndex !== index) {
-      setDragOverIndex(index);
-    }
-  };
+  const coursesSource = dbCourses || [];
 
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
-
-  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) {
-      setDraggedIndex(null);
-      setDragOverIndex(null);
-      return;
-    }
-
-    const reordered = [...courses];
-    const [moved] = reordered.splice(draggedIndex, 1);
-    reordered.splice(dropIndex, 0, moved);
-
-    // Optimistically update local state immediately
-    const updated = reordered.map((item, idx) => ({ ...item, order: idx }));
-    setCourses(updated);
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-
-    // Persist new sequence in database via API
-    setIsSavingOrder(true);
-    try {
-      const payload = {
-        items: updated.map((item, idx) => ({
-          id: item.id || item.code,
-          order: idx,
-        })),
-      };
-
-      const res = await fetch("/api/admin/courses/reorder", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to persist new course sequence");
-      }
-
-      showToast("Course order updated and persisted successfully.", "success");
-    } catch (err: any) {
-      console.error("Failed to persist order:", err);
-      showToast(err.message || "Failed to save sequence", "error");
-      loadCourses();
-    } finally {
-      setIsSavingOrder(false);
-    }
-  };
-
-  const openDeleteModal = (course: any) => {
-    setDeleteModal({ isOpen: true, course });
-  };
-
-  const closeDeleteModal = () => {
-    if (isDeleting) return;
-    setDeleteModal({ isOpen: false, course: null });
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!deleteModal.course) return;
-    const target = deleteModal.course;
-    const targetId = target.id || target.slug;
-
-    // Optimistically remove course from local UI state immediately
-    setCourses((prev) =>
-      prev.filter((c) => {
-        if (targetId && (c.id === targetId || c.slug === targetId)) return false;
-        if (target.id && c.id === target.id) return false;
-        if (target.slug && c.slug === target.slug) return false;
-        if (target.code && c.code === target.code) return false;
-        return true;
-      })
-    );
-
-    // Close the delete dialog and show success toast immediately
-    closeDeleteModal();
-    showToast("Program removed successfully", "success");
-
-    try {
-      const res = await fetch(`/api/courses/${targetId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "Failed to delete course");
-      }
-
-      router.refresh();
-    } catch (err: any) {
-      console.error("Failed to delete course:", err);
-      showToast(err.message || "Failed to delete course", "error");
-      loadCourses();
-    }
-  };
+  const initialCourses = coursesSource.map((c: any, idx: number) => ({
+    id: c.id || c.code,
+    code: c.code,
+    title: c.title,
+    slug: c.slug,
+    level: c.level,
+    description: c.description,
+    instructorId: c.instructorId,
+    instructorName: c.instructorName || c.instructor || "Lead Solar Engineer (Director)",
+    fieldAttachment: c.fieldAttachment,
+    price: c.price,
+    originalPrice: c.originalPrice,
+    contactHours: c.contactHours || 40,
+    isPublished: c.isPublished ?? true,
+    status: c.status || (c.isPublished ? "PUBLISHED" : "DRAFT"),
+    order: c.order ?? idx,
+    moduleCount: c.modules?.length ?? 0,
+    lessonCount: (c.modules || []).reduce((sum: number, m: any) => sum + (m.lessons?.length || 0), 0),
+    quizCount: (c.modules || []).filter((m: any) => !!m.quiz).length,
+    createdAt: c.createdAt ? c.createdAt.toString() : new Date().toISOString(),
+  }));
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 py-10">
@@ -247,7 +109,7 @@ export default function AdminStudioPage() {
               </h1>
             </div>
             <p className="text-xs text-slate-500 mt-1.5">
-              Lead Administrator: <strong className="text-slate-900">{session?.user?.name || session?.user?.email || "Lead Solar Engineer"}</strong> • Authority Level: <span className="font-mono text-[#2B82C9] font-bold">ADMIN / DIRECTOR</span>
+              Lead Administrator: <strong className="text-slate-900">{session?.user?.name || session?.user?.email || "Lead Solar Engineer (Director)"}</strong> • Authority Level: <span className="font-mono text-[#2B82C9] font-bold">ADMIN / DIRECTOR</span>
             </p>
           </div>
 
@@ -271,349 +133,58 @@ export default function AdminStudioPage() {
           </div>
         </div>
 
-        {/* Top Analytics Cards */}
+        {/* Top Analytics Cards - Dynamically Calculated from Live Database on Every Request */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Card 1: Active Tracks */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 uppercase font-mono">Active Tracks</span>
               <BookOpen className="w-5 h-5 text-[#2B82C9]" />
             </div>
-            <p className="text-3xl font-black text-slate-900 font-mono">{courses.length}</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">{activeTracks || initialCourses.length}</p>
             <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1 font-medium">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>100% Gated & Field-Attached</span>
+              <span>100% Gated &amp; Field-Attached</span>
             </p>
           </div>
 
+          {/* Card 2: Scheduled Cohorts */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 uppercase font-mono">Scheduled Cohorts</span>
               <Calendar className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-3xl font-black text-slate-900 font-mono">3</p>
-            <p className="text-xs text-slate-500 mt-1">Q2 & Q3 2026 Academic Calendar</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">{scheduledCohorts}</p>
+            <p className="text-xs text-slate-500 mt-1">Active Academic Calendar</p>
           </div>
 
+          {/* Card 3: Total Candidates */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 uppercase font-mono">Total Candidates</span>
               <Users className="w-5 h-5 text-emerald-600" />
             </div>
-            <p className="text-3xl font-black text-slate-900 font-mono">1,480</p>
-            <p className="text-xs text-emerald-600 mt-1">+18% enrollment rate</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">{totalCandidates.toLocaleString()}</p>
+            <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1 font-medium">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>{totalEnrollments} active course enrollments</span>
+            </p>
           </div>
 
+          {/* Card 4: Total Enrollments */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 uppercase font-mono">Milestone Pass Rate</span>
+              <span className="text-xs font-bold text-slate-500 uppercase font-mono">Total Enrollments</span>
               <Award className="w-5 h-5 text-amber-500" />
             </div>
-            <p className="text-3xl font-black text-slate-900 font-mono">84.2%</p>
-            <p className="text-xs text-slate-500 mt-1">70% Milestone Benchmark</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">{totalEnrollments.toLocaleString()}</p>
+            <p className="text-xs text-slate-500 mt-1">Verified Student Enrollments</p>
           </div>
         </div>
 
-        {/* Courses Table */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
-          <div className="px-6 py-4.5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-mono">
-                  Curriculum & Program Inventory
-                </h3>
-                {isSavingOrder && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-[#2B82C9] border border-blue-200 animate-pulse">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    <span>Saving order...</span>
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-500">
-                Drag rows with the grip handle to reorder catalog sequence • Managed courses, milestone assessment thresholds, and partner placements
-              </p>
-            </div>
-            <span className="text-xs font-mono font-bold text-[#2B82C9] bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
-              {isLoading ? "Loading..." : `${courses.length} Programs Live`}
-            </span>
-          </div>
-
-          {isLoading ? (
-            <div className="p-12 text-center flex flex-col items-center justify-center gap-3">
-              <Loader2 className="w-8 h-8 text-[#2B82C9] animate-spin" />
-              <p className="text-xs font-mono text-slate-500">Loading curriculum inventory from database...</p>
-            </div>
-          ) : courses.length === 0 ? (
-            <div className="p-12 text-center flex flex-col items-center justify-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2B82C9]">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-bold text-slate-900">No courses in inventory</h4>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  Only database-backed courses are displayed. Create your first accredited program to launch the curriculum.
-                </p>
-              </div>
-              <Link
-                href="/admin/courses/new"
-                prefetch={false}
-                className="px-4 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Create New Course</span>
-              </Link>
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-200">
-              {courses.map((course, idx) => {
-                const moduleCount = course.moduleCount ?? course.modules?.length ?? 0;
-                const lessonCount = course.lessonCount ?? course.modules?.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0) ?? 0;
-                const instructor = course.instructorName || course.instructor || "Subway Engineering Faculty";
-                const isDraft = course.status === "DRAFT" || course.isPublished === false;
-                const isDragged = draggedIndex === idx;
-                const isDragOver = dragOverIndex === idx;
-
-                return (
-                  <div
-                    key={course.id || course.code || course.slug}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, idx)}
-                    onDragOver={(e) => handleDragOver(e, idx)}
-                    onDrop={(e) => handleDrop(e, idx)}
-                    onDragEnd={handleDragEnd}
-                    className={`p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 transition-all duration-150 select-none ${
-                      isDragged
-                        ? "opacity-40 bg-blue-50/70 border-2 border-dashed border-[#2B82C9] shadow-inner scale-[0.99]"
-                        : isDragOver
-                        ? "bg-sky-50/60 border-t-2 border-t-[#2B82C9] shadow-xs"
-                        : "hover:bg-slate-50/60 bg-white"
-                    }`}
-                  >
-                    <div className="flex items-start md:items-center gap-4 max-w-2xl">
-                      {/* Drag Handle with Grip icon and sequence badge */}
-                      <div
-                        className="cursor-grab active:cursor-grabbing p-1.5 -ml-1 rounded-lg text-slate-400 hover:text-[#2B82C9] hover:bg-blue-50 transition-colors flex items-center gap-1 shrink-0 select-none"
-                        title="Click and drag to reorder course sequence"
-                      >
-                        <GripVertical className="w-5 h-5 text-slate-400 hover:text-[#2B82C9]" />
-                        <span className="text-[11px] font-mono font-bold text-slate-400">
-                          #{idx + 1}
-                        </span>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2.5 flex-wrap">
-                          <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded bg-blue-50 text-[#2B82C9] border border-blue-200">
-                            {course.code}
-                          </span>
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 uppercase">
-                            {course.level}
-                          </span>
-                          {isDraft ? (
-                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase font-mono flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                              <span>DRAFT</span>
-                            </span>
-                          ) : (
-                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase font-mono flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                              <span>PUBLISHED</span>
-                            </span>
-                          )}
-                          {course.fieldAttachment && (
-                            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-50 text-[#E13B2B] border border-red-200 flex items-center gap-1">
-                              <Briefcase className="w-3 h-3" />
-                              {course.fieldAttachment}
-                            </span>
-                          )}
-                        </div>
-                        <h4 className="text-base font-bold text-slate-900">{course.title}</h4>
-                        <p className="text-xs text-slate-600 line-clamp-1">
-                          {course.description}
-                        </p>
-                        <div className="flex items-center flex-wrap gap-4 text-xs text-slate-500 pt-1 font-mono">
-                          <span>{course.contactHours} Contact Hours</span>
-                          <span>•</span>
-                          <span>{moduleCount} Modules ({lessonCount} Lessons)</span>
-                          <span>•</span>
-                          <span>{instructor}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 self-end md:self-center shrink-0">
-                      {isDraft ? (
-                        <Link
-                          href={`/admin/courses/${course.id || course.slug}/edit`}
-                          prefetch={false}
-                          className="px-4 py-2 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>Edit Draft</span>
-                        </Link>
-                      ) : (
-                        <>
-                          <Link
-                            href={`/courses/${course.slug}`}
-                            prefetch={false}
-                            className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1.5"
-                          >
-                            <span>Public View</span>
-                            <ExternalLink className="w-3 h-3 text-slate-400" />
-                          </Link>
-                          <Link
-                            href={`/learn/${course.slug}`}
-                            prefetch={false}
-                            className="px-3.5 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm transition-colors"
-                          >
-                            Enter Classroom
-                          </Link>
-                          <Link
-                            href={`/admin/courses/${course.id || course.slug}/edit`}
-                            prefetch={false}
-                            className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1"
-                            title={`Edit ${course.title}`}
-                          >
-                            <Edit3 className="w-3.5 h-3.5 text-slate-500" />
-                            <span>Edit</span>
-                          </Link>
-                        </>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => openDeleteModal(course)}
-                        className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-lg px-3 py-2 text-xs font-medium transition flex items-center gap-1.5 cursor-pointer"
-                        title={`Delete ${course.title}`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Partner Attachment Placement Log */}
-        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-mono flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-[#E13B2B]" />
-                <span>Partner Field Attachment Deployments</span>
-              </h3>
-              <p className="text-xs text-slate-500">
-                Candidates matched with commercial EPC contractors and industrial solar farms
-              </p>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
-              100% Placement Rate
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900 text-sm">Industrial Rooftop Inverter Commissioning</span>
-                <span className="px-2 py-0.5 rounded bg-blue-50 text-[#2B82C9] font-bold text-[10px] font-mono">
-                  Active Deployment
-                </span>
-              </div>
-              <p className="text-slate-600">Partner: Apex Industrial Energy EPC Ltd • Lagos, Nigeria</p>
-              <p className="text-slate-500">Lead Mentor: Engr. Asanga (Direct Sign-Off on Safety Logbook)</p>
-            </div>
-
-            <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900 text-sm">High-Voltage Battery Energy Storage (BESS)</span>
-                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px] font-mono">
-                  Upcoming Cohort Match
-                </span>
-              </div>
-              <p className="text-slate-600">Partner: Prime Grid Mini-Grid Utility • Abuja, Nigeria</p>
-              <p className="text-slate-500">Focus: Rack Balancing, UL9540A Thermal Protocols, SCADA Integration</p>
-            </div>
-          </div>
-        </div>
+        {/* Interactive Curriculum Studio Client */}
+        <AdminStudioClient initialCourses={initialCourses} />
       </div>
-
-      {/* Confirmation Modal */}
-      {deleteModal.isOpen && deleteModal.course && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
-          <div 
-            className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in zoom-in-95 duration-150"
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shrink-0">
-                <Trash2 className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold text-slate-900">
-                  Delete Program
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Irreversible Administrative Action
-                </p>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-100 text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Are you sure you want to delete <strong className="text-slate-900 font-bold">{deleteModal.course.title}</strong>? This action cannot be undone.
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={closeDeleteModal}
-                disabled={isDeleting}
-                className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs sm:text-sm transition cursor-pointer disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-rose-600/20 transition flex items-center gap-2 cursor-pointer disabled:opacity-60"
-              >
-                {isDeleting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Deleting...</span>
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="w-4 h-4" />
-                    <span>Confirm Delete</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Toast Notification */}
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl border text-xs sm:text-sm font-semibold animate-in slide-in-from-bottom-5 duration-200 bg-slate-900 text-white border-slate-700">
-          {toast.type === "success" ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          ) : (
-            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-          )}
-          <span>{toast.message}</span>
-          <button
-            type="button"
-            onClick={() => setToast(null)}
-            className="ml-2 text-slate-400 hover:text-white transition-colors cursor-pointer"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }

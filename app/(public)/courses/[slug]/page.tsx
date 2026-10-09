@@ -39,7 +39,9 @@ export async function generateMetadata({
     openGraph: {
       title: course.title,
       description: course.subtitle || course.description?.slice(0, 160),
-      images: [course.thumbnailImage || "/images/courses/course-1-solar-intro.jpg"],
+      images: (course.thumbnailUrl || (course as any).imageUrl || course.thumbnailImage)
+        ? [course.thumbnailUrl || (course as any).imageUrl || course.thumbnailImage]
+        : [],
     },
   };
 }

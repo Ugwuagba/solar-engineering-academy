@@ -4,7 +4,6 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { ALL_FALLBACK_COURSES } from "@/lib/fallback-courses";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -57,7 +56,7 @@ const createCourseSchema = z.object({
   includesList: z.array(z.string()).default([]),
   targetAudience: z.array(z.string()).default([]),
   requirements: z.array(z.string()).default([]),
-  thumbnailUrl: z.string().optional().default("/images/courses/course-1-solar-intro.jpg"),
+  thumbnailUrl: z.string().optional().nullable(),
   promoVideoUrl: z.string().optional().default(""),
   badge: z.string().optional().default("New"),
   instructorName: z.string().optional().default("Engr. Asanga"),
@@ -140,7 +139,7 @@ export async function POST(req: NextRequest) {
         requirements: Array.isArray(data.requirements)
           ? data.requirements.map((item: any) => String(item).trim()).filter(Boolean)
           : [],
-        thumbnailUrl: data.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
+        thumbnailUrl: data.thumbnailUrl || null,
         promoVideoUrl: data.promoVideoUrl || null,
         badge: data.badge || null,
         modules: {
@@ -284,52 +283,15 @@ export async function GET() {
       });
     }
 
-    // Fallback if database has no rows
     return NextResponse.json({
       success: true,
-      courses: ALL_FALLBACK_COURSES.map((c, idx) => ({
-        id: c.id || c.code,
-        code: c.code,
-        title: c.title,
-        slug: c.slug,
-        level: c.level,
-        description: c.description,
-        instructorName: c.instructor || "Lead Solar Engineer (Director)",
-        price: c.price,
-        originalPrice: c.originalPrice,
-        contactHours: c.contactHours,
-        isPublished: true,
-        status: "PUBLISHED",
-        order: idx,
-        moduleCount: c.modules.length,
-        lessonCount: c.modules.reduce((sum, m) => sum + m.lessons.length, 0),
-        quizCount: c.modules.filter((m) => !!m.quiz).length,
-        createdAt: new Date().toISOString(),
-      })),
+      courses: [],
     });
   } catch (error: any) {
-    console.error("Error listing admin courses, falling back to static catalog:", error);
+    console.error("Error listing admin courses:", error);
     return NextResponse.json({
       success: true,
-      courses: ALL_FALLBACK_COURSES.map((c, idx) => ({
-        id: c.id || c.code,
-        code: c.code,
-        title: c.title,
-        slug: c.slug,
-        level: c.level,
-        description: c.description,
-        instructorName: c.instructor || "Lead Solar Engineer (Director)",
-        price: c.price,
-        originalPrice: c.originalPrice,
-        contactHours: c.contactHours,
-        isPublished: true,
-        status: "PUBLISHED",
-        order: idx,
-        moduleCount: c.modules.length,
-        lessonCount: c.modules.reduce((sum, m) => sum + m.lessons.length, 0),
-        quizCount: c.modules.filter((m) => !!m.quiz).length,
-        createdAt: new Date().toISOString(),
-      })),
+      courses: [],
     });
   }
 }

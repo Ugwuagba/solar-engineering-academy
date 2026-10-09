@@ -105,7 +105,7 @@ export default async function ClassroomDashboardPage() {
       title: course.title,
       slug: course.slug,
       instructor: course.instructorName || "Engr. Asanga (Certified Solar Professional)",
-      thumbnailUrl: course.thumbnailUrl || "/images/courses/course-1-solar-intro.jpg",
+      thumbnailUrl: course.thumbnailUrl || (course as any).imageUrl || "",
       contactHours: course.contactHours || 40,
       totalLessons,
       completedLessons,
@@ -167,11 +167,17 @@ export default async function ClassroomDashboardPage() {
                   <div>
                     {/* Course Thumbnail with Quick-Play Overlay */}
                     <Link href={continueLink} prefetch={false} className="block relative w-full h-48 overflow-hidden bg-slate-900 group">
-                      <img
-                        src={c.thumbnailUrl}
-                        alt={c.title}
-                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-90"
-                      />
+                      {c.thumbnailUrl ? (
+                        <img
+                          src={c.thumbnailUrl}
+                          alt={c.title}
+                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-90"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-400">
+                          <span className="font-mono text-xs font-bold">{c.code}</span>
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/30" />
                       
                       {/* Code Badge */}

@@ -48,6 +48,8 @@ export interface SeedCourse {
   ratingCount?: number;
   studentsCount?: number;
   thumbnailImage: string;
+  thumbnailUrl?: string;
+  imageUrl?: string;
   badge?: string;
   isPublished: boolean;
   whatYouWillLearn?: string[];
