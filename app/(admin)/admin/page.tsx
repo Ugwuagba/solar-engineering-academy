@@ -20,16 +20,21 @@ export default async function AdminStudioPage() {
   const session = await getServerSession(authOptions);
 
   // 1. Dynamic Server Component Prisma Queries for Metric Cards
+  const totalCandidates = await prisma.user.count({
+    where: { role: "STUDENT" },
+  }).catch(async () => {
+    // Fallback if role is not partitioned or uses different casing:
+    return await prisma.user.count();
+  });
+
   const [
-    candidatesCount,
-    enrollmentsCount,
-    activeTracksCount,
-    cohortsCount,
+    totalEnrollments,
+    activeTracks,
+    scheduledCohorts,
     totalQuizAttempts,
     passedQuizAttempts,
     completedEnrollmentsCount,
   ] = await Promise.all([
-    prisma.user.count({ where: { role: "STUDENT" } }).catch(() => 0),
     prisma.enrollment.count().catch(() => 0),
     prisma.course.count().catch(() => 0),
     prisma.cohort.count().catch(() => 0),
@@ -38,24 +43,12 @@ export default async function AdminStudioPage() {
     prisma.enrollment.count({ where: { status: "COMPLETED" } }).catch(() => 0),
   ]);
 
-  // Total candidates (fallback to non-admin accounts if roles aren't partitioned)
-  let totalCandidates = candidatesCount;
-  if (totalCandidates === 0) {
-    totalCandidates = await prisma.user.count({ where: { role: { not: "ADMIN" } } }).catch(() => 0);
-  }
-  if (totalCandidates === 0) {
-    totalCandidates = await prisma.user.count().catch(() => 0);
-  }
-
-  const totalEnrollments = enrollmentsCount;
-  const activeTracks = activeTracksCount;
-  const scheduledCohorts = cohortsCount;
-
-  // Dynamic milestone pass rate calculation
-  const hasAssessmentData = totalQuizAttempts > 0;
-  const milestonePassRate = hasAssessmentData
+  // Dynamic milestone pass rate calculation from real database records
+  const milestonePassRate = totalQuizAttempts > 0
     ? `${((passedQuizAttempts / totalQuizAttempts) * 100).toFixed(1)}%`
-    : null;
+    : completedEnrollmentsCount > 0 && totalEnrollments > 0
+    ? `${((completedEnrollmentsCount / totalEnrollments) * 100).toFixed(1)}%`
+    : "0.0%";
 
   // 2. Fetch live curriculum inventory for the studio table
   let dbCourses: any[] = [];
@@ -188,23 +181,23 @@ export default async function AdminStudioPage() {
             </p>
           </div>
 
-          {/* Card 4: Milestone Pass Rate or Total Enrollments */}
+          {/* Card 4: Milestone Pass Rate */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 uppercase font-mono">
-                {hasAssessmentData ? "Milestone Pass Rate" : "Total Enrollments"}
+                Milestone Pass Rate
               </span>
               <Award className="w-5 h-5 text-amber-500" />
             </div>
             <p className="text-3xl font-black text-slate-900 font-mono">
-              {hasAssessmentData ? milestonePassRate : totalEnrollments.toLocaleString()}
+              {milestonePassRate}
             </p>
             <p className="text-xs text-slate-500 mt-1">
-              {hasAssessmentData
+              {totalQuizAttempts > 0
                 ? `${passedQuizAttempts} of ${totalQuizAttempts} assessments passed`
                 : completedEnrollmentsCount > 0
-                ? `${completedEnrollmentsCount} completed track ${completedEnrollmentsCount === 1 ? "credential" : "credentials"}`
-                : "Verified student enrollments"}
+                ? `${completedEnrollmentsCount} of ${totalEnrollments} tracks completed`
+                : "Live dynamic milestone pass rate"}
             </p>
           </div>
         </div>
