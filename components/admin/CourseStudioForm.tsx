@@ -292,8 +292,8 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
     }
   };
 
-  // File Upload Handler
-  const handleFileSelect = async (file: File) => {
+  // File Upload Handler (Client-side FileReader to Base64 Data URL)
+  const handleFileSelect = (file: File) => {
     setUploadError(null);
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
     if (!allowedTypes.includes(file.type.toLowerCase())) {
@@ -306,34 +306,27 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
       return;
     }
 
-    const previewUrl = URL.createObjectURL(file);
-    setLocalPreview(previewUrl);
     setIsUploading(true);
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to upload image.");
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      if (dataUrl) {
+        setLocalPreview(dataUrl);
+        setThumbnailUrl(dataUrl);
+        setIsDirty(true);
+        showToast("Thumbnail converted to Data URL and loaded!");
       }
-
-      setThumbnailUrl(data.url);
-      setIsDirty(true);
-      showToast("Thumbnail uploaded successfully!");
-    } catch (err: any) {
-      console.error("Upload error:", err);
-      setUploadError(err.message || "Failed to upload image. Please try again.");
-      setLocalPreview(null);
-    } finally {
       setIsUploading(false);
-    }
+    };
+
+    reader.onerror = (err) => {
+      console.error("FileReader error:", err);
+      setUploadError("Failed to read image file. Please try another image.");
+      setIsUploading(false);
+    };
+
+    reader.readAsDataURL(file);
   };
 
   // Outcomes Handlers
@@ -619,7 +612,8 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
         contactHours: Number(contactHours) || 40,
         price: Number(price) || 0,
         originalPrice: originalPrice !== "" ? Number(originalPrice) : null,
-        thumbnailUrl: thumbnailUrl || "/images/hero/hero-commercial.jpg",
+        thumbnailUrl: thumbnailUrl || null,
+        imageUrl: thumbnailUrl || null,
         promoVideoUrl: promoVideoUrl.trim() || null,
         badge: badge.trim() || null,
         instructorName: instructorName.trim() || "Engr. Asanga",
@@ -773,7 +767,8 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
         includesList: includesList.filter((item) => item.trim().length > 0),
         targetAudience: targetAudience.filter((item) => item.trim().length > 0),
         requirements: requirements.filter((item) => item.trim().length > 0),
-        thumbnailUrl: thumbnailUrl || "/images/hero/hero-commercial.jpg",
+        thumbnailUrl: thumbnailUrl || null,
+        imageUrl: thumbnailUrl || null,
         promoVideoUrl: promoVideoUrl.trim() || null,
         badge: badge.trim() || null,
         instructorName: instructorName.trim() || "Engr. Asanga",
@@ -1315,8 +1310,8 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
-                        <span className="text-[10px] font-mono text-white/90 bg-black/50 px-2 py-0.5 rounded backdrop-blur-xs">
-                          {thumbnailUrl}
+                        <span className="text-[10px] font-mono text-white/90 bg-black/50 px-2 py-0.5 rounded backdrop-blur-xs truncate max-w-[240px]">
+                          {thumbnailUrl ? (thumbnailUrl.startsWith("data:") ? "Embedded Data URL (Base64)" : thumbnailUrl) : "No thumbnail set"}
                         </span>
                       </div>
                     </div>

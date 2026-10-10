@@ -79,8 +79,9 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
 
   const priceFormatted = `₦${Number(course.price || 0).toLocaleString()}`;
 
+  const rawImage = course.thumbnailUrl || course.imageUrl;
   const [imageError, setImageError] = useState(false);
-  const imageSrc = !imageError ? (course.thumbnailUrl || course.imageUrl) : null;
+  const imageSrc = !imageError && rawImage && typeof rawImage === "string" && rawImage.trim().length > 0 ? rawImage : null;
 
   return (
     <div className="deye-card relative group bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-2xl hover:border-blue-500 transition-all duration-300 flex flex-col justify-between overflow-hidden h-full">
@@ -93,7 +94,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
         <Link href={`/courses/${course.slug}`} prefetch={false} className="block relative aspect-video w-full overflow-hidden rounded-t-xl bg-slate-900 shrink-0">
           {imageSrc ? (
             <img
-              src={course.thumbnailUrl || course.imageUrl}
+              src={imageSrc}
               alt={course.title}
               loading="lazy"
               onError={() => setImageError(true)}

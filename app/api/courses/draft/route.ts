@@ -177,7 +177,11 @@ export async function POST(req: NextRequest) {
       requirements: Array.isArray(requirements)
         ? requirements.map((item: any) => String(item).trim()).filter(Boolean)
         : [],
-      thumbnailUrl: thumbnailUrl || "/images/hero/hero-commercial.jpg",
+      thumbnailUrl: (thumbnailUrl && String(thumbnailUrl).trim().length > 0)
+        ? String(thumbnailUrl).trim()
+        : (body.imageUrl && String(body.imageUrl).trim().length > 0)
+        ? String(body.imageUrl).trim()
+        : null,
       promoVideoUrl: promoVideoUrl ? String(promoVideoUrl).trim() : null,
       badge: badge ? String(badge).trim() : null,
     };

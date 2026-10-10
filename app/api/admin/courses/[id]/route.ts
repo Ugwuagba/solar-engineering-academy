@@ -152,6 +152,7 @@ export async function PATCH(
     if (body.status !== undefined) updateData.status = body.status;
     if (body.isPublished !== undefined) updateData.isPublished = Boolean(body.isPublished);
     if (body.thumbnailUrl !== undefined) updateData.thumbnailUrl = body.thumbnailUrl;
+    else if (body.imageUrl !== undefined) updateData.thumbnailUrl = body.imageUrl;
     if (body.promoVideoUrl !== undefined) updateData.promoVideoUrl = body.promoVideoUrl ? String(body.promoVideoUrl).trim() : null;
     if (body.badge !== undefined) updateData.badge = body.badge ? String(body.badge).trim() : null;
     if (body.instructorName !== undefined) updateData.instructorName = body.instructorName ? String(body.instructorName).trim() : "Engr. Asanga";
