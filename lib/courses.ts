@@ -144,30 +144,32 @@ function mapPrismaCourseToSeedCourse(c: any): SeedCourse {
 
 export async function getAllCourses(): Promise<SeedCourse[]> {
   try {
-    let dbCourses = await prisma.course.findMany({
+    const dbCourses = await prisma.course.findMany({
       where: {
         OR: [
           { status: { in: ["PUBLISHED", "published", "ACTIVE", "active", "OPEN", "open"] } },
           { isPublished: true },
         ],
       },
-      include: {
-        modules: {
-          orderBy: { sortOrder: "asc" },
-          include: {
-            lessons: { orderBy: { sortOrder: "asc" } },
-            quiz: {
-              include: { questions: true },
-            },
-          },
-        },
-        cohorts: {
-          orderBy: { startDate: "asc" },
-        },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        code: true,
+        subtitle: true,
+        description: true,
+        level: true,
+        deliveryType: true,
+        contactHours: true,
+        price: true,
+        originalPrice: true,
+        thumbnailUrl: true,
+        badge: true,
+        instructorName: true,
+        order: true,
       },
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
-
 
     if (dbCourses && dbCourses.length > 0) {
       return dbCourses.map((c) => ({

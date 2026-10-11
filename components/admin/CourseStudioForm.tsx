@@ -3,6 +3,7 @@
 import { useState, useId, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { compressImageToDataUrl } from "@/lib/image-compression";
 import { 
   ArrowLeft, 
   Plus, 
@@ -292,8 +293,8 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
     }
   };
 
-  // File Upload Handler (Client-side FileReader to Base64 Data URL)
-  const handleFileSelect = (file: File) => {
+  // File Upload Handler (Client-side HTML Canvas Compression to Base64 WebP/JPEG)
+  const handleFileSelect = async (file: File) => {
     setUploadError(null);
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
     if (!allowedTypes.includes(file.type.toLowerCase())) {
@@ -301,32 +302,25 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError("File size exceeds the 5MB maximum limit.");
+    if (file.size > 20 * 1024 * 1024) {
+      setUploadError("File size exceeds 20MB limit. Please choose a smaller image.");
       return;
     }
 
     setIsUploading(true);
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
-      if (dataUrl) {
-        setLocalPreview(dataUrl);
-        setThumbnailUrl(dataUrl);
-        setIsDirty(true);
-        showToast("Thumbnail converted to Data URL and loaded!");
-      }
+    try {
+      const { dataUrl, sizeKb, width, height } = await compressImageToDataUrl(file, 1280, 0.78);
+      setLocalPreview(dataUrl);
+      setThumbnailUrl(dataUrl);
+      setIsDirty(true);
+      showToast(`Thumbnail compressed to ${sizeKb}KB (${width}×${height})!`);
+    } catch (err: any) {
+      console.error("Image compression error:", err);
+      setUploadError("Failed to compress image file. Please try another image.");
+    } finally {
       setIsUploading(false);
-    };
-
-    reader.onerror = (err) => {
-      console.error("FileReader error:", err);
-      setUploadError("Failed to read image file. Please try another image.");
-      setIsUploading(false);
-    };
-
-    reader.readAsDataURL(file);
+    }
   };
 
   // Outcomes Handlers
@@ -1288,10 +1282,10 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
                     </div>
 
                     <p className="text-sm font-bold text-white mb-1">
-                      {isUploading ? "Uploading Field Photography..." : "Click or drag & drop high-res thumbnail"}
+                      {isUploading ? "Compressing & Optimizing Thumbnail..." : "Click or drag & drop high-res thumbnail"}
                     </p>
                     <p className="text-xs text-slate-400 mb-3 font-mono">
-                      PNG, JPG, or WEBP up to 5MB (16:9 widescreen recommended)
+                      PNG, JPG, or WEBP (Auto-compressed to &lt;150KB, 1280px max)
                     </p>
 
                     {uploadError && (
@@ -1311,7 +1305,7 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
                         <span className="text-[10px] font-mono text-white/90 bg-black/50 px-2 py-0.5 rounded backdrop-blur-xs truncate max-w-[240px]">
-                          {thumbnailUrl ? (thumbnailUrl.startsWith("data:") ? "Embedded Data URL (Base64)" : thumbnailUrl) : "No thumbnail set"}
+                          {thumbnailUrl ? (thumbnailUrl.startsWith("data:") ? "Embedded Data URL (Canvas Optimized)" : thumbnailUrl) : "No thumbnail set"}
                         </span>
                       </div>
                     </div>
