@@ -1,20 +1,22 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
+const port = Number(process.env.SMTP_PORT) || 465;
+const secure = port === 465 || process.env.SMTP_SECURE === 'true';
+
 export const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "102.212.246.122",
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: false, // Required for port 587 STARTTLS
+  host: process.env.SMTP_HOST || 'mail.subwayschools.com',
+  port: port,
+  secure: secure, // true for 465, false for 587
   auth: {
-    user: process.env.SMTP_USER || "admission@subwayschools.com", // Exact singular match
-    pass: process.env.SMTP_PASS || "@Asanga123",
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false, // Prevents certificate hostname mismatch drops
+    // Prevents self-signed cPanel certificate handshake rejections:
+    rejectUnauthorized: false,
   },
-  pool: true,
-  maxConnections: 3,
-  maxMessages: 50,
+  connectionTimeout: 15000, // 15 seconds
 });
 
 /**
