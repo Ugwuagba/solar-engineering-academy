@@ -1,22 +1,18 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
-const port = Number(process.env.SMTP_PORT) || 465;
-const secure = port === 465 || process.env.SMTP_SECURE === 'true';
-
 export const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'mail.subwayschools.com',
-  port: port,
-  secure: secure, // true for 465, false for 587
+  port: Number(process.env.SMTP_PORT) || 465,
+  secure: process.env.SMTP_SECURE === 'true' || true,
   auth: {
-    user: process.env.SMTP_USER,
+    user: process.env.SMTP_USER || 'admission@subwayschools.com',
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    // Prevents self-signed cPanel certificate handshake rejections:
     rejectUnauthorized: false,
   },
-  connectionTimeout: 15000, // 15 seconds
+  connectionTimeout: 10000,
 });
 
 /**
