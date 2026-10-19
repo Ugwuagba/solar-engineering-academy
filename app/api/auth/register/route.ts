@@ -81,7 +81,7 @@ export async function POST(req: Request) {
 
     const html = getOtpEmailTemplate({
       otp: otpCode,
-      candidateName: name?.trim(),
+      candidateName: name,
     });
 
     sendEmail({

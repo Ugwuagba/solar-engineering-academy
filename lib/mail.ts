@@ -35,11 +35,15 @@ export async function sendEmail({
 export function getOtpEmailTemplate({
   otp,
   candidateName,
+  logoUrl = 'https://subwayschools.com/logo.png', // uses exact receipt logo path
 }: {
   otp: string;
   candidateName?: string;
+  logoUrl?: string;
 }): string {
-  const greeting = candidateName ? `Welcome to Subway Schools, ${candidateName}!` : "Welcome to Subway Schools!";
+  const greeting = candidateName?.trim()
+    ? `Welcome to Subway Schools, ${candidateName.trim()}!`
+    : 'Welcome to Subway Schools!';
 
   return `<!DOCTYPE html>
 <html>
@@ -55,8 +59,15 @@ export function getOtpEmailTemplate({
         <table role="presentation" width="100%" style="max-width: 520px; background-color: #0b1528; border: 1px solid #1e293b; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
           <!-- Header -->
           <tr>
-            <td align="center" style="padding: 35px 30px 20px; background: linear-gradient(180deg, #0f1c36 0%, #0b1528 100%); border-bottom: 1px solid #1e293b;">
-              <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 1.5px; color: #ffffff; text-transform: uppercase;">
+            <td align="center" style="padding: 32px 30px 20px; background: linear-gradient(180deg, #0f1c36 0%, #0b1528 100%); border-bottom: 1px solid #1e293b;">
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 0 auto 12px auto;">
+                <tr>
+                  <td align="center">
+                    <img src="${logoUrl}" alt="Subway Schools Logo" width="120" style="display: block; max-height: 52px; width: auto; object-fit: contain;" />
+                  </td>
+                </tr>
+              </table>
+              <h1 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 1.5px; color: #ffffff; text-transform: uppercase;">
                 SUBWAY SCHOOLS
               </h1>
               <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8; letter-spacing: 0.5px;">
@@ -92,10 +103,10 @@ export function getOtpEmailTemplate({
           <tr>
             <td style="padding: 20px 30px; background-color: #070d18; border-top: 1px solid #1e293b; text-align: center;">
               <p style="margin: 0; font-size: 12px; color: #64748b;">
-                © 2026 Subway Schools. All rights reserved.
+                © 2026 Subway Schools · Subway Energy Limited
               </p>
               <p style="margin: 6px 0 0; font-size: 11px; color: #475569;">
-                Need help? Contact support or message your admissions instructor.
+                Need help? Contact admissions support or message your instructor.
               </p>
             </td>
           </tr>
