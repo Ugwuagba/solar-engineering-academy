@@ -129,22 +129,22 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
           <div>
             <div className="flex items-baseline gap-3">
               <span className="text-3xl sm:text-4xl font-black text-slate-900 font-mono tracking-tight">
-                ₦{Number(course.price || 0).toLocaleString()}
+                ₦{course?.price ? Number(course.price).toLocaleString() : '5,000'}
               </span>
-              {course.originalPrice && course.originalPrice > course.price ? (
+              {course?.originalPrice && course.originalPrice > (course?.price || 0) ? (
                 <span className="text-base font-semibold text-slate-400 line-through font-mono">
                   ₦{Number(course.originalPrice).toLocaleString()}
                 </span>
-              ) : course.originalPriceNgn ? (
+              ) : course?.originalPriceNgn ? (
                 <span className="text-base font-semibold text-slate-400 line-through font-mono">
                   {course.originalPriceNgn}
                 </span>
               ) : null}
-              {course.originalPrice && course.originalPrice > course.price ? (
+              {course?.originalPrice && course.originalPrice > (course?.price || 0) ? (
                 <span className="text-xs font-bold text-[#D74000] bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
-                  {Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100)}% off
+                  {Math.round(((course.originalPrice - (course?.price || 0)) / course.originalPrice) * 100)}% off
                 </span>
-              ) : course.discountPercentage ? (
+              ) : course?.discountPercentage ? (
                 <span className="text-xs font-bold text-[#D74000] bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
                   {course.discountPercentage}% off
                 </span>
@@ -159,14 +159,14 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
           </div>
 
           {/* Scheduled Cohort Picker if applicable */}
-          {course.cohorts && course.cohorts.length > 0 && (
+          {(course?.cohorts?.length || 0) > 0 && (
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-[#2B82C9]" />
                 Select Cohort Schedule:
               </label>
               <div className="space-y-1.5">
-                {course.cohorts.map((ch) => {
+                {course.cohorts?.map((ch) => {
                   const isSelected = selectedCohort === ch.name;
                   return (
                     <div

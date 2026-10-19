@@ -11,16 +11,16 @@ function CatalogContent({ initialCourses = [] }: { initialCourses?: SeedCourse[]
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("query") || "";
 
-  const baseCourses = initialCourses || [];
+  const baseCourses = Array.isArray(initialCourses) ? initialCourses : [];
 
   const filteredCourses = useMemo(() => {
     if (!urlQuery.trim()) return baseCourses;
     const q = urlQuery.toLowerCase();
     return baseCourses.filter((course) => {
-      const matchTitle = (course.title || "").toLowerCase().includes(q);
-      const matchCode = (course.code || "").toLowerCase().includes(q);
-      const matchDesc = (course.description || "").toLowerCase().includes(q);
-      const matchInstructor = (course.instructor || course.instructorName || "").toLowerCase().includes(q);
+      const matchTitle = (course?.title || "").toLowerCase().includes(q);
+      const matchCode = (course?.code || "").toLowerCase().includes(q);
+      const matchDesc = (course?.description || "").toLowerCase().includes(q);
+      const matchInstructor = (course?.instructor || course?.instructorName || "").toLowerCase().includes(q);
       return matchTitle || matchCode || matchDesc || matchInstructor;
     });
   }, [urlQuery, baseCourses]);
@@ -46,8 +46,8 @@ function CatalogContent({ initialCourses = [] }: { initialCourses?: SeedCourse[]
         <div className="mt-8 sm:mt-10">
           {filteredCourses.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredCourses.map((course) => (
-                <CourseCard key={course.id || course.code || course.slug} course={course} />
+              {filteredCourses.map((course, idx) => (
+                <CourseCard key={course?.id || course?.code || course?.slug || `course-${idx}`} course={course} />
               ))}
             </div>
           ) : (

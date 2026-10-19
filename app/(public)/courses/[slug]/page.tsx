@@ -52,18 +52,24 @@ export default async function CourseDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const course = await getCourseBySlug(slug);
+  let course: Awaited<ReturnType<typeof getCourseBySlug>> = null;
+  try {
+    course = await getCourseBySlug(slug);
+  } catch (error) {
+    console.error("[COURSES_PAGE_ERROR]: Error in getCourseBySlug:", error);
+  }
 
   if (!course) {
     notFound();
   }
 
-  const totalLessons = course.modules.reduce((sum, m) => sum + m.lessons.length, 0);
-  const totalDurationSecs = course.modules.reduce(
-    (sum, m) => sum + m.lessons.reduce((lSum, l) => lSum + l.durationSec, 0),
+  const modules = Array.isArray(course?.modules) ? course.modules : [];
+  const totalLessons = modules.reduce((sum: number, m: any) => sum + (m?.lessons?.length || 0), 0);
+  const totalDurationSecs = modules.reduce(
+    (sum: number, m: any) => sum + (Array.isArray(m?.lessons) ? m.lessons.reduce((lSum: number, l: any) => lSum + (l?.durationSec || 0), 0) : 0),
     0
   );
-  const totalHours = Math.round(totalDurationSecs / 3600) || course.contactHours;
+  const totalHours = Math.round(totalDurationSecs / 3600) || course?.contactHours || 40;
 
   return (
     <div className="relative min-h-screen bg-white">
@@ -173,7 +179,7 @@ export default async function CourseDetailPage({
                     </p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-slate-700">
-                    {course.whatYouWillLearn.map((item, idx) => (
+                    {(course.whatYouWillLearn || []).map((item: string, idx: number) => (
                       <div key={idx} className="flex items-start gap-2.5">
                         <Check className="w-4 h-4 text-[#2B82C9] shrink-0 mt-0.5 stroke-[2.5]" />
                         <span className="leading-snug">{item}</span>
@@ -191,11 +197,11 @@ export default async function CourseDetailPage({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs sm:text-sm text-slate-700">
                   <div className="flex items-center gap-3">
                     <Clock className="w-4 h-4 text-[#2B82C9] shrink-0" />
-                    <span>{course.contactHours || 48} hours on-demand video</span>
+                    <span>{course?.contactHours || 48} hours on-demand video</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <BookOpen className="w-4 h-4 text-[#2B82C9] shrink-0" />
-                    <span>{course.modules.length} modules ({totalLessons} technical lessons)</span>
+                    <span>{course?.modules?.length || 0} modules ({totalLessons} technical lessons)</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <FileText className="w-4 h-4 text-[#2B82C9] shrink-0" />
@@ -216,21 +222,21 @@ export default async function CourseDetailPage({
                 </div>
               </div>
 
-              {/* "Curriculum Depth: 11 Modules • 33 Technical Lessons" accordion list */}
+              {/* "Curriculum Depth: Modules • Technical Lessons" accordion list */}
               <div className="rounded-xl border border-slate-200 p-6 sm:p-8 bg-white shadow-xs space-y-5">
                 <div>
                   <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                     Course content
                   </h2>
                   <p className="text-xs text-slate-500 mt-1 font-medium">
-                    Curriculum Depth: {course.modules.length} Modules • {totalLessons} Technical Lessons • {totalHours}h total length
+                    Curriculum Depth: {course?.modules?.length || 0} Modules • {totalLessons} Technical Lessons • {totalHours}h total length
                   </p>
                 </div>
 
                 <SyllabusAccordion 
-                  modules={course.modules} 
-                  courseSlug={course.slug} 
-                  courseTitle={course.title}
+                  modules={modules} 
+                  courseSlug={course?.slug} 
+                  courseTitle={course?.title}
                 />
               </div>
 
@@ -291,7 +297,7 @@ export default async function CourseDetailPage({
                         "A laptop or smartphone for technical calculation simulations",
                         "Commitment to complete technical assessments and coursework",
                       ]
-                  ).map((req, idx) => (
+                  ).map((req: string, idx: number) => (
                     <li key={idx} className="leading-relaxed">
                       {req}
                     </li>
@@ -332,7 +338,7 @@ export default async function CourseDetailPage({
                         "Electrical engineers, technicians, and installers aiming for commercial EPC mastery",
                         "Facility directors and solar business entrepreneurs building high-reliability mini-grids",
                       ]
-                  ).map((aud, idx) => (
+                  ).map((aud: string, idx: number) => (
                     <li key={idx} className="leading-relaxed">
                       {aud}
                     </li>

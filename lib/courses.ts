@@ -37,36 +37,39 @@ function mapPrismaCourseToSeedCourse(c: any): SeedCourse {
     ]
   );
 
-  const priceNgn = formatNaira(c.price);
-  const originalPriceNgn = c.originalPrice ? formatNaira(c.originalPrice) : undefined;
-  const discountPercentage = c.originalPrice && c.originalPrice > c.price
+  const priceNgn = formatNaira(c?.price ? Number(c.price) : 5000);
+  const originalPriceNgn = c?.originalPrice ? formatNaira(c.originalPrice) : undefined;
+  const discountPercentage = c?.originalPrice && c?.price && c.originalPrice > c.price
     ? Math.round(((c.originalPrice - c.price) / c.originalPrice) * 100)
     : undefined;
 
+  const imageUrl = c?.thumbnailUrl || c?.imageUrl || "/placeholder-course.jpg";
+
   return {
-    id: c.id,
-    code: c.code,
-    title: c.title,
-    subtitle: c.subtitle || c.description?.slice(0, 150) + "...",
-    slug: c.slug,
-    description: c.description,
-    level: (c.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED") || "INTRODUCTORY",
-    deliveryType: (c.deliveryType as "SELF_PACED" | "COHORT") || "SELF_PACED",
-    contactHours: c.contactHours || 40,
-    price: c.price,
-    originalPrice: c.originalPrice || undefined,
+    id: c?.id || `course-${c?.code || Math.random()}`,
+    code: c?.code || "SI100",
+    title: c?.title || "Accredited Energy Course",
+    subtitle: c?.subtitle || (c?.description ? c.description.slice(0, 150) + "..." : ""),
+    slug: c?.slug || c?.code?.toLowerCase() || "course",
+    description: c?.description || "",
+    level: (c?.level as "INTRODUCTORY" | "INTERMEDIATE" | "ADVANCED") || "INTRODUCTORY",
+    deliveryType: (c?.deliveryType as "SELF_PACED" | "COHORT") || "SELF_PACED",
+    contactHours: c?.contactHours || 40,
+    price: c?.price !== undefined && !isNaN(Number(c.price)) ? Number(c.price) : 5000,
+    originalPrice: c?.originalPrice || undefined,
     priceNgn,
     originalPriceNgn,
     discountPercentage,
     rating: 4.9,
     ratingCount: 120,
     studentsCount: 850,
-    thumbnailImage: c.thumbnailUrl || c.imageUrl || "",
-    thumbnailUrl: c.thumbnailUrl || c.imageUrl || "",
-    badge: c.badge || (c.originalPrice ? "Special Offer" : "Accredited"),
-    instructor: c.instructorName || "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
+    thumbnailImage: imageUrl,
+    thumbnailUrl: imageUrl,
+    imageUrl,
+    badge: c?.badge || (c?.originalPrice ? "Special Offer" : "Accredited"),
+    instructor: c?.instructorName || "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
     fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
-    isPublished: c.isPublished ?? true,
+    isPublished: c?.isPublished ?? true,
     whatYouWillLearn,
     requirements: (Array.isArray(c.requirements) && c.requirements.length > 0)
       ? c.requirements
@@ -180,7 +183,7 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
 
     return [];
   } catch (error) {
-    console.error("[getAllCourses] Prisma query failed:", (error as Error).message);
+    console.error("[COURSES_PAGE_ERROR]: Prisma query failed in getAllCourses:", (error as Error).message);
     return [];
   }
 }
@@ -216,7 +219,7 @@ export async function getCourseBySlug(slug: string): Promise<SeedCourse | null> 
       return mapPrismaCourseToSeedCourse(course);
     }
   } catch (err) {
-    console.error("[getCourseBySlug Error]:", err);
+    console.error("[COURSES_PAGE_ERROR]: Error in getCourseBySlug:", err);
   }
 
   return null;
