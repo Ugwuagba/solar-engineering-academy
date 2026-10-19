@@ -30,71 +30,89 @@ export async function sendEmail({
 }
 
 /**
+ * Branded HTML email template for Subway Schools candidate verification codes.
+ */
+export function getOtpEmailTemplate({
+  otp,
+  candidateName,
+}: {
+  otp: string;
+  candidateName?: string;
+}): string {
+  const greeting = candidateName ? `Welcome to Subway Schools, ${candidateName}!` : "Welcome to Subway Schools!";
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subway Schools Verification Code</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #050a14; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f3f4f6;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #050a14; padding: 40px 15px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 520px; background-color: #0b1528; border: 1px solid #1e293b; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <!-- Header -->
+          <tr>
+            <td align="center" style="padding: 35px 30px 20px; background: linear-gradient(180deg, #0f1c36 0%, #0b1528 100%); border-bottom: 1px solid #1e293b;">
+              <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 1.5px; color: #ffffff; text-transform: uppercase;">
+                SUBWAY SCHOOLS
+              </h1>
+              <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8; letter-spacing: 0.5px;">
+                Building Africa's Next Generation of Energy Professionals
+              </p>
+            </td>
+          </tr>
+
+          <!-- Content Body -->
+          <tr>
+            <td style="padding: 32px 30px 24px; text-align: center;">
+              <h2 style="margin: 0 0 12px; font-size: 20px; font-weight: 700; color: #f8fafc;">
+                ${greeting}
+              </h2>
+              <p style="margin: 0 0 24px; font-size: 14px; line-height: 1.6; color: #cbd5e1;">
+                Thank you for taking the first step toward professional solar and stationary energy storage certification. Use the verification code below to confirm your candidate profile:
+              </p>
+
+              <!-- OTP Code Display Card -->
+              <div style="background-color: #070d18; border: 1px solid #fbbf24; border-radius: 10px; padding: 18px 24px; margin: 0 auto 24px; display: inline-block;">
+                <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #fbbf24; font-family: 'Courier New', Courier, monospace;">
+                  ${otp}
+                </span>
+              </div>
+
+              <p style="margin: 0 0 16px; font-size: 13px; color: #94a3b8;">
+                This code will expire in <strong>10 minutes</strong>. If you did not register for an account, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 30px; background-color: #070d18; border-top: 1px solid #1e293b; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #64748b;">
+                © 2026 Subway Schools. All rights reserved.
+              </p>
+              <p style="margin: 6px 0 0; font-size: 11px; color: #475569;">
+                Need help? Contact support or message your admissions instructor.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+/**
  * Builds the executive dark styled Subway Schools OTP verification email template.
  */
 export function getOtpEmailHtml(code: string, name?: string): { subject: string; html: string } {
-  const greeting = name ? `Hello ${name},` : "Hello,";
   const subject = `${code} is your Subway Schools verification code`;
-
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${code} - Subway Schools Verification Code</title>
-    </head>
-    <body style="margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc;">
-      <div style="max-width: 560px; margin: 40px auto; background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
-        <!-- Brand Header -->
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #334155;">
-          <div style="display: inline-block; padding: 6px 14px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 9999px; margin-bottom: 12px;">
-            <span style="color: #38bdf8; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Solar Engineering Academy</span>
-          </div>
-          <h1 style="margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 0.05em; color: #ffffff; text-transform: uppercase;">
-            SUBWAY SCHOOLS
-          </h1>
-        </div>
-
-        <!-- Content Body -->
-        <div style="padding: 36px 32px;">
-          <p style="font-size: 16px; color: #e2e8f0; margin-top: 0; margin-bottom: 16px;">
-            ${greeting}
-          </p>
-          <p style="font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 28px;">
-            Thank you for registering your engineering candidate profile. Please use the following 6-digit confirmation PIN to complete your verification and activate your classroom credentials:
-          </p>
-
-          <!-- 6-digit OTP Box -->
-          <div style="background-color: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; padding: 22px 16px; text-align: center; margin-bottom: 28px; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);">
-            <span style="font-family: 'Courier New', Courier, monospace, monospace; font-size: 38px; font-weight: 800; letter-spacing: 14px; color: #38bdf8; display: inline-block; padding-left: 14px;">
-              ${code}
-            </span>
-          </div>
-
-          <!-- Expiration Notice -->
-          <div style="background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px;">
-            <p style="margin: 0; font-size: 13px; color: #fbbf24; font-weight: 500;">
-              ⏳ <strong>Notice:</strong> This verification code is single-use and will expire in 15 minutes.
-            </p>
-          </div>
-
-          <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;">
-            If you did not request this registration, you can safely ignore this email.
-          </p>
-        </div>
-
-        <!-- Footer -->
-        <div style="background-color: #0f172a; padding: 20px 24px; text-align: center; border-top: 1px solid #334155;">
-          <p style="margin: 0; font-size: 12px; color: #64748b;">
-            © 2026 Subway Energy Limited & Subway Schools. All rights reserved.
-          </p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
+  const html = getOtpEmailTemplate({ otp: code, candidateName: name });
   return { subject, html };
 }
 

@@ -4,5 +4,7 @@ export {
   sendVerificationOtpEmail, 
   sendOtpEmail,
   sendEnrollmentReceiptEmail,
+  getOtpEmailTemplate,
+  getOtpEmailHtml,
   type EnrollmentReceiptParams
 } from "./mail";

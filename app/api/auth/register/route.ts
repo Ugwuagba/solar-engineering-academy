@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
-import { sendEmail } from "@/lib/mail";
+import { sendEmail, getOtpEmailTemplate } from "@/lib/mail";
 
 export async function POST(req: Request) {
   try {
@@ -79,10 +79,15 @@ export async function POST(req: Request) {
 
     console.log(`[OTP DISPATCH -> ${email}]:${otpCode}`);
 
+    const html = getOtpEmailTemplate({
+      otp: otpCode,
+      candidateName: name?.trim(),
+    });
+
     sendEmail({
       to: email,
       subject: 'Subway Schools Verification Code',
-      html: `<p>Your code is <strong>${otpCode}</strong></p>`,
+      html,
     }).catch((err) => console.error('[Background Email Error]:', err));
 
     return NextResponse.json({ success: true, message: 'OTP sent' }, { status: 200 });

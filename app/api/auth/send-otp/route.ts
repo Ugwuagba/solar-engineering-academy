@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { sendEmail } from "@/lib/mail";
+import { sendEmail, getOtpEmailTemplate } from "@/lib/mail";
 
 export async function POST(req: Request) {
   try {
@@ -44,12 +44,17 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log(`[OTP GENERATED FOR ${normalizedEmail}]:`, code);
+    console.log(`[OTP DISPATCH -> ${normalizedEmail}]:${code}`);
+
+    const html = getOtpEmailTemplate({
+      otp: code,
+      candidateName: name || user?.name || undefined,
+    });
 
     sendEmail({
       to: normalizedEmail,
       subject: 'Subway Schools Verification Code',
-      html: `<p>Your code is <strong>${code}</strong></p>`,
+      html,
     }).catch((err) => console.error('[Background Email Error]:', err));
 
     return NextResponse.json({
