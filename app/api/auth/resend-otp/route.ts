@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { sendVerificationOtpEmail } from "@/lib/mail";
+import { sendEmail, getOtpEmailHtml } from "@/lib/mail";
 
 export async function POST(req: Request) {
   try {
@@ -50,9 +50,15 @@ export async function POST(req: Request) {
       },
     });
 
-    // Dispatch email via Resend
+    // Dispatch OTP confirmation email via Gmail SMTP
+    console.log(`[OTP DISPATCH -> ${normalizedEmail}]: ${code}`);
     try {
-      await sendVerificationOtpEmail(normalizedEmail, code, user.name || undefined);
+      const { subject, html } = getOtpEmailHtml(code, user.name || undefined);
+      await sendEmail({
+        to: normalizedEmail,
+        subject,
+        html,
+      });
     } catch (mailError) {
       console.error("[Resend OTP Mail Dispatch Error]:", mailError);
     }

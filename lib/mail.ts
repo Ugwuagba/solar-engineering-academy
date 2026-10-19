@@ -1,35 +1,40 @@
-import nodemailer from "nodemailer";
-import { Resend } from "resend";
+import nodemailer from 'nodemailer';
 
 export const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'mail.subwayschools.com',
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: Number(process.env.SMTP_PORT) || 465,
-  secure: process.env.SMTP_SECURE === 'true' || true,
+  secure: true,
   auth: {
-    user: process.env.SMTP_USER || 'admission@subwayschools.com',
+    user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  connectionTimeout: 10000,
 });
 
-/**
- * Send 6-digit OTP verification email via official SMTP (Subway Schools)
- * with graceful fallback to Resend SDK.
- * Styles the email with Subway Schools executive dark energy palette.
- * Always logs `[OTP DISPATCH -> email]: code` to the server terminal.
- */
-export async function sendVerificationOtpEmail(
-  email: string,
-  code: string,
-  name?: string
-): Promise<{ success: boolean; data?: any; error?: any }> {
-  // Always log to terminal so local testing and offline execution are never blocked
-  console.log(`[OTP DISPATCH -> ${email}]: ${code}`);
+export async function sendEmail({
+  to,
+  subject,
+  html,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+}) {
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+    to,
+    subject,
+    html,
+  };
 
-  const from = process.env.EMAIL_FROM || "Subway Schools <admission@subwayschools.com>";
+  const info = await transporter.sendMail(mailOptions);
+  console.log('[MAIL DISPATCH SUCCESS]:', info.messageId);
+  return info;
+}
+
+/**
+ * Builds the executive dark styled Subway Schools OTP verification email template.
+ */
+export function getOtpEmailHtml(code: string, name?: string): { subject: string; html: string } {
   const greeting = name ? `Hello ${name},` : "Hello,";
   const subject = `${code} is your Subway Schools verification code`;
 
@@ -92,48 +97,35 @@ export async function sendVerificationOtpEmail(
     </html>
   `;
 
-  // 1. Prioritize SMTP (Subway Schools Official Mail via direct cPanel IP)
+  return { subject, html };
+}
+
+/**
+ * Send 6-digit OTP verification email via Gmail SMTP.
+ * Styles the email with Subway Schools executive dark energy palette.
+ * Always logs `[OTP DISPATCH -> email]: code` to the server terminal.
+ */
+export async function sendVerificationOtpEmail(
+  email: string,
+  code: string,
+  name?: string
+): Promise<{ success: boolean; data?: any; error?: any }> {
+  // Always log to terminal so local testing and offline execution are never blocked
+  console.log(`[OTP DISPATCH -> ${email}]: ${code}`);
+
+  const { subject, html } = getOtpEmailHtml(code, name);
+
   try {
-    const info = await transporter.sendMail({
-      from,
+    const info = await sendEmail({
       to: email,
       subject,
       html,
     });
-    console.log(`[SMTP Success]: Verification OTP dispatched to ${email}: ${info.messageId}`);
     return { success: true, data: info };
-  } catch (smtpErr) {
-    console.error("[SMTP Error]: Failed sending via SMTP:", smtpErr);
-    // Fall through to Resend fallback if configured
+  } catch (error) {
+    console.error(`[OTP DISPATCH ERROR -> ${email}]:`, error);
+    return { success: false, error };
   }
-
-  // 2. Fallback to Resend SDK if RESEND_API_KEY is available
-  const apiKey = process.env.RESEND_API_KEY;
-  if (apiKey) {
-    const resend = new Resend(apiKey);
-    try {
-      const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_EMAIL_FROM || "Subway Schools <onboarding@resend.dev>",
-        to: [email],
-        subject,
-        html,
-      });
-
-      if (error) {
-        console.error("[Resend Fallback Error]:", error);
-        return { success: false, error };
-      }
-
-      console.log(`[Resend Success]: Verification OTP dispatched to ${email}`);
-      return { success: true, data };
-    } catch (resendErr) {
-      console.error("[Resend Fallback Exception]:", resendErr);
-      return { success: false, error: resendErr };
-    }
-  }
-
-  console.warn("[Mail Warning]: Neither SMTP nor Resend API key is operational.");
-  return { success: false, error: "No operational email service configured" };
 }
 
 // Backwards compatibility alias
@@ -150,8 +142,7 @@ export interface EnrollmentReceiptParams {
 }
 
 /**
- * Send official course enrollment & payment receipt email via SMTP (Subway Schools)
- * with graceful fallback to Resend SDK.
+ * Send official course enrollment & payment receipt email via Gmail SMTP.
  */
 export async function sendEnrollmentReceiptEmail({
   toEmail,
@@ -164,7 +155,6 @@ export async function sendEnrollmentReceiptEmail({
 }: EnrollmentReceiptParams): Promise<{ success: boolean; data?: any; error?: any }> {
   console.log(`[RECEIPT DISPATCH -> ${toEmail}]: ${courseTitle} (₦${Number(amount).toLocaleString()}) - Ref: ${txRef}`);
 
-  const from = process.env.EMAIL_FROM || "Subway Schools <admission@subwayschools.com>";
   const greeting = studentName ? `Hello ${studentName},` : "Hello Student,";
   const subject = `Payment Confirmed: Enrollment Receipt for ${courseTitle}`;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://subwayschools.com";
@@ -282,45 +272,15 @@ export async function sendEnrollmentReceiptEmail({
     </html>
   `;
 
-  // 1. Send via primary SMTP transporter
   try {
-    const info = await transporter.sendMail({
-      from,
+    const info = await sendEmail({
       to: toEmail,
       subject,
       html,
     });
-    console.log(`[SMTP Success]: Enrollment receipt dispatched to ${toEmail}: ${info.messageId}`);
     return { success: true, data: info };
-  } catch (smtpErr) {
-    console.error("[SMTP Error]: Failed sending enrollment receipt via SMTP:", smtpErr);
+  } catch (error) {
+    console.error(`[RECEIPT DISPATCH ERROR -> ${toEmail}]:`, error);
+    return { success: false, error };
   }
-
-  // 2. Fallback to Resend SDK if configured
-  const apiKey = process.env.RESEND_API_KEY;
-  if (apiKey) {
-    const resend = new Resend(apiKey);
-    try {
-      const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_EMAIL_FROM || "Subway Schools <onboarding@resend.dev>",
-        to: [toEmail],
-        subject,
-        html,
-      });
-
-      if (error) {
-        console.error("[Resend Fallback Error]:", error);
-        return { success: false, error };
-      }
-
-      console.log(`[Resend Success]: Enrollment receipt dispatched to ${toEmail}`);
-      return { success: true, data };
-    } catch (resendErr) {
-      console.error("[Resend Fallback Exception]:", resendErr);
-      return { success: false, error: resendErr };
-    }
-  }
-
-  return { success: false, error: "No operational email service configured" };
 }
-

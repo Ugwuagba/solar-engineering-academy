@@ -1,0 +1,71 @@
+import { NextResponse } from "next/server";
+import prisma from "@/lib/db";
+import { sendEmail, getOtpEmailHtml } from "@/lib/mail";
+
+export async function POST(req: Request) {
+  try {
+    const { email, name } = await req.json();
+
+    if (!email) {
+      return NextResponse.json(
+        { error: "Email address is required." },
+        { status: 400 }
+      );
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (user && user.isEmailVerified) {
+      return NextResponse.json(
+        { error: "This email is already verified. Please sign in directly." },
+        { status: 400 }
+      );
+    }
+
+    // Generate fresh 6-digit verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    // Clean up old OTP records and save fresh code
+    await prisma.otpVerification.deleteMany({
+      where: { email: normalizedEmail },
+    });
+
+    await prisma.otpVerification.create({
+      data: {
+        email: normalizedEmail,
+        code,
+        expiresAt,
+      },
+    });
+
+    // Dispatch OTP verification code via Gmail SMTP
+    console.log(`[OTP DISPATCH -> ${normalizedEmail}]: ${code}`);
+    try {
+      const { subject, html } = getOtpEmailHtml(code, name || user?.name || undefined);
+      await sendEmail({
+        to: normalizedEmail,
+        subject,
+        html,
+      });
+    } catch (mailError) {
+      console.error("[Send OTP Mail Dispatch Error]:", mailError);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Verification code sent to your email.",
+    });
+  } catch (error) {
+    console.error("Send OTP error:", error);
+    return NextResponse.json(
+      { error: "Failed to send verification code. Please try again." },
+      { status: 500 }
+    );
+  }
+}
