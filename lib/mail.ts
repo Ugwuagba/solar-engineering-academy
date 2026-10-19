@@ -1,12 +1,16 @@
 import nodemailer from 'nodemailer';
 
+/**
+ * Enforce Gmail SMTP transport explicitly.
+ * Never connects to mail.subwayschools.com or cPanel under any circumstance.
+ */
 export const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: Number(process.env.SMTP_PORT) || 465,
+  host: 'smtp.gmail.com',
+  port: 465,
   secure: true,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: process.env.SMTP_USER || 'subwayschoolsadmin@gmail.com',
+    pass: process.env.SMTP_PASS || 'crbhxhhitqbpxcwo',
   },
 });
 
@@ -19,8 +23,16 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
+  const defaultUser = process.env.SMTP_USER || 'subwayschoolsadmin@gmail.com';
+  let fromAddress = process.env.EMAIL_FROM || defaultUser;
+
+  // Never use @subwayschools.com on Gmail SMTP as it causes SPF/DMARC rejection or timeouts
+  if (fromAddress.includes('subwayschools.com')) {
+    fromAddress = `Subway Schools <${defaultUser}>`;
+  }
+
   const mailOptions = {
-    from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+    from: fromAddress.includes('<') ? fromAddress : `Subway Schools <${fromAddress}>`,
     to,
     subject,
     html,
