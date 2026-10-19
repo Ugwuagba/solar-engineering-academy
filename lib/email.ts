@@ -7,5 +7,6 @@ export {
   getOtpEmailTemplate,
   getOtpEmailHtml,
   getReceiptEmailTemplate,
+  getPasswordResetEmailTemplate,
   type EnrollmentReceiptParams
 } from "./mail";

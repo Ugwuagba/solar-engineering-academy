@@ -14,6 +14,8 @@ model User {
   passwordHash    String
   role            String        @default("STUDENT") // STUDENT, ADMIN
   isEmailVerified Boolean       @default(false)
+  resetToken       String?       @unique
+  resetTokenExpiry DateTime?
   enrollments     Enrollment[]
   certificates    Certificate[]
   quizAttempts    QuizAttempt[]

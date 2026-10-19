@@ -11,6 +11,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || searchParams.get("redirect") || "/courses";
   const verifiedSuccess = searchParams.get("verified") === "true";
+  const resetSuccess = searchParams.get("reset") === "success";
   const emailParam = searchParams.get("email") || "";
 
   const [email, setEmail] = useState(emailParam);
@@ -48,6 +49,13 @@ function LoginForm() {
 
   return (
     <div className="glass-panel py-8 px-6 sm:px-8 rounded-2xl border border-slate-800 space-y-6">
+      {resetSuccess && (
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2.5">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+          <span>Password updated successfully! You can now sign in with your new password.</span>
+        </div>
+      )}
+
       {verifiedSuccess && (
         <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2.5">
           <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
@@ -131,11 +139,18 @@ function LoginForm() {
         </button>
       </form>
 
-      <div className="text-center pt-2 text-xs text-slate-400">
-        <span>New candidate? </span>
-        <Link href="/register" className="text-amber-400 hover:text-amber-300 font-medium">
-          Create an academic account
-        </Link>
+      <div className="mt-6 flex flex-col items-center space-y-2 text-center text-sm">
+        <p className="text-slate-400">
+          New candidate?{" "}
+          <Link href="/register" className="font-semibold text-amber-400 hover:text-amber-300 transition-colors">
+            Create an academic account
+          </Link>
+        </p>
+        <p>
+          <Link href="/forgot-password" className="text-xs text-slate-400 hover:text-amber-400 transition-colors">
+            Forgot your password?
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -332,3 +332,89 @@ export async function sendEnrollmentReceiptEmail({
     return { success: false, error };
   }
 }
+
+/**
+ * Branded HTML email template for candidate password reset requests.
+ */
+export function getPasswordResetEmailTemplate({
+  resetUrl,
+  candidateName,
+  logoUrl = 'https://subwayschools.com/logo.png',
+}: {
+  resetUrl: string;
+  candidateName?: string;
+  logoUrl?: string;
+}): string {
+  const greeting = candidateName?.trim()
+    ? `Hello ${candidateName.trim()},`
+    : 'Hello Candidate,';
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Your Subway Schools Password</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #050a14; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f3f4f6;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #050a14; padding: 40px 15px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 520px; background-color: #0b1528; border: 1px solid #1e293b; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <!-- Header with Logo -->
+          <tr>
+            <td align="center" style="padding: 32px 30px 20px; background: linear-gradient(180deg, #0f1c36 0%, #0b1528 100%); border-bottom: 1px solid #1e293b;">
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 0 auto 12px auto;">
+                <tr>
+                  <td align="center">
+                    <img src="${logoUrl}" alt="Subway Schools Logo" width="120" style="display: block; max-height: 52px; width: auto; object-fit: contain;" />
+                  </td>
+                </tr>
+              </table>
+              <h1 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 1.5px; color: #ffffff; text-transform: uppercase;">
+                SUBWAY SCHOOLS
+              </h1>
+              <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8; letter-spacing: 0.5px;">
+                Candidate Portal Security
+              </p>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding: 32px 30px 24px; text-align: center;">
+              <h2 style="margin: 0 0 12px; font-size: 20px; font-weight: 700; color: #f8fafc;">
+                Reset Your Password
+              </h2>
+              <p style="margin: 0 0 18px; font-size: 14px; line-height: 1.6; color: #cbd5e1;">
+                ${greeting} we received a request to reset the password for your Subway Schools account. Click the button below to choose a new password:
+              </p>
+              <div style="margin: 28px 0;">
+                <a href="${resetUrl}" style="background-color: #fbbf24; color: #070d18; padding: 14px 28px; border-radius: 8px; font-weight: 800; text-decoration: none; display: inline-block; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Reset Password
+                </a>
+              </div>
+              <p style="margin: 0 0 16px; font-size: 13px; color: #94a3b8;">
+                This link will expire in <strong>15 minutes</strong>. If you did not request this, you can safely ignore this email.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #64748b; word-break: break-all;">
+                Button not working? Copy and paste this link:<br/>
+                <a href="${resetUrl}" style="color: #38bdf8; text-decoration: underline;">${resetUrl}</a>
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 30px; background-color: #070d18; border-top: 1px solid #1e293b; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #64748b;">
+                © 2026 Subway Schools · Subway Energy Limited
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
