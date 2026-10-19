@@ -33,9 +33,10 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const secretKey = process.env.FLW_CLIENT_SECRET;
+    const rawSecretKey = process.env.FLW_SECRET_KEY || process.env.FLW_CLIENT_SECRET;
+    const secretKey = rawSecretKey ? rawSecretKey.replace(/^["']|["']$/g, "").trim() : "";
     if (!secretKey) {
-      throw new Error("Missing FLW_CLIENT_SECRET on server");
+      throw new Error("Missing FLW_SECRET_KEY or FLW_CLIENT_SECRET on server");
     }
 
     // 1. Verify transaction with Flutterwave API

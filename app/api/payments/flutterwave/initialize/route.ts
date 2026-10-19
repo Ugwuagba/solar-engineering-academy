@@ -41,11 +41,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const secretKey = process.env.FLW_CLIENT_SECRET;
+    const rawSecretKey = process.env.FLW_SECRET_KEY || process.env.FLW_CLIENT_SECRET;
+    const secretKey = rawSecretKey ? rawSecretKey.replace(/^["']|["']$/g, "").trim() : "";
+
     if (!secretKey) {
-      console.error("[Flutterwave Init]: Missing FLW_CLIENT_SECRET environment variable");
+      console.error("[Flutterwave Init]: Missing FLW_SECRET_KEY or FLW_CLIENT_SECRET environment variable");
       return NextResponse.json(
-        { status: "error", message: "Payment service configuration error" },
+        { status: "error", message: "Payment service configuration error: Missing FLW_SECRET_KEY" },
         { status: 500 }
       );
     }
