@@ -77,7 +77,7 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log(`[OTP GENERATED FOR ${email}]:`, otpCode);
+    console.log(`[OTP DISPATCH -> ${email}]:${otpCode}`);
 
     sendEmail({
       to: email,

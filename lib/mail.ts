@@ -1,15 +1,8 @@
-import nodemailer from 'nodemailer';
-
 /**
- * Enforce Gmail service transport directly.
+ * Google Apps Script HTTPS Relay Transport
+ * Dispatches all emails via the GMAIL_RELAY_URL Web App endpoint.
  */
-export const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+export const transporter = null;
 
 export async function sendEmail({
   to,
@@ -20,16 +13,20 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || process.env.SMTP_USER,
-    to,
-    subject,
-    html,
-  };
+  const relayUrl = process.env.GMAIL_RELAY_URL;
+  if (!relayUrl) {
+    throw new Error('GMAIL_RELAY_URL environment variable is missing');
+  }
 
-  const info = await transporter.sendMail(mailOptions);
-  console.log('[MAIL DISPATCH SUCCESS]:', info.messageId);
-  return info;
+  const response = await fetch(relayUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to, subject, html }),
+  });
+
+  const data = await response.json();
+  console.log('[GMAIL RELAY DISPATCH SUCCESS]:', data);
+  return data;
 }
 
 /**
@@ -102,8 +99,7 @@ export function getOtpEmailHtml(code: string, name?: string): { subject: string;
 }
 
 /**
- * Send 6-digit OTP verification email via Gmail SMTP.
- * Styles the email with Subway Schools executive dark energy palette.
+ * Send 6-digit OTP verification email via Google Apps Script relay.
  * Always logs `[OTP DISPATCH -> email]: code` to the server terminal.
  */
 export async function sendVerificationOtpEmail(
@@ -142,7 +138,7 @@ export interface EnrollmentReceiptParams {
 }
 
 /**
- * Send official course enrollment & payment receipt email via Gmail SMTP.
+ * Send official course enrollment & payment receipt email via Google Apps Script relay.
  */
 export async function sendEnrollmentReceiptEmail({
   toEmail,
