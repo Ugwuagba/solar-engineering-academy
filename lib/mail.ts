@@ -1,16 +1,13 @@
 import nodemailer from 'nodemailer';
 
 /**
- * Enforce Gmail SMTP transport explicitly.
- * Never connects to mail.subwayschools.com or cPanel under any circumstance.
+ * Enforce Gmail service transport directly.
  */
 export const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  service: 'gmail',
   auth: {
-    user: process.env.SMTP_USER || 'subwayschoolsadmin@gmail.com',
-    pass: process.env.SMTP_PASS || 'crbhxhhitqbpxcwo',
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 
@@ -23,16 +20,8 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
-  const defaultUser = process.env.SMTP_USER || 'subwayschoolsadmin@gmail.com';
-  let fromAddress = process.env.EMAIL_FROM || defaultUser;
-
-  // Never use @subwayschools.com on Gmail SMTP as it causes SPF/DMARC rejection or timeouts
-  if (fromAddress.includes('subwayschools.com')) {
-    fromAddress = `Subway Schools <${defaultUser}>`;
-  }
-
   const mailOptions = {
-    from: fromAddress.includes('<') ? fromAddress : `Subway Schools <${fromAddress}>`,
+    from: process.env.EMAIL_FROM || process.env.SMTP_USER,
     to,
     subject,
     html,
@@ -122,7 +111,6 @@ export async function sendVerificationOtpEmail(
   code: string,
   name?: string
 ): Promise<{ success: boolean; data?: any; error?: any }> {
-  // Always log to terminal so local testing and offline execution are never blocked
   console.log(`[OTP DISPATCH -> ${email}]: ${code}`);
 
   const { subject, html } = getOtpEmailHtml(code, name);

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
-import { sendEmail, getOtpEmailHtml } from "@/lib/mail";
+import { sendEmail } from "@/lib/mail";
 
 export async function POST(req: Request) {
   try {
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     }
 
     // Generate random 6-digit verification code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     // Clean up any existing OTPs for this email and save the new code
@@ -72,33 +72,20 @@ export async function POST(req: Request) {
     await prisma.otpVerification.create({
       data: {
         email: normalizedEmail,
-        code,
+        code: otpCode,
         expiresAt,
       },
     });
 
-    // Dispatch OTP verification email via Gmail SMTP
-    console.log(`[OTP DISPATCH -> ${normalizedEmail}]: ${code}`);
-    try {
-      const { subject, html } = getOtpEmailHtml(code, name?.trim());
-      await sendEmail({
-        to: normalizedEmail,
-        subject,
-        html,
-      });
-    } catch (mailError) {
-      console.error("[Register Mail Dispatch Error]:", mailError);
-    }
+    console.log(`[OTP GENERATED FOR ${email}]:`, otpCode);
 
-    return NextResponse.json(
-      {
-        success: true,
-        requireOtp: true,
-        email: normalizedEmail,
-        message: "Verification code sent to your email.",
-      },
-      { status: 201 }
-    );
+    sendEmail({
+      to: email,
+      subject: 'Subway Schools Verification Code',
+      html: `<p>Your code is <strong>${otpCode}</strong></p>`,
+    }).catch((err) => console.error('[Background Email Error]:', err));
+
+    return NextResponse.json({ success: true, message: 'OTP sent' }, { status: 200 });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(

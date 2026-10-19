@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { sendEmail, getOtpEmailHtml } from "@/lib/mail";
+import { sendEmail } from "@/lib/mail";
 
 export async function POST(req: Request) {
   try {
@@ -44,18 +44,13 @@ export async function POST(req: Request) {
       },
     });
 
-    // Dispatch OTP verification code via Gmail SMTP
-    console.log(`[OTP DISPATCH -> ${normalizedEmail}]: ${code}`);
-    try {
-      const { subject, html } = getOtpEmailHtml(code, name || user?.name || undefined);
-      await sendEmail({
-        to: normalizedEmail,
-        subject,
-        html,
-      });
-    } catch (mailError) {
-      console.error("[Send OTP Mail Dispatch Error]:", mailError);
-    }
+    console.log(`[OTP GENERATED FOR ${normalizedEmail}]:`, code);
+
+    sendEmail({
+      to: normalizedEmail,
+      subject: 'Subway Schools Verification Code',
+      html: `<p>Your code is <strong>${code}</strong></p>`,
+    }).catch((err) => console.error('[Background Email Error]:', err));
 
     return NextResponse.json({
       success: true,
