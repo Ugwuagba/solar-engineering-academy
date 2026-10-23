@@ -8,6 +8,11 @@
           "nixPkgs": [
             "nodejs_20"
           ]
+        },
+        "install": {
+          "cmds": [
+            "npm ci --include=dev"
+          ]
         }
       }
     }
