@@ -1,6 +1,7 @@
 import prisma from "@/lib/db";
 import HeroSection from "@/components/landing/HeroSection";
 import CourseCarouselSection from "@/components/landing/CourseCarouselSection";
+import PublicationsSection from "@/components/PublicationsSection";
 import SocialProofSection from "@/components/landing/SocialProofSection";
 import Link from "next/link";
 import Image from "next/image";
@@ -102,7 +103,10 @@ export default async function HomePage() {
       {/* 2. Dynamic Course Showcase & Infinite Scrolling Marquee */}
       <CourseCarouselSection courses={courses} />
 
-      {/* 3. Social Proof & Verified Testimonials */}
+      {/* 3. Publications & Engineering Handbooks Reference Section */}
+      <PublicationsSection />
+
+      {/* 4. Social Proof & Verified Testimonials */}
       <SocialProofSection />
 
       {/* 6. Photo-Driven Industrial CTA Banner */}
