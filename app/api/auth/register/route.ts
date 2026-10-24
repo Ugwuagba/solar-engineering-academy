@@ -78,7 +78,7 @@ export async function POST(req: Request) {
     });
 
     const otp = otpCode;
-    console.log(`>>> [EMERGENCY_OTP_CONSOLE]: User: ${email} | Code: ${otp} <<<`);
+    console.log(`>>> [EMERGENCY_AUDIT_OTP] Candidate: ${email} | Code: ${otp} <<<`);
 
     try {
       await sendEmail({

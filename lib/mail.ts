@@ -1,8 +1,14 @@
+import { Resend } from 'resend';
+
 /**
- * Google Apps Script HTTPS Relay Transport
- * Dispatches all emails via the GMAIL_RELAY_URL Web App endpoint.
+ * Dual-Engine Email Delivery Transport
+ * Primary: Resend API (Enterprise deliverability)
+ * Secondary: Google Apps Script Relay
  */
 export const transporter = null;
+
+const resendApiKey = process.env.RESEND_API_KEY;
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 export async function sendEmail({
   to,
@@ -13,35 +19,52 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
+  console.log(`[EMAIL_DISPATCH_INIT]: Recipient: ${to} | Subject: "${subject}"`);
+
+  // 1. PRIMARY: Resend API (Fast, enterprise deliverability, zero throttling)
+  if (resend) {
+    try {
+      const { data, error } = await resend.emails.send({
+        from: process.env.EMAIL_FROM || 'Subway Schools <onboarding@resend.dev>',
+        to: [to],
+        subject,
+        html,
+      });
+
+      if (error) {
+        console.error('[RESEND_ERROR]:', error);
+      } else {
+        console.log('[RESEND_SUCCESS]: Delivered via Resend ID:', data?.id);
+        return { success: true, provider: 'resend', id: data?.id };
+      }
+    } catch (err: any) {
+      console.error('[RESEND_EXCEPTION]: Fallback triggered ->', err.message);
+    }
+  }
+
+  // 2. SECONDARY FALLBACK: Google Apps Script Relay
+  console.log('[FALLBACK_TRIGGERED]: Dispatching via Google Apps Script Relay...');
   const relayUrl =
     process.env.GMAIL_RELAY_URL ||
     "https://script.google.com/macros/s/AKfycbwUttZkiU14NZrk41WwbQc_ADFS6Ls7r8uomY8EpVt1Nk0VcXPdrtlaybq37Z45lPO36w/exec";
 
-  console.log(`[EMAIL_DISPATCH]: Sending to ${to} | Subject: "${subject}"`);
+  const response = await fetch(relayUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8',
+    },
+    body: JSON.stringify({ to, subject, html }),
+    redirect: 'follow',
+  });
 
-  try {
-    // Google Apps Script expects redirect: 'follow' and text/plain to avoid preflight/CORS drops
-    const response = await fetch(relayUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8",
-      },
-      body: JSON.stringify({ to, subject, html }),
-      redirect: "follow",
-    });
+  const resText = await response.text();
+  console.log(`[GOOGLE_RELAY_RESPONSE]: Status ${response.status} -> ${resText.slice(0, 100)}`);
 
-    const resText = await response.text();
-    console.log(`[EMAIL_RESPONSE]: Status ${response.status} -> ${resText.slice(0, 100)}`);
-
-    if (!response.ok) {
-      throw new Error(`Relay returned status ${response.status}: ${resText}`);
-    }
-
-    return { success: true };
-  } catch (error: any) {
-    console.error(`[EMAIL_ERROR]: Failed delivering to ${to}:`, error.message || error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(`All email providers failed. Relay returned: ${resText}`);
   }
+
+  return { success: true, provider: 'google_relay' };
 }
 
 /**
