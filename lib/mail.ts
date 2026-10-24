@@ -21,50 +21,57 @@ export async function sendEmail({
 }) {
   console.log(`[EMAIL_DISPATCH_INIT]: Recipient: ${to} | Subject: "${subject}"`);
 
+  // Resend requires verified domains and rejects unverified @gmail.com senders with 403
+  const configuredSender = process.env.RESEND_FROM || process.env.EMAIL_FROM || "Subway Schools <onboarding@resend.dev>";
+  const senderAddress = configuredSender.includes("@gmail.com")
+    ? "Subway Schools <onboarding@resend.dev>"
+    : configuredSender;
+
   // 1. PRIMARY: Resend API (Fast, enterprise deliverability, zero throttling)
   if (resend) {
     try {
       const { data, error } = await resend.emails.send({
-        from: process.env.EMAIL_FROM || 'Subway Schools <onboarding@resend.dev>',
-        to: [to],
+        from: senderAddress,
+        to: [to.trim()],
         subject,
         html,
       });
 
       if (error) {
-        console.error('[RESEND_ERROR]:', error);
+        console.warn("[RESEND_FAILED]:", error.message, "-> Falling back to Google Apps Script relay...");
+        // Proceed down to Google Apps Script fallback below
       } else {
-        console.log('[RESEND_SUCCESS]: Delivered via Resend ID:', data?.id);
-        return { success: true, provider: 'resend', id: data?.id };
+        console.log("[RESEND_SUCCESS]: Email sent via Resend, id:", data?.id);
+        return { success: true, provider: "resend", id: data?.id };
       }
     } catch (err: any) {
-      console.error('[RESEND_EXCEPTION]: Fallback triggered ->', err.message);
+      console.warn("[RESEND_EXCEPTION]:", err.message, "-> Falling back to Google Apps Script relay...");
     }
   }
 
-  // 2. SECONDARY FALLBACK: Google Apps Script Relay
-  console.log('[FALLBACK_TRIGGERED]: Dispatching via Google Apps Script Relay...');
+  // FALLBACK: Google Apps Script Relay (Verified working with Gmail)
+  console.log(`[FALLBACK_DISPATCH]: Delivering to ${to} via Google Apps Script relay...`);
   const relayUrl =
     process.env.GMAIL_RELAY_URL ||
     "https://script.google.com/macros/s/AKfycbwUttZkiU14NZrk41WwbQc_ADFS6Ls7r8uomY8EpVt1Nk0VcXPdrtlaybq37Z45lPO36w/exec";
 
-  const response = await fetch(relayUrl, {
-    method: 'POST',
+  const fallbackResponse = await fetch(relayUrl, {
+    method: "POST",
     headers: {
-      'Content-Type': 'text/plain;charset=utf-8',
+      "Content-Type": "text/plain;charset=utf-8",
     },
-    body: JSON.stringify({ to, subject, html }),
-    redirect: 'follow',
+    body: JSON.stringify({ to: to.trim(), subject, html }),
+    redirect: "follow",
   });
 
-  const resText = await response.text();
-  console.log(`[GOOGLE_RELAY_RESPONSE]: Status ${response.status} -> ${resText.slice(0, 100)}`);
+  const fallbackText = await fallbackResponse.text();
+  console.log(`[GOOGLE_RELAY_RESULT]: Status ${fallbackResponse.status} -> ${fallbackText}`);
 
-  if (!response.ok) {
-    throw new Error(`All email providers failed. Relay returned: ${resText}`);
+  if (!fallbackResponse.ok) {
+    throw new Error(`Both Resend and Google Relay failed: ${fallbackText}`);
   }
 
-  return { success: true, provider: 'google_relay' };
+  return { success: true, provider: "google_relay" };
 }
 
 /**
