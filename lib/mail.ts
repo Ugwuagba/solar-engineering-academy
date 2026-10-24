@@ -80,7 +80,7 @@ export async function sendEmail({
 export function getOtpEmailTemplate({
   otp,
   candidateName,
-  logoUrl = 'https://subwayschools.com/logo.png', // uses exact receipt logo path
+  logoUrl = 'https://www.subwayschools.com/logo.png',
 }: {
   otp: string;
   candidateName?: string;
@@ -108,7 +108,12 @@ export function getOtpEmailTemplate({
               <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 0 auto 12px auto;">
                 <tr>
                   <td align="center">
-                    <img src="${logoUrl}" alt="Subway Schools Logo" width="120" style="display: block; max-height: 52px; width: auto; object-fit: contain;" />
+                    <img 
+                      src="${logoUrl || 'https://www.subwayschools.com/logo.png'}" 
+                      alt="Subway Schools" 
+                      width="140" 
+                      style="display: block; margin: 0 auto 16px auto; max-width: 140px; height: auto;" 
+                    />
                   </td>
                 </tr>
               </table>
@@ -221,7 +226,7 @@ export function getReceiptEmailTemplate({
   transactionRef,
   paymentDate,
   accessUrl,
-  logoUrl = 'https://subwayschools.com/logo.png', // falls back to local public asset or CDN
+  logoUrl = 'https://www.subwayschools.com/logo.png',
 }: {
   studentName: string;
   courseTitle: string;
@@ -247,10 +252,15 @@ export function getReceiptEmailTemplate({
           <tr>
             <td align="center" style="padding: 35px 30px 22px; background: linear-gradient(180deg, #0f1c36 0%, #0b1528 100%); border-bottom: 1px solid #1e293b;">
               <!-- Subway Schools Logo -->
-              <table role="presentation" cellspacing="0" cellpadding="0" style="margin-bottom: 14px;">
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 0 auto 14px auto;">
                 <tr>
                   <td align="center">
-                    <img src="${logoUrl}" alt="Subway Schools Logo" width="140" style="display: block; max-height: 50px; width: auto; object-fit: contain;" onerror="this.style.display='none'" />
+                    <img 
+                      src="${logoUrl || 'https://www.subwayschools.com/logo.png'}" 
+                      alt="Subway Schools" 
+                      width="140" 
+                      style="display: block; margin: 0 auto 16px auto; max-width: 140px; height: auto;" 
+                    />
                   </td>
                 </tr>
               </table>
@@ -346,7 +356,7 @@ export async function sendEnrollmentReceiptEmail({
 }: EnrollmentReceiptParams): Promise<{ success: boolean; data?: any; error?: any }> {
   console.log(`[RECEIPT DISPATCH -> ${toEmail}]: ${courseTitle} (₦${Number(amount).toLocaleString()}) - Ref: ${txRef}`);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://subwayschools.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.subwayschools.com";
   const accessUrl = `${appUrl}/learn/${courseSlug}`;
 
   const formattedDate = paymentDate instanceof Date 
@@ -360,7 +370,7 @@ export async function sendEnrollmentReceiptEmail({
     transactionRef: txRef,
     paymentDate: formattedDate,
     accessUrl,
-    logoUrl: `${appUrl}/logo.png`,
+    logoUrl: "https://www.subwayschools.com/logo.png",
   });
 
   const subject = `Payment Confirmed: Enrollment Receipt for ${courseTitle}`;
@@ -384,7 +394,7 @@ export async function sendEnrollmentReceiptEmail({
 export function getPasswordResetEmailTemplate({
   resetUrl,
   candidateName,
-  logoUrl = 'https://subwayschools.com/logo.png',
+  logoUrl = 'https://www.subwayschools.com/logo.png',
 }: {
   resetUrl: string;
   candidateName?: string;
@@ -412,7 +422,12 @@ export function getPasswordResetEmailTemplate({
               <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 0 auto 12px auto;">
                 <tr>
                   <td align="center">
-                    <img src="${logoUrl}" alt="Subway Schools Logo" width="120" style="display: block; max-height: 52px; width: auto; object-fit: contain;" />
+                    <img 
+                      src="${logoUrl || 'https://www.subwayschools.com/logo.png'}" 
+                      alt="Subway Schools" 
+                      width="140" 
+                      style="display: block; margin: 0 auto 16px auto; max-width: 140px; height: auto;" 
+                    />
                   </td>
                 </tr>
               </table>

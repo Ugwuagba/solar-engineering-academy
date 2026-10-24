@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         html: getPasswordResetEmailTemplate({
           resetUrl,
           candidateName: user.name || undefined,
-          logoUrl: "https://subwayschools.com/logo.png",
+          logoUrl: "https://www.subwayschools.com/logo.png",
         }),
       });
     } catch (err) {
