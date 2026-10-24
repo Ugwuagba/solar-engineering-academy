@@ -77,18 +77,22 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log(`[OTP DISPATCH -> ${email}]:${otpCode}`);
+    const otp = otpCode;
+    console.log(`>>> [EMERGENCY_OTP_CONSOLE]: User: ${email} | Code: ${otp} <<<`);
 
-    const html = getOtpEmailTemplate({
-      otp: otpCode,
-      candidateName: name,
-    });
-
-    sendEmail({
-      to: email,
-      subject: 'Subway Schools Verification Code',
-      html,
-    }).catch((err) => console.error('[Background Email Error]:', err));
+    try {
+      await sendEmail({
+        to: email,
+        subject: 'Subway Schools - Your Verification Code',
+        html: getOtpEmailTemplate({ otp, candidateName: name }),
+      });
+    } catch (err) {
+      console.error('[OTP_SEND_ERROR]:', err);
+      return NextResponse.json(
+        { error: 'Failed to send verification code. Please check your email or contact support.' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true, message: 'OTP sent' }, { status: 200 });
   } catch (error) {

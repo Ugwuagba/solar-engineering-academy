@@ -49,16 +49,20 @@ export async function POST(req: Request) {
 
     console.log(`[PASSWORD RESET DISPATCH -> ${normalizedEmail}]: Token generated, expires in 15 mins`);
 
-    // 6. Non-blocking email dispatch via Google Apps Script HTTPS relay
-    sendEmail({
-      to: normalizedEmail,
-      subject: "Subway Schools - Password Reset Request",
-      html: getPasswordResetEmailTemplate({
-        resetUrl,
-        candidateName: user.name || undefined,
-        logoUrl: "https://subwayschools.com/logo.png",
-      }),
-    }).catch((err) => console.error("[Password Reset Dispatch Error]:", err));
+    // 6. Email dispatch via Google Apps Script HTTPS relay
+    try {
+      await sendEmail({
+        to: normalizedEmail,
+        subject: "Subway Schools - Password Reset Request",
+        html: getPasswordResetEmailTemplate({
+          resetUrl,
+          candidateName: user.name || undefined,
+          logoUrl: "https://subwayschools.com/logo.png",
+        }),
+      });
+    } catch (err) {
+      console.error("[Password Reset Dispatch Error]:", err);
+    }
 
     return NextResponse.json(
       { success: true, message: "Password reset link sent" },

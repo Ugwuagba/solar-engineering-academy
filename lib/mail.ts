@@ -13,20 +13,35 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
-  const relayUrl = process.env.GMAIL_RELAY_URL;
-  if (!relayUrl) {
-    throw new Error('GMAIL_RELAY_URL environment variable is missing');
+  const relayUrl =
+    process.env.GMAIL_RELAY_URL ||
+    "https://script.google.com/macros/s/AKfycbwUttZkiU14NZrk41WwbQc_ADFS6Ls7r8uomY8EpVt1Nk0VcXPdrtlaybq37Z45lPO36w/exec";
+
+  console.log(`[EMAIL_DISPATCH]: Sending to ${to} | Subject: "${subject}"`);
+
+  try {
+    // Google Apps Script expects redirect: 'follow' and text/plain to avoid preflight/CORS drops
+    const response = await fetch(relayUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      },
+      body: JSON.stringify({ to, subject, html }),
+      redirect: "follow",
+    });
+
+    const resText = await response.text();
+    console.log(`[EMAIL_RESPONSE]: Status ${response.status} -> ${resText.slice(0, 100)}`);
+
+    if (!response.ok) {
+      throw new Error(`Relay returned status ${response.status}: ${resText}`);
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error(`[EMAIL_ERROR]: Failed delivering to ${to}:`, error.message || error);
+    throw error;
   }
-
-  const response = await fetch(relayUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to, subject, html }),
-  });
-
-  const data = await response.json();
-  console.log('[GMAIL RELAY DISPATCH SUCCESS]:', data);
-  return data;
 }
 
 /**
