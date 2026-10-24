@@ -21,10 +21,10 @@ export async function sendEmail({
 }) {
   console.log(`[EMAIL_DISPATCH_INIT]: Recipient: ${to} | Subject: "${subject}"`);
 
-  // Resend requires verified domains and rejects unverified @gmail.com senders with 403
-  const configuredSender = process.env.RESEND_FROM || process.env.EMAIL_FROM || "Subway Schools <onboarding@resend.dev>";
+  // Use verified subwayschools.com domain for Resend dispatches
+  const configuredSender = process.env.EMAIL_FROM || "Subway Schools <admissions@subwayschools.com>";
   const senderAddress = configuredSender.includes("@gmail.com")
-    ? "Subway Schools <onboarding@resend.dev>"
+    ? "Subway Schools <admissions@subwayschools.com>"
     : configuredSender;
 
   // 1. PRIMARY: Resend API (Fast, enterprise deliverability, zero throttling)
