@@ -31,69 +31,62 @@ interface FAQItem {
   answer: string;
 }
 
-interface FlagshipCourse {
-  badge: string;
+interface PlatformCourse {
+  code: string;
   level: string;
-  badgeColor: string;
   title: string;
   description: string;
-  duration: string;
+  practicalScope: string;
 }
 
-const FLAGSHIP_COURSES: FlagshipCourse[] = [
+const PLATFORM_COURSES: PlatformCourse[] = [
   {
-    badge: "CERTIFICATION",
-    level: "Comprehensive",
-    badgeColor: "text-amber-400 border-amber-500/30 bg-amber-500/10",
-    title: "Solar PV Sizing & System Design",
+    code: "SOLAR 101",
+    level: "Beginner",
+    title: "Introduction to Solar Photovoltaic Systems",
     description:
-      "Learn irradiance modeling, mathematical load profiles, string inverter sizing, and full system design for residential and commercial setups.",
-    duration: "4 Weeks • Field Practical",
+      "Fundamentals of solar radiation, PV cell technology, basic circuit principles, system components, and energy audit basics.",
+    practicalScope: "Basic wiring, multi-meter measurements, and foundational load sizing.",
   },
   {
-    badge: "SPECIALIZATION",
+    code: "SOLAR 102",
+    level: "Intermediate",
+    title: "Solar PV System Design & Component Sizing",
+    description:
+      "In-depth mathematical calculation for PV array sizing, charge controller selection, string inverter matchmaking, and cable cross-section calculations.",
+    practicalScope: "Single-line diagrams (SLD) and system capacity worksheets.",
+  },
+  {
+    code: "SOLAR 201",
     level: "Advanced",
-    badgeColor: "text-blue-400 border-blue-500/30 bg-blue-500/10",
-    title: "Hybrid Inverters & Multi-Source Sync",
+    title: "Advanced Inverter Systems & Hybrid Integration",
     description:
-      "Master Deye, Victron, and Growatt configurations, grid synchronization, zero-export setups, and automatic generator control systems.",
-    duration: "3 Weeks • Workbench Lab",
+      "Setup and programming of hybrid, off-grid, and grid-tied inverters (Deye, Victron, Growatt), automatic generator start (AGS), and zero-export limits.",
+    practicalScope: "Workbench inverter commissioning and firmware configuration.",
   },
   {
-    badge: "PROFESSIONAL",
-    level: "High Demand",
-    badgeColor: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
-    title: "Stationary Battery Storage (LiFePO4 & BMS)",
+    code: "SOLAR 202",
+    level: "Advanced",
+    title: "Stationary Battery Storage & Lithium BMS",
     description:
-      "In-depth training on lithium iron phosphate battery assembly, smart BMS communication (CAN/RS485), thermal management, and safety integration.",
-    duration: "3 Weeks • Hardware Assembly",
+      "Lithium iron phosphate (LiFePO4) architecture, cell balancing, Battery Management System (BMS) communications (CAN bus / RS485), and thermal safety.",
+    practicalScope: "Battery pack assembly and BMS diagnostics.",
   },
   {
-    badge: "ESSENTIAL",
-    level: "Field Standard",
-    badgeColor: "text-orange-400 border-orange-500/30 bg-orange-500/10",
-    title: "Balance of System (BOS) & Electrical Safety",
+    code: "SOLAR 301",
+    level: "Professional",
+    title: "Commercial & Industrial (C&I) Solar Engineering",
     description:
-      "Master DC surge protection (Type 1 & 2 SPD), ground earthing pits, lightning arrestors, cable sizing, and NEC standard compliance.",
-    duration: "2 Weeks • Safety Drills",
+      "Three-phase system design, transformer integration, high-voltage balance of system (BOS), surge protection, and commercial sub-station earthing.",
+    practicalScope: "Industrial site audits and utility interconnection compliance.",
   },
   {
-    badge: "EXECUTIVE",
-    level: "Commercial C&I",
-    badgeColor: "text-purple-400 border-purple-500/30 bg-purple-500/10",
-    title: "Commercial Power Audits & Energy Analytics",
+    code: "SOLAR 302",
+    level: "Executive",
+    title: "Solar Project Management & Bankable Proposals",
     description:
-      "Perform industrial clamp-meter data logging, phantom load diagnostics, harmonic analysis, diesel displacement modeling, and bankable commercial energy proposals.",
-    duration: "4 Weeks • Field Audits",
-  },
-  {
-    badge: "CAPSTONE",
-    level: "Field Placement",
-    badgeColor: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
-    title: "Live Field Attachment & Commercial Commissioning",
-    description:
-      "Deploy on active commercial and mini-grid rooftops with Subway Energy EPC engineers, learning torque specs, megger testing, and handover sign-off.",
-    duration: "12 Weeks • Live Project Sites",
+      "Levelized Cost of Energy (LCOE) calculations, payback analysis, diesel displacement modeling, and crafting bankable EPC client proposals.",
+    practicalScope: "Financial modeling and client presentation decks.",
   },
 ];
 
@@ -594,9 +587,9 @@ export default function SolarLandingClient() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FLAGSHIP_COURSES.map((course, idx) => {
+            {PLATFORM_COURSES.map((course, idx) => {
               const courseWhatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
-                `Hello Subway Schools, I am interested in enrolling in the "${course.title}" program and would like admission details.`
+                `Hello Subway Schools, I am interested in the ${course.code}: ${course.title} program and would like details on admission.`
               )}`;
 
               return (
@@ -604,44 +597,52 @@ export default function SolarLandingClient() {
                   key={idx}
                   className="p-6 rounded-2xl bg-[#0c1629] border border-[#1e293b] hover:border-amber-500/40 transition-all hover:shadow-xl hover:shadow-amber-500/5 flex flex-col justify-between group"
                 >
-                  <div className="space-y-3">
+                  <div className="space-y-4">
+                    {/* Top Row: Course Code & Level */}
                     <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded border uppercase tracking-wider ${course.badgeColor}`}
-                      >
-                        {course.badge}
+                      <span className="text-xs sm:text-sm font-mono font-black text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-md tracking-wider shadow-sm">
+                        {course.code}
                       </span>
-                      <span className="text-[11px] bg-slate-800/90 text-slate-300 px-2 py-0.5 rounded font-medium">
+                      <span className="text-[11px] font-semibold text-slate-300 bg-slate-800/90 border border-slate-700/60 px-2.5 py-0.5 rounded">
                         {course.level}
                       </span>
                     </div>
 
+                    {/* Course Title */}
                     <h3 className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors leading-snug">
                       {course.title}
                     </h3>
 
+                    {/* Course Description */}
                     <p className="text-xs text-slate-300 leading-relaxed">
                       {course.description}
                     </p>
+
+                    {/* Practical Scope Box */}
+                    <div className="bg-[#080e1a]/90 border border-[#1e293b] rounded-xl p-3 text-xs space-y-1">
+                      <div className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Wrench className="w-3 h-3 text-amber-400 shrink-0" />
+                        <span>Practical Scope</span>
+                      </div>
+                      <p className="text-slate-300 text-[11px] leading-relaxed">
+                        {course.practicalScope}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="pt-5 mt-6 border-t border-[#1e293b] flex items-center justify-between gap-2">
-                    <div className="text-[11px] font-mono font-semibold text-amber-400 flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                      <span>{course.duration}</span>
-                    </div>
-
+                  {/* Card Action: WhatsApp Inquiry */}
+                  <div className="pt-5 mt-6 border-t border-[#1e293b]">
                     <a
                       href={courseWhatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() =>
-                        handleWhatsAppClick(`Course Card WhatsApp CTA: ${course.title}`)
+                        handleWhatsAppClick(`Course Card Inquire: ${course.code}`)
                       }
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#25D366] hover:text-[#20ba5a] transition-colors"
+                      className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-bold text-xs shadow-md shadow-[#25D366]/15 transition-all hover:scale-[1.01] active:scale-[0.98]"
                     >
-                      <span>Inquire</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      <WhatsAppIcon className="w-4 h-4 fill-slate-950 shrink-0" />
+                      <span>Inquire via WhatsApp &rarr;</span>
                     </a>
                   </div>
                 </div>
