@@ -31,62 +31,68 @@ interface FAQItem {
   answer: string;
 }
 
-interface PlatformCourse {
-  code: string;
+interface CourseItem {
+  id: string;
   level: string;
   title: string;
   description: string;
-  practicalScope: string;
+  image: string;
 }
 
-const PLATFORM_COURSES: PlatformCourse[] = [
+const courses: CourseItem[] = [
   {
-    code: "SOLAR 101",
+    id: "SOLAR 101",
     level: "Beginner",
     title: "Introduction to Solar Photovoltaic Systems",
     description:
       "Fundamentals of solar radiation, PV cell technology, basic circuit principles, system components, and energy audit basics.",
-    practicalScope: "Basic wiring, multi-meter measurements, and foundational load sizing.",
+    image:
+      "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80",
   },
   {
-    code: "SOLAR 102",
+    id: "SOLAR 102",
     level: "Intermediate",
     title: "Solar PV System Design & Component Sizing",
     description:
       "In-depth mathematical calculation for PV array sizing, charge controller selection, string inverter matchmaking, and cable cross-section calculations.",
-    practicalScope: "Single-line diagrams (SLD) and system capacity worksheets.",
+    image:
+      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80",
   },
   {
-    code: "SOLAR 201",
+    id: "SOLAR 201",
     level: "Advanced",
     title: "Advanced Inverter Systems & Hybrid Integration",
     description:
       "Setup and programming of hybrid, off-grid, and grid-tied inverters (Deye, Victron, Growatt), automatic generator start (AGS), and zero-export limits.",
-    practicalScope: "Workbench inverter commissioning and firmware configuration.",
+    image:
+      "https://images.unsplash.com/photo-1620603772186-b4859f518e11?auto=format&fit=crop&w=800&q=80",
   },
   {
-    code: "SOLAR 202",
+    id: "SOLAR 202",
     level: "Advanced",
     title: "Stationary Battery Storage & Lithium BMS",
     description:
       "Lithium iron phosphate (LiFePO4) architecture, cell balancing, Battery Management System (BMS) communications (CAN bus / RS485), and thermal safety.",
-    practicalScope: "Battery pack assembly and BMS diagnostics.",
+    image:
+      "https://images.unsplash.com/photo-1610214815777-628b7e289569?auto=format&fit=crop&w=800&q=80",
   },
   {
-    code: "SOLAR 301",
+    id: "SOLAR 301",
     level: "Professional",
     title: "Commercial & Industrial (C&I) Solar Engineering",
     description:
       "Three-phase system design, transformer integration, high-voltage balance of system (BOS), surge protection, and commercial sub-station earthing.",
-    practicalScope: "Industrial site audits and utility interconnection compliance.",
+    image:
+      "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80",
   },
   {
-    code: "SOLAR 302",
+    id: "SOLAR 302",
     level: "Executive",
     title: "Solar Project Management & Bankable Proposals",
     description:
       "Levelized Cost of Energy (LCOE) calculations, payback analysis, diesel displacement modeling, and crafting bankable EPC client proposals.",
-    practicalScope: "Financial modeling and client presentation decks.",
+    image:
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
   },
 ];
 
@@ -586,68 +592,38 @@ export default function SolarLandingClient() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {PLATFORM_COURSES.map((course, idx) => {
-              const courseWhatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
-                `Hello Subway Schools, I am interested in the ${course.code}: ${course.title} program and would like details on admission.`
-              )}`;
-
-              return (
-                <div
-                  key={idx}
-                  className="p-6 rounded-2xl bg-[#0c1629] border border-[#1e293b] hover:border-amber-500/40 transition-all hover:shadow-xl hover:shadow-amber-500/5 flex flex-col justify-between group"
-                >
-                  <div className="space-y-4">
-                    {/* Top Row: Course Code & Level */}
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs sm:text-sm font-mono font-black text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-md tracking-wider shadow-sm">
-                        {course.code}
-                      </span>
-                      <span className="text-[11px] font-semibold text-slate-300 bg-slate-800/90 border border-slate-700/60 px-2.5 py-0.5 rounded">
-                        {course.level}
-                      </span>
-                    </div>
-
-                    {/* Course Title */}
-                    <h3 className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors leading-snug">
-                      {course.title}
-                    </h3>
-
-                    {/* Course Description */}
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {course.description}
-                    </p>
-
-                    {/* Practical Scope Box */}
-                    <div className="bg-[#080e1a]/90 border border-[#1e293b] rounded-xl p-3 text-xs space-y-1">
-                      <div className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <Wrench className="w-3 h-3 text-amber-400 shrink-0" />
-                        <span>Practical Scope</span>
-                      </div>
-                      <p className="text-slate-300 text-[11px] leading-relaxed">
-                        {course.practicalScope}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Card Action: WhatsApp Inquiry */}
-                  <div className="pt-5 mt-6 border-t border-[#1e293b]">
-                    <a
-                      href={courseWhatsappUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() =>
-                        handleWhatsAppClick(`Course Card Inquire: ${course.code}`)
-                      }
-                      className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-bold text-xs shadow-md shadow-[#25D366]/15 transition-all hover:scale-[1.01] active:scale-[0.98]"
-                    >
-                      <WhatsAppIcon className="w-4 h-4 fill-slate-950 shrink-0" />
-                      <span>Inquire via WhatsApp &rarr;</span>
-                    </a>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 w-full text-left">
+            {courses.map((course) => (
+              <div
+                key={course.id}
+                className="rounded-2xl border border-slate-800 bg-[#0b1528] overflow-hidden flex flex-col shadow-xl"
+              >
+                <div className="relative w-full h-48 bg-slate-900 border-b border-slate-800">
+                  <img
+                    src={course.image}
+                    alt={course.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
                 </div>
-              );
-            })}
+                <div className="p-6 flex-1 flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-amber-400 text-xs font-bold px-2 py-1 rounded border border-amber-400/30 bg-amber-400/10 uppercase tracking-wide">
+                      {course.id}
+                    </span>
+                    <span className="text-slate-400 text-xs font-semibold px-2 py-1 rounded bg-slate-800/50">
+                      {course.level}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-3 leading-snug">
+                    {course.title}
+                  </h3>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {course.description}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Course Catalog WhatsApp CTA */}
