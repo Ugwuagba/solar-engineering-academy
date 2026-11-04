@@ -31,6 +31,72 @@ interface FAQItem {
   answer: string;
 }
 
+interface FlagshipCourse {
+  badge: string;
+  level: string;
+  badgeColor: string;
+  title: string;
+  description: string;
+  duration: string;
+}
+
+const FLAGSHIP_COURSES: FlagshipCourse[] = [
+  {
+    badge: "CERTIFICATION",
+    level: "Comprehensive",
+    badgeColor: "text-amber-400 border-amber-500/30 bg-amber-500/10",
+    title: "Solar PV Sizing & System Design",
+    description:
+      "Learn irradiance modeling, mathematical load profiles, string inverter sizing, and full system design for residential and commercial setups.",
+    duration: "4 Weeks • Field Practical",
+  },
+  {
+    badge: "SPECIALIZATION",
+    level: "Advanced",
+    badgeColor: "text-blue-400 border-blue-500/30 bg-blue-500/10",
+    title: "Hybrid Inverters & Multi-Source Sync",
+    description:
+      "Master Deye, Victron, and Growatt configurations, grid synchronization, zero-export setups, and automatic generator control systems.",
+    duration: "3 Weeks • Workbench Lab",
+  },
+  {
+    badge: "PROFESSIONAL",
+    level: "High Demand",
+    badgeColor: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+    title: "Stationary Battery Storage (LiFePO4 & BMS)",
+    description:
+      "In-depth training on lithium iron phosphate battery assembly, smart BMS communication (CAN/RS485), thermal management, and safety integration.",
+    duration: "3 Weeks • Hardware Assembly",
+  },
+  {
+    badge: "ESSENTIAL",
+    level: "Field Standard",
+    badgeColor: "text-orange-400 border-orange-500/30 bg-orange-500/10",
+    title: "Balance of System (BOS) & Electrical Safety",
+    description:
+      "Master DC surge protection (Type 1 & 2 SPD), ground earthing pits, lightning arrestors, cable sizing, and NEC standard compliance.",
+    duration: "2 Weeks • Safety Drills",
+  },
+  {
+    badge: "EXECUTIVE",
+    level: "Commercial C&I",
+    badgeColor: "text-purple-400 border-purple-500/30 bg-purple-500/10",
+    title: "Commercial Power Audits & Energy Analytics",
+    description:
+      "Perform industrial clamp-meter data logging, phantom load diagnostics, harmonic analysis, diesel displacement modeling, and bankable commercial energy proposals.",
+    duration: "4 Weeks • Field Audits",
+  },
+  {
+    badge: "CAPSTONE",
+    level: "Field Placement",
+    badgeColor: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
+    title: "Live Field Attachment & Commercial Commissioning",
+    description:
+      "Deploy on active commercial and mini-grid rooftops with Subway Energy EPC engineers, learning torque specs, megger testing, and handover sign-off.",
+    duration: "12 Weeks • Live Project Sites",
+  },
+];
+
 const FAQS: FAQItem[] = [
   {
     question: "What are the prerequisites for joining the Solar & Storage Program?",
@@ -512,144 +578,96 @@ export default function SolarLandingClient() {
         </div>
       </section>
 
-      {/* 6. SYLLABUS & CORE ENGINEERING MODULES */}
+      {/* 6. FLAGSHIP ENGINEERING & ENERGY COURSES */}
       <section className="py-20 bg-[#0b1528] border-y border-[#1e293b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full inline-block">
-              CURRICULUM BREAKDOWN
+              OUR FLAGSHIP PROGRAMS
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Rigorous, Field-Tested Engineering Modules
+              Industry-Standard Engineering & Energy Courses
             </h2>
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              Every topic is grounded in mathematical calculation and live workbench execution.
+              Practical, accredited programs engineered to take you from fundamentals to commercial deployment.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Module 1 */}
-            <div className="p-6 rounded-2xl bg-[#0c1629] border border-[#1e293b] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-amber-400">MODULE 01</span>
-                <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                  Photovoltaics
-                </span>
-              </div>
-              <h3 className="font-bold text-lg text-white">
-                Solar PV Sizing & Precision Irradiance Analysis
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Peak Sun Hours (PSH), ambient temperature deratings, solar cell degradation, azimuth,
-                tilt angle calculations, and series-parallel string sizing for MPPT optimization.
-              </p>
-            </div>
+            {FLAGSHIP_COURSES.map((course, idx) => {
+              const courseWhatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
+                `Hello Subway Schools, I am interested in enrolling in the "${course.title}" program and would like admission details.`
+              )}`;
 
-            {/* Module 2 */}
-            <div className="p-6 rounded-2xl bg-[#0c1629] border border-[#1e293b] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-amber-400">MODULE 02</span>
-                <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                  Inverter Systems
-                </span>
-              </div>
-              <h3 className="font-bold text-lg text-white">
-                Inverter Architectures & Hybrid Synchronization
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Off-grid vs. Grid-tied vs. Hybrid inverters (Deye, Victron, Growatt), current
-                transformer (CT) zero-export configuration, and generator auto-start integration.
-              </p>
-            </div>
+              return (
+                <div
+                  key={idx}
+                  className="p-6 rounded-2xl bg-[#0c1629] border border-[#1e293b] hover:border-amber-500/40 transition-all hover:shadow-xl hover:shadow-amber-500/5 flex flex-col justify-between group"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={`text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded border uppercase tracking-wider ${course.badgeColor}`}
+                      >
+                        {course.badge}
+                      </span>
+                      <span className="text-[11px] bg-slate-800/90 text-slate-300 px-2 py-0.5 rounded font-medium">
+                        {course.level}
+                      </span>
+                    </div>
 
-            {/* Module 3 */}
-            <div className="p-6 rounded-2xl bg-[#0c1629] border border-[#1e293b] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-amber-400">MODULE 03</span>
-                <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                  BESS & Storage
-                </span>
-              </div>
-              <h3 className="font-bold text-lg text-white">
-                Stationary Battery Storage (Lithium LiFePO4 & BMS)
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Lithium Iron Phosphate (LiFePO4) chemistry, Battery Management System (BMS)
-                communication protocols (CAN bus / RS485), C-rates, Depth of Discharge (DoD), and thermal safety.
-              </p>
-            </div>
+                    <h3 className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors leading-snug">
+                      {course.title}
+                    </h3>
 
-            {/* Module 4 */}
-            <div className="p-6 rounded-2xl bg-[#0c1629] border border-[#1e293b] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-amber-400">MODULE 04</span>
-                <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                  Electrical Safety
-                </span>
-              </div>
-              <h3 className="font-bold text-lg text-white">
-                Balance of System (BOS), Earthing & DC Safety
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                DC disconnects, Type 1 & 2 Surge Protection Devices (SPD), lightning arrestors,
-                sub-station earthing, and equipment nameplate surge current tolerance calculations.
-              </p>
-            </div>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      {course.description}
+                    </p>
+                  </div>
 
-            {/* Module 5 */}
-            <div className="p-6 rounded-2xl bg-[#0c1629] border border-[#1e293b] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-amber-400">MODULE 05</span>
-                <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                  Audits & Proposals
-                </span>
-              </div>
-              <h3 className="font-bold text-lg text-white">
-                Commercial Power Audits & Bankable Financials
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Data logging with clamp meters, phantom load diagnosis, power factor correction,
-                diesel displacement metrics, Levelized Cost of Energy (LCOE), and proposal generation.
-              </p>
-            </div>
+                  <div className="pt-5 mt-6 border-t border-[#1e293b] flex items-center justify-between gap-2">
+                    <div className="text-[11px] font-mono font-semibold text-amber-400 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>{course.duration}</span>
+                    </div>
 
-            {/* Module 6 */}
-            <div className="p-6 rounded-2xl bg-[#0c1629] border border-[#1e293b] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-amber-400">MODULE 06</span>
-                <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                  Field Attachment
-                </span>
-              </div>
-              <h3 className="font-bold text-lg text-white">
-                Live Field Attachment & Commercial Commissioning
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Rooftop rail fastening, cable management, torque specification checks, insulation
-                resistance testing, thermal imaging camera inspections, and client handover sign-off.
-              </p>
-            </div>
+                    <a
+                      href={courseWhatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() =>
+                        handleWhatsAppClick(`Course Card WhatsApp CTA: ${course.title}`)
+                      }
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#25D366] hover:text-[#20ba5a] transition-colors"
+                    >
+                      <span>Inquire</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Module WhatsApp CTA */}
+          {/* Course Catalog WhatsApp CTA */}
           <div className="mt-12 p-8 rounded-2xl bg-gradient-to-r from-[#0c1629] via-[#0f1d38] to-[#0c1629] border border-[#1e293b] flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-1 text-center md:text-left">
               <h3 className="text-lg font-bold text-white">
-                Need the complete PDF syllabus and module schedule?
+                Need the complete course syllabus & cohort schedule?
               </h3>
               <p className="text-xs text-slate-300">
-                Our admissions advisor can send the full course prospectus directly to your WhatsApp.
+                Our admissions advisor can send the full training catalog and fee breakdown directly to your WhatsApp.
               </p>
             </div>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => handleWhatsAppClick("Syllabus WhatsApp CTA")}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-bold text-sm shadow-md transition-all shrink-0"
+              onClick={() => handleWhatsAppClick("Course Catalog WhatsApp CTA")}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-bold text-sm shadow-md transition-all shrink-0 hover:scale-[1.02] active:scale-[0.98]"
             >
               <WhatsAppIcon className="w-4 h-4 fill-slate-950 shrink-0" />
-              <span>Request Full Syllabus on WhatsApp</span>
+              <span>Request Full Course Catalog on WhatsApp</span>
             </a>
           </div>
         </div>
@@ -973,3 +991,4 @@ function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
     </svg>
   );
 }
+
