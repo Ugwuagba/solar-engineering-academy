@@ -37,6 +37,7 @@ interface CourseItem {
   title: string;
   description: string;
   image: string;
+  fallback: string;
 }
 
 const courses: CourseItem[] = [
@@ -47,7 +48,8 @@ const courses: CourseItem[] = [
     description:
       "Fundamentals of solar radiation, PV cell technology, basic circuit principles, system components, and energy audit basics.",
     image:
-      "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1497440001374-f26997328c1b?auto=format&fit=crop&w=800&q=80",
+    fallback: "/images/courses/course-1-solar-intro.jpg",
   },
   {
     id: "SOLAR 102",
@@ -57,6 +59,7 @@ const courses: CourseItem[] = [
       "In-depth mathematical calculation for PV array sizing, charge controller selection, string inverter matchmaking, and cable cross-section calculations.",
     image:
       "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80",
+    fallback: "/images/courses/course-2-solar-advanced.jpg",
   },
   {
     id: "SOLAR 201",
@@ -65,7 +68,8 @@ const courses: CourseItem[] = [
     description:
       "Setup and programming of hybrid, off-grid, and grid-tied inverters (Deye, Victron, Growatt), automatic generator start (AGS), and zero-export limits.",
     image:
-      "https://images.unsplash.com/photo-1620603772186-b4859f518e11?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80",
+    fallback: "/images/solutions/solutions-inverters.jpg",
   },
   {
     id: "SOLAR 202",
@@ -74,7 +78,8 @@ const courses: CourseItem[] = [
     description:
       "Lithium iron phosphate (LiFePO4) architecture, cell balancing, Battery Management System (BMS) communications (CAN bus / RS485), and thermal safety.",
     image:
-      "https://images.unsplash.com/photo-1610214815777-628b7e289569?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
+    fallback: "/images/courses/course-7-battery-fabrication.jpg",
   },
   {
     id: "SOLAR 301",
@@ -84,6 +89,7 @@ const courses: CourseItem[] = [
       "Three-phase system design, transformer integration, high-voltage balance of system (BOS), surge protection, and commercial sub-station earthing.",
     image:
       "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80",
+    fallback: "/images/solutions/factory-roof.jpg",
   },
   {
     id: "SOLAR 302",
@@ -93,6 +99,7 @@ const courses: CourseItem[] = [
       "Levelized Cost of Energy (LCOE) calculations, payback analysis, diesel displacement modeling, and crafting bankable EPC client proposals.",
     image:
       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+    fallback: "/images/solutions/solutions-audit.jpg",
   },
 ];
 
@@ -604,6 +611,12 @@ export default function SolarLandingClient() {
                     alt={course.title}
                     className="w-full h-full object-cover"
                     loading="lazy"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (course.fallback && target.src !== course.fallback) {
+                        target.src = course.fallback;
+                      }
+                    }}
                   />
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
