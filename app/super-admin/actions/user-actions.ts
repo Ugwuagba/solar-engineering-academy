@@ -50,23 +50,46 @@ export async function createStaffAccount(formData: FormData) {
     throw new Error(`Invalid staff role: ${roleRaw}. Allowed roles: PROGRAM_ADMIN, INSTRUCTOR, SUPER_ADMIN.`);
   }
 
-  // 3. Generate a temporary secure password and hash it using bcrypt
-  const tempPassword = `Staff#${crypto.randomBytes(5).toString("hex")}!`;
-  const salt = await bcrypt.genSalt(10);
-  const passwordHash = await bcrypt.hash(tempPassword, salt);
+  // 1. Query Prisma to check if a user with that email already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
 
-  // 4. Execute atomic Prisma transaction: create User & AuditLog entry
-  const result = await prisma.$transaction(async (tx) => {
-    // Check if user already exists
-    const existingUser = await tx.user.findUnique({
+  if (existingUser) {
+    // 2. If the user ALREADY EXISTS:
+    // Update their record in Prisma to assign the new role
+    const updatedUser = await prisma.user.update({
       where: { email },
+      data: { role },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+      },
     });
 
-    if (existingUser) {
-      throw new Error(`A user with email "${email}" already exists in the system.`);
-    }
+    // Create an AuditLog entry
+    await prisma.auditLog.create({
+      data: {
+        actorId: session.user.id,
+        action: "STAFF_ROLE_UPDATED",
+        resource: email,
+        details: {
+          userId: updatedUser.id,
+          previousRole: existingUser.role,
+          newRole: role,
+          timestamp: new Date().toISOString(),
+        },
+      },
+    });
+  } else {
+    // 3. If the user DOES NOT EXIST:
+    // Generate the bcrypt password hash as before
+    const tempPassword = `Staff#${crypto.randomBytes(5).toString("hex")}!`;
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(tempPassword, salt);
 
-    const newUser = await tx.user.create({
+    const newUser = await prisma.user.create({
       data: {
         email,
         passwordHash,
@@ -81,7 +104,8 @@ export async function createStaffAccount(formData: FormData) {
       },
     });
 
-    const auditLog = await tx.auditLog.create({
+    // Create an AuditLog entry
+    await prisma.auditLog.create({
       data: {
         actorId: session.user.id,
         action: "STAFF_CREATED",
@@ -94,10 +118,8 @@ export async function createStaffAccount(formData: FormData) {
         },
       },
     });
+  }
 
-    return { newUser, auditLog, tempPassword };
-  });
-
-  // 5. Revalidate the /super-admin/users path
+  // 4. Ensure both paths successfully call revalidatePath("/super-admin/users")
   revalidatePath("/super-admin/users");
 }
