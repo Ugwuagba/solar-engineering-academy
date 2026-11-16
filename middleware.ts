@@ -66,8 +66,17 @@ export default withAuth(
       }
     }
 
-    // 6. Dashboard alias route directly redirects to classroom for authenticated learners
-    if (path === "/dashboard" || path.startsWith("/dashboard")) {
+    // 6. Role-based Dashboard router for authenticated sessions
+    if (path === "/dashboard" || path === "/dashboard/") {
+      if (role === Role.SUPER_ADMIN || role === "SUPER_ADMIN") {
+        return NextResponse.redirect(new URL("/super-admin/users", req.url));
+      }
+      if (role === Role.PROGRAM_ADMIN || role === "PROGRAM_ADMIN") {
+        return NextResponse.redirect(new URL("/program-admin", req.url));
+      }
+      if (role === Role.INSTRUCTOR || role === "INSTRUCTOR") {
+        return NextResponse.redirect(new URL("/instructor", req.url));
+      }
       return NextResponse.redirect(new URL("/classroom", req.url));
     }
 

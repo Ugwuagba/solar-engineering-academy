@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ShieldAlert, ArrowRight, Lock, Mail, CheckCircle2, KeyRound } from "lucide-react";
+import { getRoleRedirectPath } from "@/lib/role-redirect";
 
 function LoginForm() {
   const router = useRouter();
@@ -36,7 +37,22 @@ function LoginForm() {
         setError(res.error);
         setLoading(false);
       } else {
-        router.push(callbackUrl);
+        // Resolve role-based auto-redirect upon successful login
+        const session = await getSession();
+        const role = session?.user?.role;
+        const roleDestination = getRoleRedirectPath(role);
+
+        // If a specific, non-default callbackUrl was passed (e.g. from a guarded route), honor it
+        const hasSpecificCallback =
+          callbackUrl &&
+          !callbackUrl.includes("/login") &&
+          callbackUrl !== "/courses" &&
+          callbackUrl !== "/" &&
+          callbackUrl !== "/dashboard";
+
+        const destination = hasSpecificCallback ? callbackUrl : roleDestination;
+
+        router.push(destination);
         router.refresh();
       }
     } catch {
