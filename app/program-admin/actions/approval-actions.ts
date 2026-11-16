@@ -93,13 +93,30 @@ export async function publishCourse(courseIdOrFormData: string | FormData): Prom
 /**
  * Requests curriculum revisions from the instructor.
  */
-export async function requestRevision(courseIdOrFormData: string | FormData): Promise<void> {
+export async function requestRevision(
+  courseIdOrFormData: string | FormData,
+  maybeFormData?: FormData
+): Promise<void> {
   const { session } = await requireProgramOrSuperAdmin();
 
-  const courseId =
-    typeof courseIdOrFormData === "string"
-      ? courseIdOrFormData
-      : (courseIdOrFormData.get("courseId") as string);
+  let courseId: string = "";
+  let feedback: string | undefined;
+
+  if (typeof courseIdOrFormData === "string") {
+    courseId = courseIdOrFormData;
+    if (maybeFormData instanceof FormData) {
+      const fb = maybeFormData.get("feedback");
+      if (typeof fb === "string" && fb.trim()) {
+        feedback = fb.trim();
+      }
+    }
+  } else if (courseIdOrFormData instanceof FormData) {
+    courseId = (courseIdOrFormData.get("courseId") as string) || "";
+    const fb = courseIdOrFormData.get("feedback");
+    if (typeof fb === "string" && fb.trim()) {
+      feedback = fb.trim();
+    }
+  }
 
   if (!courseId) {
     throw new Error("Course ID is required.");
@@ -135,6 +152,7 @@ export async function requestRevision(courseIdOrFormData: string | FormData): Pr
           previousStatus: course.status,
           newStatus: "REVISION_REQUESTED",
           requestedBy: session.user.id,
+          feedback: feedback || null,
           timestamp: new Date().toISOString(),
         },
       },
