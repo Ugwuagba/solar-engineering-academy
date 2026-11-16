@@ -1,5 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { Role } from "@prisma/client";
 
 const FALLBACK_SECRET = "solar-engineering-academy-super-secure-jwt-secret-key-2026";
 
@@ -12,12 +13,60 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // Admin routes strictly require ADMIN or INSTRUCTOR role
-    if (path.startsWith("/admin") && token?.role !== "ADMIN" && token?.role !== "INSTRUCTOR") {
-      return NextResponse.redirect(new URL("/courses?error=AdminAccessRequired", req.url));
+    // 1. If unauthenticated, redirect to /login
+    if (!token) {
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
-    // Dashboard alias route directly redirects to classroom for authenticated students
+    const role = token.role;
+
+    // 2. Paths starting with /super-admin: ONLY allow Role.SUPER_ADMIN
+    if (path.startsWith("/super-admin")) {
+      if (role !== Role.SUPER_ADMIN && role !== "SUPER_ADMIN") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    }
+
+    // 3. Paths starting with /program-admin: Allow Role.PROGRAM_ADMIN and Role.SUPER_ADMIN
+    if (path.startsWith("/program-admin")) {
+      const isProgramAdmin =
+        role === Role.PROGRAM_ADMIN ||
+        role === "PROGRAM_ADMIN" ||
+        role === Role.SUPER_ADMIN ||
+        role === "SUPER_ADMIN";
+
+      if (!isProgramAdmin) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    }
+
+    // 4. Paths starting with /instructor: Allow Role.INSTRUCTOR
+    if (path.startsWith("/instructor")) {
+      if (role !== Role.INSTRUCTOR && role !== "INSTRUCTOR") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    }
+
+    // 5. Existing /admin routes: allow administrative roles (SUPER_ADMIN, PROGRAM_ADMIN, ADMIN, INSTRUCTOR)
+    if (path.startsWith("/admin")) {
+      const isAllowedAdmin =
+        role === Role.SUPER_ADMIN ||
+        role === "SUPER_ADMIN" ||
+        role === Role.PROGRAM_ADMIN ||
+        role === "PROGRAM_ADMIN" ||
+        role === Role.ADMIN ||
+        role === "ADMIN" ||
+        role === Role.INSTRUCTOR ||
+        role === "INSTRUCTOR";
+
+      if (!isAllowedAdmin) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    }
+
+    // 6. Dashboard alias route directly redirects to classroom for authenticated learners
     if (path === "/dashboard" || path.startsWith("/dashboard")) {
       return NextResponse.redirect(new URL("/classroom", req.url));
     }
@@ -29,16 +78,16 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
-        // Gated classroom and dashboard require authenticated session
+        // All protected dashboard and LMS routes require an active session
         if (
-          path.startsWith("/learn") ||
+          path.startsWith("/super-admin") ||
+          path.startsWith("/program-admin") ||
+          path.startsWith("/instructor") ||
+          path.startsWith("/admin") ||
+          path.startsWith("/dashboard") ||
           path.startsWith("/classroom") ||
-          path.startsWith("/dashboard")
+          path.startsWith("/learn")
         ) {
-          return !!token;
-        }
-        // Admin panel requires authenticated session
-        if (path.startsWith("/admin")) {
           return !!token;
         }
         return true;
@@ -52,13 +101,14 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public images/assets (svg, png, jpg, jpeg, gif, webp, avif)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif)$).*)",
+    "/super-admin/:path*",
+    "/program-admin/:path*",
+    "/instructor/:path*",
+    "/admin/:path*",
+    "/dashboard",
+    "/dashboard/:path*",
+    "/classroom",
+    "/classroom/:path*",
+    "/learn/:path*",
   ],
 };

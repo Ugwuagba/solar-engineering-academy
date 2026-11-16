@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { CourseStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +9,7 @@ export async function GET() {
     let courses = await prisma.course.findMany({
       where: {
         OR: [
-          { status: { in: ["PUBLISHED", "published", "ACTIVE", "active", "OPEN", "open"] } },
+          { status: { in: [CourseStatus.PUBLISHED] } },
           { isPublished: true },
         ],
       },

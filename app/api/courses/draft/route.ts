@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { CourseStatus } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
   try {
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
     let instructorId: string | undefined = session?.user?.id;
     if (!instructorId) {
       const defaultAdmin = await prisma.user.findFirst({
-        where: { role: "ADMIN" },
+        where: { role: { in: ["ADMIN", "SUPER_ADMIN", "PROGRAM_ADMIN"] } },
       });
       if (defaultAdmin) instructorId = defaultAdmin.id;
     }
@@ -165,7 +166,7 @@ export async function POST(req: NextRequest) {
       contactHours: Number(contactHours) || 40,
       price: Number(price) || 0,
       originalPrice: originalPrice !== "" && originalPrice != null ? Number(originalPrice) : null,
-      status: isPublishing ? "PUBLISHED" : "DRAFT",
+      status: isPublishing ? CourseStatus.PUBLISHED : CourseStatus.DRAFT,
       isPublished: isPublishing,
       instructorId: instructorId || null,
       instructorName: instructorName ? String(instructorName).trim() : "Engr. Asanga",

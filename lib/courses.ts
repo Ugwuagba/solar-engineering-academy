@@ -1,6 +1,7 @@
 import prisma from "@/lib/db";
 import type { SeedCourse } from "@/lib/seed-data";
 import { formatDuration } from "@/lib/utils";
+import { CourseStatus } from "@prisma/client";
 
 function parseJsonArray<T = string>(raw: string | null | undefined, fallback: T[] = []): T[] {
   if (!raw) return fallback;
@@ -150,7 +151,7 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
     const dbCourses = await prisma.course.findMany({
       where: {
         OR: [
-          { status: { in: ["PUBLISHED", "published", "ACTIVE", "active", "OPEN", "open"] } },
+          { status: { in: [CourseStatus.PUBLISHED] } },
           { isPublished: true },
         ],
       },

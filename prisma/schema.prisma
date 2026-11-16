@@ -7,21 +7,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── RBAC Enums ───────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  PROGRAM_ADMIN
+  INSTRUCTOR
+  LEARNER
+  /// Legacy aliases kept for backward-compatibility with existing data rows.
+  /// @deprecated Use SUPER_ADMIN or PROGRAM_ADMIN instead of ADMIN.
+  ADMIN
+  /// @deprecated Use LEARNER instead of STUDENT.
+  STUDENT
+}
+
+enum CourseStatus {
+  DRAFT
+  PENDING_APPROVAL
+  PUBLISHED
+  REVISION_REQUESTED
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
 model User {
-  id           String        @id @default(cuid())
-  name         String?
-  email        String        @unique
-  passwordHash    String
-  role            String        @default("STUDENT") // STUDENT, ADMIN
-  isEmailVerified Boolean       @default(false)
-  resetToken       String?       @unique
+  id               String           @id @default(cuid())
+  name             String?
+  email            String           @unique
+  passwordHash     String
+  role             Role             @default(LEARNER)
+  departmentId     String?
+  isEmailVerified  Boolean          @default(false)
+  resetToken       String?          @unique
   resetTokenExpiry DateTime?
-  enrollments     Enrollment[]
-  certificates    Certificate[]
-  quizAttempts    QuizAttempt[]
+  enrollments      Enrollment[]
+  certificates     Certificate[]
+  quizAttempts     QuizAttempt[]
   lessonProgresses LessonProgress[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  auditLogs        AuditLog[]
+  courses          Course[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 model Course {
@@ -32,13 +58,15 @@ model Course {
   subtitle       String?
   description    String
   level          String        @default("INTRODUCTORY") // INTRODUCTORY, INTERMEDIATE, ADVANCED, COMPREHENSIVE_MASTERCLASS
-  deliveryType   String        @default("SELF_PACED")  // SELF_PACED, COHORT
+  deliveryType   String        @default("SELF_PACED") // SELF_PACED, COHORT
   contactHours   Int
   price          Float
   originalPrice  Float?
   isPublished    Boolean       @default(false)
-  status         String        @default("DRAFT") // DRAFT, PUBLISHED
+  status         CourseStatus  @default(DRAFT)
+  departmentId   String?
   instructorId   String?
+  instructor     User?         @relation(fields: [instructorId], references: [id])
   instructorName String?       @default("Engr. Asanga")
   whatYoullLearn String?       @default("[]") // JSON string array
   includesList   String?       @default("[]") // JSON string array
@@ -81,21 +109,21 @@ model Module {
 }
 
 model Lesson {
-  id                String     @id @default(cuid())
+  id                String           @id @default(cuid())
   moduleId          String
-  module            Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  module            Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   title             String
-  sortOrder         Int        @default(0)
+  sortOrder         Int              @default(0)
   videoUrl          String?
   durationText      String?
-  durationSec       Int        @default(0)
-  contentMarkdown   String     @default("")
+  durationSec       Int              @default(0)
+  contentMarkdown   String           @default("")
   downloadableUrl   String?
   technicalSheetUrl String?
-  isFreePreview     Boolean    @default(false)
+  isFreePreview     Boolean          @default(false)
   progresses        Progress[]
   lessonProgresses  LessonProgress[]
-  createdAt         DateTime   @default(now())
+  createdAt         DateTime         @default(now())
 }
 
 model Quiz {
@@ -110,14 +138,14 @@ model Quiz {
 }
 
 model Question {
-  id                  String   @id @default(cuid())
-  quizId              String
-  quiz                Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  text                String
-  optionsJson         String
+  id                 String   @id @default(cuid())
+  quizId             String
+  quiz               Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  text               String
+  optionsJson        String
   correctOptionIndex Int
-  explanation         String
-  createdAt           DateTime @default(now())
+  explanation        String
+  createdAt          DateTime @default(now())
 }
 
 model Enrollment {
@@ -199,4 +227,19 @@ model LessonProgress {
 
   @@unique([userId, lessonId])
   @@index([userId, courseId])
+}
+
+// ─── Audit / Governance ───────────────────────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  timestamp DateTime @default(now())
+  actorId   String
+  actor     User     @relation(fields: [actorId], references: [id])
+  action    String // e.g. "PUBLISH_COURSE", "CHANGE_ROLE", "APPROVE_ENROLLMENT"
+  resource  String // e.g. "Course:clxyz123", "User:clxyz456"
+  details   Json // freeform metadata snapshot
+
+  @@index([actorId])
+  @@index([timestamp])
 }

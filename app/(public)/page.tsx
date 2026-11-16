@@ -6,6 +6,7 @@ import SocialProofSection from "@/components/landing/SocialProofSection";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, BookOpen, PhoneCall } from "lucide-react";
+import { CourseStatus } from "@prisma/client";
 
 export const revalidate = 60; // Cache page for 60 seconds
 
@@ -15,7 +16,7 @@ export default async function HomePage() {
     dbCourses = await prisma.course.findMany({
       where: {
         OR: [
-          { status: { in: ["PUBLISHED", "published", "ACTIVE", "active", "OPEN", "open"] } },
+          { status: { in: [CourseStatus.PUBLISHED] } },
           { isPublished: true },
         ],
       },

@@ -1,6 +1,7 @@
 import prisma from "@/lib/db";
 import CoursesCatalogClient from "@/components/course/CoursesCatalogClient";
 import { PRODUCTION_COURSES_FALLBACK } from "@/lib/fallback-courses";
+import { CourseStatus } from "@prisma/client";
 
 export const revalidate = 60; // Cache page for 60 seconds
 
@@ -29,7 +30,7 @@ export default async function CoursesCatalogPage() {
     const dbCourses = await prisma.course.findMany({
       where: {
         OR: [
-          { status: { in: ["PUBLISHED", "published", "ACTIVE", "active", "OPEN", "open"] } },
+          { status: { in: [CourseStatus.PUBLISHED] } },
           { isPublished: true },
         ],
       },

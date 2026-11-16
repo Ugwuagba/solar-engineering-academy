@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role, CourseStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { SEED_COURSES } from "../lib/seed-data";
 
@@ -7,7 +7,42 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("⚡ Starting Solar Engineering Academy database seed...");
 
-  // 1. Seed Users (Admin and Student)
+  // ── 0. Genesis Seed: Bootstrap SUPER_ADMIN ─────────────────────────────────
+  const existingSuperAdmin = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { role: Role.SUPER_ADMIN },
+        { email: "emmanuelugwuagba@gmail.com" },
+      ],
+    },
+  });
+
+  if (!existingSuperAdmin) {
+    const genesisSalt = await bcrypt.genSalt(12);
+    const genesisHash = await bcrypt.hash("SecureAdmin2026!@#", genesisSalt);
+    const genesis = await prisma.user.create({
+      data: {
+        email: "emmanuelugwuagba@gmail.com",
+        name: "Emmanuel (Super Admin)",
+        passwordHash: genesisHash,
+        role: Role.SUPER_ADMIN,
+        isEmailVerified: true,
+      },
+    });
+    console.log(`🔑 Genesis SUPER_ADMIN created: ${genesis.email}`);
+  } else {
+    if (existingSuperAdmin.role !== Role.SUPER_ADMIN) {
+      await prisma.user.update({
+        where: { id: existingSuperAdmin.id },
+        data: { role: Role.SUPER_ADMIN },
+      });
+      console.log(`🔑 Promoted user to SUPER_ADMIN: ${existingSuperAdmin.email}`);
+    } else {
+      console.log(`✓ Genesis SUPER_ADMIN already exists: ${existingSuperAdmin.email}`);
+    }
+  }
+
+  // ── 1. Seed Users (Admin and Student) ─────────────────────────────────────
   const salt = await bcrypt.genSalt(10);
   const adminPasswordHash = await bcrypt.hash("SolarAdmin2026!", salt);
   const studentPasswordHash = await bcrypt.hash("SolarStudent2026!", salt);
@@ -16,7 +51,7 @@ async function main() {
     where: { email: "admin@solaracademy.org" },
     update: {
       passwordHash: adminPasswordHash,
-      role: "ADMIN",
+      role: Role.ADMIN,
       name: "Lead Solar Engineer (Director)",
       isEmailVerified: true,
     },
@@ -24,7 +59,7 @@ async function main() {
       email: "admin@solaracademy.org",
       name: "Lead Solar Engineer (Director)",
       passwordHash: adminPasswordHash,
-      role: "ADMIN",
+      role: Role.ADMIN,
       isEmailVerified: true,
     },
   });
@@ -34,7 +69,7 @@ async function main() {
     where: { email: "student@solaracademy.org" },
     update: {
       passwordHash: studentPasswordHash,
-      role: "STUDENT",
+      role: Role.STUDENT,
       name: "Alex Rivera, EIT",
       isEmailVerified: true,
     },
@@ -42,7 +77,7 @@ async function main() {
       email: "student@solaracademy.org",
       name: "Alex Rivera, EIT",
       passwordHash: studentPasswordHash,
-      role: "STUDENT",
+      role: Role.STUDENT,
       isEmailVerified: true,
     },
   });
@@ -103,7 +138,7 @@ async function main() {
           contactHours: courseData.contactHours,
           price: courseData.price,
           isPublished: courseData.isPublished,
-          status: "PUBLISHED",
+          status: CourseStatus.PUBLISHED,
         },
       });
       console.log(`\n📚 Created program [${course.code}] ${course.title}...`);

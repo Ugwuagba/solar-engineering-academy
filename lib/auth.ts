@@ -2,8 +2,9 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
+import { Role } from "@prisma/client";
 
-// Extend NextAuth types
+// ─── NextAuth type augmentation ───────────────────────────────────────────────
 declare module "next-auth" {
   interface Session {
     user: {
@@ -11,7 +12,7 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
-      role: "STUDENT" | "ADMIN" | "INSTRUCTOR" | string;
+      role: Role | string;
     };
   }
 
@@ -19,14 +20,14 @@ declare module "next-auth" {
     id: string;
     name?: string | null;
     email?: string | null;
-    role: "STUDENT" | "ADMIN" | "INSTRUCTOR" | string;
+    role: Role | string;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
-    role?: "STUDENT" | "ADMIN" | "INSTRUCTOR" | string;
+    role?: Role | string;
   }
 }
 
@@ -69,7 +70,7 @@ export const authOptions: NextAuthOptions = {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: (user.role as "STUDENT" | "ADMIN" | "INSTRUCTOR") || "STUDENT",
+                role: (user.role as Role) ?? Role.LEARNER,
               };
             }
           }
@@ -120,7 +121,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = (token.role as "STUDENT" | "ADMIN") || "STUDENT";
+        session.user.role = (token.role as Role) ?? Role.LEARNER;
       }
       return session;
     },
