@@ -43,27 +43,17 @@ export default async function ProgramAdminApprovalPage() {
     redirect("/dashboard");
   }
 
-  // Fetch admin user from Prisma to determine department scope
+  // Fetch admin user from Prisma
   const adminUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { id: true, name: true, email: true, role: true, departmentId: true },
+    select: { id: true, name: true, email: true, role: true },
   });
 
   // 2. Fetch courses where status === "PENDING_APPROVAL"
-  // Scoped by departmentId if caller is a PROGRAM_ADMIN with a department assigned
-  const whereClause: {
-    status: CourseStatus;
-    departmentId?: string;
-  } = {
-    status: CourseStatus.PENDING_APPROVAL,
-  };
-
-  if (!isSuperAdmin && adminUser?.departmentId) {
-    whereClause.departmentId = adminUser.departmentId;
-  }
-
   const pendingCourses = await prisma.course.findMany({
-    where: whereClause,
+    where: {
+      status: CourseStatus.PENDING_APPROVAL,
+    },
     include: {
       instructor: {
         select: {
@@ -130,11 +120,9 @@ export default async function ProgramAdminApprovalPage() {
 
           <div className="bg-[#0b1528] border border-slate-800 rounded-xl p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-400">Department Scope</p>
+              <p className="text-xs font-medium text-slate-400">Review Authority</p>
               <p className="text-base font-semibold text-white mt-1">
-                {isSuperAdmin
-                  ? "Global (All Departments)"
-                  : adminUser?.departmentId || "Unassigned / General"}
+                {isSuperAdmin ? "Global Super Admin" : "Program Administrator"}
               </p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center">
@@ -187,7 +175,6 @@ export default async function ProgramAdminApprovalPage() {
                   <tr>
                     <th scope="col" className="px-6 py-3.5">Course Title</th>
                     <th scope="col" className="px-6 py-3.5">Instructor</th>
-                    <th scope="col" className="px-6 py-3.5">Department</th>
                     <th scope="col" className="px-6 py-3.5">Submitted Date</th>
                     <th scope="col" className="px-6 py-3.5 text-right">Approval Actions</th>
                   </tr>
@@ -222,18 +209,6 @@ export default async function ProgramAdminApprovalPage() {
                               <div className="text-xs text-slate-500">{instructorEmail}</div>
                             </div>
                           </div>
-                        </td>
-
-                        {/* Department */}
-                        <td className="px-6 py-4 whitespace-nowrap text-slate-300">
-                          {course.departmentId ? (
-                            <span className="inline-flex items-center gap-1.5 font-mono text-xs text-slate-300 bg-slate-900/60 px-2.5 py-1 rounded-md border border-slate-800">
-                              <Building2 className="w-3 h-3 text-slate-400" />
-                              {course.departmentId}
-                            </span>
-                          ) : (
-                            <span className="text-slate-500 text-xs">—</span>
-                          )}
                         </td>
 
                         {/* Submitted Date */}

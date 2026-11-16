@@ -36,11 +36,11 @@ model User {
   email            String           @unique
   passwordHash     String
   role             Role             @default(LEARNER)
-  departmentId     String?
   isEmailVerified  Boolean          @default(false)
   resetToken       String?          @unique
   resetTokenExpiry DateTime?
   enrollments      Enrollment[]
+  payments         Payment[]
   certificates     Certificate[]
   quizAttempts     QuizAttempt[]
   lessonProgresses LessonProgress[]
@@ -64,7 +64,6 @@ model Course {
   originalPrice  Float?
   isPublished    Boolean       @default(false)
   status         CourseStatus  @default(DRAFT)
-  departmentId   String?
   instructorId   String?
   instructor     User?         @relation(fields: [instructorId], references: [id])
   instructorName String?       @default("Engr. Asanga")
@@ -79,6 +78,7 @@ model Course {
   modules        Module[]
   cohorts        Cohort[]
   enrollments    Enrollment[]
+  payments       Payment[]
   certificates   Certificate[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -242,4 +242,20 @@ model AuditLog {
 
   @@index([actorId])
   @@index([timestamp])
+}
+
+// ─── Financial / Payments ─────────────────────────────────────────────────────
+
+model Payment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  amount    Float
+  status    String   @default("COMPLETED")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([courseId])
 }

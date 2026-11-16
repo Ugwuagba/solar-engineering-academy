@@ -23,7 +23,6 @@ export async function createStaffAccount(formData: FormData) {
   // 2. Extract inputs from formData
   const emailRaw = formData.get("email");
   const roleRaw = formData.get("role");
-  const departmentIdRaw = formData.get("departmentId");
 
   if (!emailRaw || typeof emailRaw !== "string" || !emailRaw.trim()) {
     throw new Error("Email address is required.");
@@ -51,11 +50,6 @@ export async function createStaffAccount(formData: FormData) {
     throw new Error(`Invalid staff role: ${roleRaw}. Allowed roles: PROGRAM_ADMIN, INSTRUCTOR, SUPER_ADMIN.`);
   }
 
-  const departmentId =
-    typeof departmentIdRaw === "string" && departmentIdRaw.trim().length > 0
-      ? departmentIdRaw.trim()
-      : null;
-
   // 3. Generate a temporary secure password and hash it using bcrypt
   const tempPassword = `Staff#${crypto.randomBytes(5).toString("hex")}!`;
   const salt = await bcrypt.genSalt(10);
@@ -77,14 +71,12 @@ export async function createStaffAccount(formData: FormData) {
         email,
         passwordHash,
         role,
-        departmentId,
         isEmailVerified: true,
       },
       select: {
         id: true,
         email: true,
         role: true,
-        departmentId: true,
         createdAt: true,
       },
     });
@@ -97,7 +89,6 @@ export async function createStaffAccount(formData: FormData) {
         details: {
           createdUserId: newUser.id,
           role,
-          departmentId,
           temporaryPassword: tempPassword,
           timestamp: new Date().toISOString(),
         },

@@ -24,10 +24,10 @@ async function requireProgramOrSuperAdmin() {
     throw new Error("Unauthorized: Program Admin or Super Admin privileges required.");
   }
 
-  // Fetch admin user from Prisma to inspect assigned departmentId
+  // Fetch admin user from Prisma to inspect role
   const adminUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { id: true, role: true, departmentId: true },
+    select: { id: true, role: true },
   });
 
   return { session, adminUser, isSuperAdmin };
@@ -37,7 +37,7 @@ async function requireProgramOrSuperAdmin() {
  * Approves and publishes a pending course.
  */
 export async function publishCourse(courseIdOrFormData: string | FormData): Promise<void> {
-  const { session, adminUser, isSuperAdmin } = await requireProgramOrSuperAdmin();
+  const { session } = await requireProgramOrSuperAdmin();
 
   const courseId =
     typeof courseIdOrFormData === "string"
@@ -54,15 +54,6 @@ export async function publishCourse(courseIdOrFormData: string | FormData): Prom
 
   if (!course) {
     throw new Error(`Course with ID "${courseId}" was not found.`);
-  }
-
-  // If PROGRAM_ADMIN, verify departmental scope (skip for SUPER_ADMIN)
-  if (!isSuperAdmin && adminUser?.departmentId) {
-    if (course.departmentId && course.departmentId !== adminUser.departmentId) {
-      throw new Error(
-        `Department scope mismatch: Course belongs to "${course.departmentId}", but your scope is limited to "${adminUser.departmentId}".`
-      );
-    }
   }
 
   // Execute update and audit log in transaction
@@ -103,7 +94,7 @@ export async function publishCourse(courseIdOrFormData: string | FormData): Prom
  * Requests curriculum revisions from the instructor.
  */
 export async function requestRevision(courseIdOrFormData: string | FormData): Promise<void> {
-  const { session, adminUser, isSuperAdmin } = await requireProgramOrSuperAdmin();
+  const { session } = await requireProgramOrSuperAdmin();
 
   const courseId =
     typeof courseIdOrFormData === "string"
@@ -120,15 +111,6 @@ export async function requestRevision(courseIdOrFormData: string | FormData): Pr
 
   if (!course) {
     throw new Error(`Course with ID "${courseId}" was not found.`);
-  }
-
-  // If PROGRAM_ADMIN, verify departmental scope (skip for SUPER_ADMIN)
-  if (!isSuperAdmin && adminUser?.departmentId) {
-    if (course.departmentId && course.departmentId !== adminUser.departmentId) {
-      throw new Error(
-        `Department scope mismatch: Course belongs to "${course.departmentId}", but your scope is limited to "${adminUser.departmentId}".`
-      );
-    }
   }
 
   // Execute update and audit log in transaction

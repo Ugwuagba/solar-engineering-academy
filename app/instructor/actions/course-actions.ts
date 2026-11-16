@@ -31,17 +31,11 @@ export async function draftCourse(formData: FormData): Promise<void> {
   const session = await requireInstructorSession();
 
   const titleRaw = formData.get("title");
-  const departmentIdRaw = formData.get("departmentId");
 
   if (!titleRaw || typeof titleRaw !== "string" || !titleRaw.trim()) {
     throw new Error("Course title is required.");
   }
   const title = titleRaw.trim();
-
-  const departmentId =
-    typeof departmentIdRaw === "string" && departmentIdRaw.trim().length > 0
-      ? departmentIdRaw.trim()
-      : null;
 
   // Generate URL slug & course identifier
   const baseSlug = title
@@ -72,7 +66,6 @@ export async function draftCourse(formData: FormData): Promise<void> {
       price: 0,
       status: CourseStatus.DRAFT,
       isPublished: false,
-      departmentId,
       instructorId: session.user.id,
       instructorName: session.user.name || "Lead Instructor",
     },
