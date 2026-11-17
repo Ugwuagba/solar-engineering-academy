@@ -29,13 +29,15 @@ export default withAuth(
       }
     }
 
-    // 3. Paths starting with /program-admin: Allow Role.PROGRAM_ADMIN and Role.SUPER_ADMIN
+    // 3. Paths starting with /program-admin: Allow Role.PROGRAM_ADMIN, Role.SUPER_ADMIN, and legacy Role.ADMIN
     if (path.startsWith("/program-admin")) {
       const isProgramAdmin =
         role === Role.PROGRAM_ADMIN ||
         role === "PROGRAM_ADMIN" ||
         role === Role.SUPER_ADMIN ||
-        role === "SUPER_ADMIN";
+        role === "SUPER_ADMIN" ||
+        role === Role.ADMIN ||
+        role === "ADMIN";
 
       if (!isProgramAdmin) {
         return NextResponse.redirect(new URL("/dashboard", req.url));
@@ -71,7 +73,12 @@ export default withAuth(
       if (role === Role.SUPER_ADMIN || role === "SUPER_ADMIN") {
         return NextResponse.redirect(new URL("/super-admin/users", req.url));
       }
-      if (role === Role.PROGRAM_ADMIN || role === "PROGRAM_ADMIN") {
+      if (
+        role === Role.PROGRAM_ADMIN ||
+        role === "PROGRAM_ADMIN" ||
+        role === Role.ADMIN ||
+        role === "ADMIN"
+      ) {
         return NextResponse.redirect(new URL("/program-admin", req.url));
       }
       if (role === Role.INSTRUCTOR || role === "INSTRUCTOR") {

@@ -7,11 +7,10 @@ export function getRoleRedirectPath(role?: string | null): string {
     case "SUPER_ADMIN":
       return "/super-admin/users";
     case "PROGRAM_ADMIN":
+    case "ADMIN":
       return "/program-admin";
     case "INSTRUCTOR":
       return "/instructor";
-    case "ADMIN":
-      return "/admin";
     case "LEARNER":
     case "STUDENT":
     default:

@@ -18,7 +18,11 @@ async function requireProgramOrSuperAdmin() {
 
   const role = session.user.role;
   const isSuperAdmin = role === Role.SUPER_ADMIN || role === "SUPER_ADMIN";
-  const isProgramAdmin = role === Role.PROGRAM_ADMIN || role === "PROGRAM_ADMIN";
+  const isProgramAdmin =
+    role === Role.PROGRAM_ADMIN ||
+    role === "PROGRAM_ADMIN" ||
+    role === Role.ADMIN ||
+    role === "ADMIN";
 
   if (!isSuperAdmin && !isProgramAdmin) {
     throw new Error("Unauthorized: Program Admin or Super Admin privileges required.");

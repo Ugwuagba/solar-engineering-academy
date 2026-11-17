@@ -9,7 +9,8 @@ import {
   Award, 
   CheckCircle2, 
   Plus, 
-  ArrowLeft 
+  ArrowLeft,
+  ShieldCheck
 } from "lucide-react";
 import AdminStudioClient from "@/components/admin/AdminStudioClient";
 
@@ -124,6 +125,14 @@ export default async function AdminStudioPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/program-admin"
+              prefetch={false}
+              className="px-4 py-2.5 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-2 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>View New Program Queue</span>
+            </Link>
             <Link
               href="/admin/students"
               prefetch={false}
