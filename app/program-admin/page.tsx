@@ -77,48 +77,48 @@ export default async function ProgramAdminPage({ searchParams }: PageProps) {
   const pendingCourses =
     activeTab === "queue"
       ? await prisma.course.findMany({
-          where: { status: CourseStatus.PENDING_APPROVAL },
-          include: {
-            instructor: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
+        where: { status: CourseStatus.PENDING_APPROVAL },
+        include: {
+          instructor: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
             },
           },
-          orderBy: { updatedAt: "desc" },
-        })
+        },
+        orderBy: { updatedAt: "desc" },
+      })
       : [];
 
   const publishedCourses =
     activeTab === "active"
       ? await prisma.course.findMany({
-          where: { status: CourseStatus.PUBLISHED },
-          include: {
-            instructor: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
-            enrollments: {
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    createdAt: true,
-                  },
-                },
-              },
-              orderBy: { enrolledAt: "desc" },
+        where: { status: CourseStatus.PUBLISHED },
+        include: {
+          instructor: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
             },
           },
-          orderBy: { updatedAt: "desc" },
-        })
+          enrollments: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  createdAt: true,
+                },
+              },
+            },
+            orderBy: { enrolledAt: "desc" },
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+      })
       : [];
 
   return (
@@ -198,11 +198,10 @@ export default async function ProgramAdminPage({ searchParams }: PageProps) {
         <div className="flex items-center gap-2 border-b border-slate-800 pb-1">
           <Link
             href="/program-admin?tab=queue"
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
-              activeTab === "queue"
-                ? "bg-amber-500/10 text-amber-400 border-amber-500/30 shadow-md shadow-amber-500/5"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border-transparent"
-            }`}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border ${activeTab === "queue"
+              ? "bg-amber-500/10 text-amber-400 border-amber-500/30 shadow-md shadow-amber-500/5"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border-transparent"
+              }`}
           >
             <Clock className="w-4 h-4" />
             Review Queue
@@ -213,11 +212,10 @@ export default async function ProgramAdminPage({ searchParams }: PageProps) {
 
           <Link
             href="/program-admin?tab=active"
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
-              activeTab === "active"
-                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-md shadow-emerald-500/5"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border-transparent"
-            }`}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border ${activeTab === "active"
+              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-md shadow-emerald-500/5"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border-transparent"
+              }`}
           >
             <GraduationCap className="w-4 h-4" />
             Active Courses &amp; Rosters
