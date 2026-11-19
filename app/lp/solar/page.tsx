@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     siteName: "Subway Schools",
     images: [
       {
-        url: "/images/solutions/solutions-installation.jpg",
+        url: "/images/webinar/webinar-hero.jpg",
         width: 1200,
         height: 630,
         alt: "Subway Schools Free Solar Energy Career & Business Webinar",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "Free Solar Energy Career & Business Webinar | Subway Schools",
     description:
       "Tap from the $268.93 billion solar energy market. Attend the free Subway Schools webinar and discover how to build a career or business in solar energy.",
-    images: ["/images/solutions/solutions-installation.jpg"],
+    images: ["/images/webinar/webinar-hero.jpg"],
   },
 };
 

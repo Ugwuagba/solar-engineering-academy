@@ -145,7 +145,7 @@ export default function SolarLandingClient() {
                 <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800 shadow-2xl shadow-blue-950/60 group">
                   <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full">
                     <Image
-                      src="/images/solutions/solutions-installation.jpg"
+                      src="/images/webinar/webinar-hero.jpg"
                       alt="Subway Schools Real Field Solar Engineering Installation"
                       fill
                       sizes="(max-width: 1024px) 100vw, 40vw"
@@ -238,12 +238,12 @@ export default function SolarLandingClient() {
 
               </div>
 
-              {/* Right Column: Supporting Solar Installation Photo */}
+              {/* Right Column: Supporting Solar Installation Photos */}
               <div className="lg:col-span-5 space-y-6">
                 <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
                   <div className="relative aspect-[4/3] w-full">
                     <Image
-                      src="/images/solutions/solutions-inverters.jpg"
+                      src="/images/webinar/webinar-inverters-bank.jpg"
                       alt="Commercial Inverter Integration and Power Systems"
                       fill
                       sizes="(max-width: 1024px) 100vw, 40vw"
@@ -252,10 +252,10 @@ export default function SolarLandingClient() {
                   </div>
                 </div>
 
-                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl hidden sm:block">
-                  <div className="relative aspect-[16/9] w-full">
+                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
+                  <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full">
                     <Image
-                      src="/images/solutions/field-work.jpg"
+                      src="/images/webinar/webinar-technicians.jpg"
                       alt="Field Technical Skills in Action"
                       fill
                       sizes="(max-width: 1024px) 100vw, 40vw"
@@ -460,9 +460,9 @@ export default function SolarLandingClient() {
 
             {/* Supporting Real Solar Image */}
             <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-md">
-              <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full">
+              <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full">
                 <Image
-                  src="/images/solutions/solutions-rooftop-sunset.jpg"
+                  src="/images/webinar/webinar-rooftop-array.jpg"
                   alt="Subway Schools Clean Energy Vision"
                   fill
                   sizes="(max-width: 1024px) 100vw, 800px"
