@@ -5,27 +5,24 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXTAUTH_URL || "https://subwayschools.com"
   ),
-  title:
-    "Become a Certified Solar & Energy Storage Installation Professional | Subway Schools",
+  title: "Free Solar Energy Career & Business Webinar | Subway Schools",
   description:
-    "Master industry-standard photovoltaic sizing, inverter integration, and stationary battery storage through practical, field-tested engineering training with Subway Schools (Subway Energy Limited RC: 1837154).",
+    "Tap from the $268.93 billion solar energy market. Attend the free Subway Schools webinar and discover how to build a career or business in solar energy.",
   keywords: [
-    "Solar Engineering Training",
-    "Energy Storage Installation",
+    "Solar Energy Career",
+    "Solar Energy Webinar",
+    "Solar Business",
     "Subway Schools",
     "Subway Energy Limited",
     "RC 1837154",
-    "Solar Installation Certification",
-    "Deye Inverter Training",
-    "Lithium Battery BMS",
-    "Solar Field Attachment",
-    "Commercial Solar Audit",
+    "Solar Installation Training",
+    "Renewable Energy Jobs",
+    "Solar Industry Opportunities",
   ],
   openGraph: {
-    title:
-      "Become a Certified Solar & Energy Storage Installation Professional | Subway Schools",
+    title: "Free Solar Energy Career & Business Webinar | Subway Schools",
     description:
-      "Master industry-standard photovoltaic sizing, inverter integration, and stationary battery storage through practical, field-tested engineering training.",
+      "Tap from the $268.93 billion solar energy market. Attend the free Subway Schools webinar and discover how to build a career or business in solar energy.",
     url: "https://subwayschools.com/lp/solar",
     siteName: "Subway Schools",
     images: [
@@ -33,7 +30,7 @@ export const metadata: Metadata = {
         url: "/images/solutions/solutions-installation.jpg",
         width: 1200,
         height: 630,
-        alt: "Subway Schools Solar Engineering Practical Training",
+        alt: "Subway Schools Free Solar Energy Career & Business Webinar",
       },
     ],
     locale: "en_NG",
@@ -41,10 +38,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title:
-      "Become a Certified Solar & Energy Storage Installation Professional | Subway Schools",
+    title: "Free Solar Energy Career & Business Webinar | Subway Schools",
     description:
-      "Master industry-standard photovoltaic sizing, inverter integration, and stationary battery storage through practical, field-tested engineering training.",
+      "Tap from the $268.93 billion solar energy market. Attend the free Subway Schools webinar and discover how to build a career or business in solar energy.",
     images: ["/images/solutions/solutions-installation.jpg"],
   },
 };

@@ -1,972 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
-  Wrench,
-  Award,
-  Users,
   CheckCircle2,
-  ChevronDown,
-  ShieldCheck,
-  Zap,
-  BookOpen,
-  ArrowRight,
-  Sparkles,
-  PhoneCall,
-  Clock,
-  Compass,
-  Building2,
-  HardHat,
-  GraduationCap,
-  Cpu,
-  Layers,
   HelpCircle,
-  Flame,
-  Star,
+  Clock,
+  Sparkles,
+  ArrowRight,
+  Shield,
+  Zap,
 } from "lucide-react";
 
-interface FAQItem {
-  question: string;
-  answer: string;
-}
-
-interface CourseItem {
-  id: string;
-  level: string;
-  title: string;
-  description: string;
-  image: string;
-  fallback: string;
-}
-
-const courses: CourseItem[] = [
-  {
-    id: "SOLAR 101",
-    level: "Beginner",
-    title: "Introduction to Solar Photovoltaic Systems",
-    description:
-      "Fundamentals of solar radiation, PV cell technology, basic circuit principles, system components, and energy audit basics.",
-    image:
-      "https://images.unsplash.com/photo-1497440001374-f26997328c1b?auto=format&fit=crop&w=800&q=80",
-    fallback: "/images/courses/course-1-solar-intro.jpg",
-  },
-  {
-    id: "SOLAR 102",
-    level: "Intermediate",
-    title: "Solar PV System Design & Component Sizing",
-    description:
-      "In-depth mathematical calculation for PV array sizing, charge controller selection, string inverter matchmaking, and cable cross-section calculations.",
-    image:
-      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80",
-    fallback: "/images/courses/course-2-solar-advanced.jpg",
-  },
-  {
-    id: "SOLAR 201",
-    level: "Advanced",
-    title: "Advanced Inverter Systems & Hybrid Integration",
-    description:
-      "Setup and programming of hybrid, off-grid, and grid-tied inverters (Deye, Victron, Growatt), automatic generator start (AGS), and zero-export limits.",
-    image:
-      "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80",
-    fallback: "/images/solutions/solutions-inverters.jpg",
-  },
-  {
-    id: "SOLAR 202",
-    level: "Advanced",
-    title: "Stationary Battery Storage & Lithium BMS",
-    description:
-      "Lithium iron phosphate (LiFePO4) architecture, cell balancing, Battery Management System (BMS) communications (CAN bus / RS485), and thermal safety.",
-    image:
-      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
-    fallback: "/images/courses/course-7-battery-fabrication.jpg",
-  },
-  {
-    id: "SOLAR 301",
-    level: "Professional",
-    title: "Commercial & Industrial (C&I) Solar Engineering",
-    description:
-      "Three-phase system design, transformer integration, high-voltage balance of system (BOS), surge protection, and commercial sub-station earthing.",
-    image:
-      "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80",
-    fallback: "/images/solutions/factory-roof.jpg",
-  },
-  {
-    id: "SOLAR 302",
-    level: "Executive",
-    title: "Solar Project Management & Bankable Proposals",
-    description:
-      "Levelized Cost of Energy (LCOE) calculations, payback analysis, diesel displacement modeling, and crafting bankable EPC client proposals.",
-    image:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
-    fallback: "/images/solutions/solutions-audit.jpg",
-  },
-];
-
-const FAQS: FAQItem[] = [
-  {
-    question: "What are the prerequisites for joining the Solar & Storage Program?",
-    answer:
-      "This program is designed for engineers (electrical, mechanical, civil), technicians, electricians, polytechnic/university STEM graduates, and career switchers with an aptitude for technical work. Basic familiarity with electrical concepts is helpful, but our foundational modules build you up from fundamental principles to commercial commissioning.",
-  },
-  {
-    question: "How is the training delivered, and how do practical sessions work?",
-    answer:
-      "The program integrates intensive engineering theory, mathematical sizing labs, and hands-on workbench sessions using live hybrid inverters (Deye, Victron, Growatt), lithium LiFePO4 battery modules, and DC distribution equipment. Eligible enrollees also gain access to our 3-month field attachment on active commercial and residential installations.",
-  },
-  {
-    question: "Is the certification recognized in the renewable energy industry?",
-    answer:
-      "Yes. The Certificate of Competence is issued under Subway Energy Limited (RC: 1837154), an established engineering firm operating in commercial and industrial solar power projects. The certification verifies that you have completed field-tested sizing, installation, and safety protocols according to international IEEE and local Nigerian standards.",
-  },
-  {
-    question: "What is the cohort size and why is enrollment limited?",
-    answer:
-      "To ensure that every engineer gets personal workbench time with high-voltage inverters, battery management systems (BMS), and torque-tested mechanical mounting rigs, each cohort is strictly capped at 25 participants. Seats are allocated on a first-come, verified-registration basis.",
-  },
-  {
-    question: "How do I receive the full syllabus, fee breakdown, and payment options?",
-    answer:
-      "Click any of the WhatsApp buttons on this page to chat directly with our Admissions Desk. We provide the complete module breakdown, current cohort timetable, and flexible tuition installments directly on WhatsApp.",
-  },
-  {
-    question: "Can working professionals attend weekend or evening sessions?",
-    answer:
-      "Yes. We offer flexible tracks tailored for working professionals and practicing field technicians, including accelerated weekend intensives and evening support sessions alongside our dedicated practical workbench days.",
-  },
-];
-
-export default function SolarLandingClient() {
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
-
-  // WhatsApp Configuration
-  const rawPhone = process.env.NEXT_PUBLIC_INSTRUCTOR_WHATSAPP || "2347012715632";
-  const cleanPhone = rawPhone.replace(/[^0-9]/g, "");
-  const prefilledMessage =
-    "Hello Subway Schools, I am interested in the Solar Engineering Training program and would like details on admission.";
-  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(prefilledMessage)}`;
-  const groupFallbackUrl = "https://shorturl.at/iI5NJ";
-
-  // Event Tracking Hook
-  const handleWhatsAppClick = (source: string = "Solar Landing Page WhatsApp") => {
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      try {
-        (window as any).fbq("track", "Contact", { content_name: source });
-      } catch (err) {
-        console.warn("Meta Pixel tracking error:", err);
-      }
-    }
-  };
-
-  const toggleFaq = (idx: number) => {
-    setOpenFaq(openFaq === idx ? null : idx);
-  };
-
-  return (
-    <div className="min-h-screen bg-[#080e1a] text-slate-100 font-sans selection:bg-amber-500/30 selection:text-amber-200 pb-20 md:pb-0">
-      {/* 1. TOP URGENCY ANNOUNCEMENT BAR */}
-      <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-semibold text-xs sm:text-sm py-2 px-4 text-center sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 bg-slate-950/20 px-2 py-0.5 rounded text-[11px] uppercase tracking-wider font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block" />
-            Admissions Open
-          </span>
-          <span>
-            Upcoming Cohort: Limited to <strong>25 seats</strong> for practical workbench access.
-          </span>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => handleWhatsAppClick("Top Banner WhatsApp CTA")}
-            className="underline underline-offset-4 font-bold hover:text-slate-900 inline-flex items-center gap-1 ml-1"
-          >
-            Reserve Your Seat on WhatsApp &rarr;
-          </a>
-        </div>
-      </div>
-
-      {/* 2. ISOLATED BRANDED HEADER (NO GLOBAL NAV LINKS) */}
-      <header className="border-b border-[#1e293b] bg-[#080e1a]/90 backdrop-blur-md sticky top-8 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          {/* Logo & Accreditation */}
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-white border border-slate-700/60 p-1 flex items-center justify-center shadow-lg shadow-black/40 shrink-0">
-              <Image
-                src="/images/subway-logo.png"
-                alt="Subway Schools Logo"
-                width={44}
-                height={44}
-                className="w-full h-full object-contain"
-                priority
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-base sm:text-lg font-black tracking-tight text-white">
-                  SUBWAY SCHOOLS
-                </span>
-                <span className="hidden sm:inline-flex items-center text-[10px] font-mono font-bold bg-[#1e293b] text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20">
-                  RC: 1837154
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 font-medium hidden sm:block">
-                Subway Energy Limited • Engineering & Energy Storage Academy
-              </p>
-            </div>
-          </div>
-
-          {/* Desktop WhatsApp CTA */}
-          <div className="flex items-center gap-3">
-            <div className="hidden lg:flex flex-col items-end text-right">
-              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                Admissions Desk Online
-              </span>
-              <span className="text-[11px] text-slate-400">Response time: ~15 mins</span>
-            </div>
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => handleWhatsAppClick("Header WhatsApp Button")}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-[#25D366]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <WhatsAppIcon className="w-4 h-4 fill-slate-950 shrink-0" />
-              <span>Chat with Admissions</span>
-            </a>
-          </div>
-        </div>
-      </header>
-
-      {/* 3. HERO SECTION */}
-      <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-28 overflow-hidden">
-        {/* Subtle Background Glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-600/10 blur-[130px] rounded-full pointer-events-none -z-10" />
-        <div className="absolute top-1/3 right-10 w-[400px] h-[350px] bg-amber-500/10 blur-[140px] rounded-full pointer-events-none -z-10" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-            {/* Left Column: Offer Copy & CTAs */}
-            <div className="lg:col-span-7 space-y-6 text-left">
-              {/* Eyebrow Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider shadow-inner">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Field-Grade Solar Engineering Training</span>
-              </div>
-
-              {/* Headline */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]">
-                Become a Certified Solar &{" "}
-                <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
-                  Energy Storage Installation
-                </span>{" "}
-                Professional
-              </h1>
-
-              {/* Subheadline */}
-              <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
-                Master industry-standard photovoltaic sizing, inverter integration, and stationary
-                battery storage through practical, field-tested engineering training.
-              </p>
-
-              {/* Trust Checkmarks */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-sm text-slate-200">
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
-                  <span>Deye & Victron Hybrid Inverters</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
-                  <span>Lithium LiFePO4 BMS Wiring</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
-                  <span>Subway Energy (RC: 1837154) Accreditation</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
-                  <span>3-Month Practical Field Attachment</span>
-                </div>
-              </div>
-
-              {/* Primary Call to Action */}
-              <div className="pt-4 space-y-3">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => handleWhatsAppClick("Hero Primary WhatsApp Button")}
-                    className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-black text-base sm:text-lg shadow-xl shadow-[#25D366]/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-center"
-                  >
-                    <WhatsAppIcon className="w-6 h-6 fill-slate-950 shrink-0" />
-                    <span>Chat with an Admissions Advisor on WhatsApp</span>
-                  </a>
-                </div>
-
-                <p className="text-xs text-slate-400 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                  <span>Direct WhatsApp routing • Instant syllabus, cohort calendar & fee options</span>
-                </p>
-              </div>
-
-              {/* Social Proof Strip below CTA */}
-              <div className="pt-6 border-t border-[#1e293b] flex flex-wrap items-center gap-6 text-xs text-slate-400">
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-1">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div
-                        key={i}
-                        className="w-6 h-6 rounded-full bg-slate-800 border-2 border-[#080e1a] flex items-center justify-center text-[10px] text-amber-300 font-bold"
-                      >
-                        ★
-                      </div>
-                    ))}
-                  </div>
-                  <span className="font-semibold text-slate-200">
-                    4.9/5 Rating from 10,000+ Enrollees
-                  </span>
-                </div>
-
-                <div className="h-4 w-px bg-slate-700 hidden sm:block" />
-
-                <div className="flex items-center gap-1.5 text-slate-300">
-                  <ShieldCheck className="w-4 h-4 text-amber-400" />
-                  <span>Corporate EPC Backed</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: Hero Visual / Equipment Card */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative rounded-2xl border border-[#1e293b] bg-[#0c1629] overflow-hidden shadow-2xl p-2 group">
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-900">
-                  <Image
-                    src="/images/solutions/solutions-installation.jpg"
-                    alt="Solar and battery installation field training"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    priority
-                    sizes="(max-width: 768px) 100vw, 500px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#080e1a] via-[#080e1a]/40 to-transparent" />
-
-                  {/* Badge on Image */}
-                  <div className="absolute top-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-700/80 rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs font-mono text-amber-400 font-bold">
-                    <Zap className="w-3.5 h-3.5 text-amber-400" />
-                    <span>FIELD TRAINING FACILITY</span>
-                  </div>
-
-                  {/* Bottom Stats Floating Card */}
-                  <div className="absolute bottom-4 left-4 right-4 bg-slate-950/90 backdrop-blur-md border border-slate-800 rounded-xl p-3.5 shadow-xl">
-                    <div className="flex items-center justify-between text-xs text-slate-300">
-                      <div>
-                        <div className="text-[10px] font-mono text-slate-400 uppercase">
-                          Next Cohort Model
-                        </div>
-                        <div className="font-bold text-white text-sm">
-                          25 Enrollees Capped
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-[10px] font-mono text-amber-400 uppercase">
-                          Training Mode
-                        </div>
-                        <div className="font-bold text-white text-sm">
-                          Theory + Field Rig
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Micro Metrics Beneath Visual */}
-                <div className="grid grid-cols-3 gap-2 mt-2 pt-2 px-1 text-center">
-                  <div className="bg-[#080e1a]/80 p-2.5 rounded-lg border border-[#1e293b]">
-                    <div className="text-amber-400 font-black text-sm">100%</div>
-                    <div className="text-[10px] text-slate-400">Practical Gear</div>
-                  </div>
-                  <div className="bg-[#080e1a]/80 p-2.5 rounded-lg border border-[#1e293b]">
-                    <div className="text-emerald-400 font-black text-sm">3 Months</div>
-                    <div className="text-[10px] text-slate-400">Field Attach.</div>
-                  </div>
-                  <div className="bg-[#080e1a]/80 p-2.5 rounded-lg border border-[#1e293b]">
-                    <div className="text-blue-400 font-black text-sm">RC: 1837154</div>
-                    <div className="text-[10px] text-slate-400">Certified</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. KEY VALUE PILLARS (THE 3 CORE PILLARS) */}
-      <section className="py-20 bg-[#0b1528] border-y border-[#1e293b] relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full inline-block">
-              ENGINEERED FOR FIELD EXCELLENCE
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Why Engineers & Contractors Choose Subway Schools
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              General courses teach basic solar panel series wiring from slides. We train you on
-              fault diagnosis, mathematical deratings, inverter synchronization, and commercial energy
-              storage systems that prevent multimillion-naira project failures.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Pillar 1 */}
-            <div className="rounded-2xl bg-[#0c1629] border border-[#1e293b] p-8 hover:border-amber-500/50 transition-all hover:shadow-xl hover:shadow-amber-500/5 group flex flex-col justify-between">
-              <div>
-                <div className="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-6 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all">
-                  <Wrench className="w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">
-                  Hands-on Practical Engineering
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  Real-world equipment training, load calculation, and safety protocols. Work directly
-                  with commercial hybrid inverters, DC combiners, PV arrays, and battery banks rather
-                  than theoretical presentations.
-                </p>
-              </div>
-
-              <div className="space-y-2 pt-4 border-t border-[#1e293b] text-xs text-slate-300">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Deye, Growatt & Victron live wiring</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>DC Surge & Earthing safety systems</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Pillar 2 */}
-            <div className="rounded-2xl bg-[#0c1629] border border-[#1e293b] p-8 hover:border-[#25D366]/50 transition-all hover:shadow-xl hover:shadow-[#25D366]/5 group flex flex-col justify-between">
-              <div>
-                <div className="w-14 h-14 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20 flex items-center justify-center text-[#25D366] mb-6 group-hover:scale-110 group-hover:bg-[#25D366]/20 transition-all">
-                  <Award className="w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">Industry Certification</h3>
-                <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  Recognized accreditation positioning graduates for immediate commercial and
-                  residential projects. Validate your technical competence to corporate clients, EPC
-                  firms, and renewable developers.
-                </p>
-              </div>
-
-              <div className="space-y-2 pt-4 border-t border-[#1e293b] text-xs text-slate-300">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
-                  <span>Corporate RC: 1837154 backing</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
-                  <span>Verified transcript & project portfolio</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Pillar 3 */}
-            <div className="rounded-2xl bg-[#0c1629] border border-[#1e293b] p-8 hover:border-blue-500/50 transition-all hover:shadow-xl hover:shadow-blue-500/5 group flex flex-col justify-between">
-              <div>
-                <div className="w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 group-hover:bg-blue-500/20 transition-all">
-                  <Users className="w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">
-                  Dedicated Mentorship & Network
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  Ongoing support, handbook access, and career guidance. Direct technical support
-                  from Engr. Asanga, exclusive engineering group access, project quotation vetting, and
-                  alumni referrals.
-                </p>
-              </div>
-
-              <div className="space-y-2 pt-4 border-t border-[#1e293b] text-xs text-slate-300">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span>Direct WhatsApp advisory desk access</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span>Handbook: 49 Reasons Why Solar Fails</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick CTA under Pillars */}
-          <div className="mt-12 text-center">
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => handleWhatsAppClick("Pillars Section WhatsApp CTA")}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-bold text-sm shadow-lg shadow-[#25D366]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <WhatsAppIcon className="w-5 h-5 fill-slate-950 shrink-0" />
-              <span>Ask an Advisor Which Track Fits Your Background</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. TARGET AUDIENCE (WHO THIS PROGRAM IS BUILT FOR) */}
-      <section className="py-20 bg-[#080e1a] relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full inline-block">
-              TARGET AUDIENCE
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Designed for High-Impact Technical Careers
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              Whether you are an experienced engineer modernizing into renewables or a graduate
-              seeking an immediate commercial skill, Subway Schools gives you the execution edge.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-xl bg-[#0c1629] border border-[#1e293b] space-y-4">
-              <div className="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                <Cpu className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-base text-white">Electrical & Mechanical Engineers</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Master high-level system sizing, deratings, hybrid zero-export synchronization, and
-                lead multi-kilowatt commercial solar design with precision.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-[#0c1629] border border-[#1e293b] space-y-4">
-              <div className="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                <HardHat className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-base text-white">Field Technicians & Electricians</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Graduate from basic AC wiring to high-voltage DC distribution, lithium BMS
-                communication, and become an indispensable field lead installer.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-[#0c1629] border border-[#1e293b] space-y-4">
-              <div className="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                <GraduationCap className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-base text-white">Polytechnic & STEM Graduates</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Bridge the academic gap with hands-on workbench equipment, verified project hours,
-                and an industry-recognized certificate to unlock top EPC roles.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-[#0c1629] border border-[#1e293b] space-y-4">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-                <Building2 className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-base text-white">Renewable Career Switchers & Bidders</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Equip yourself to accurately audit client facilities, prepare bankable energy
-                proposals, and run a profitable solar installation enterprise.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. FLAGSHIP ENGINEERING & ENERGY COURSES */}
-      <section className="py-20 bg-[#0b1528] border-y border-[#1e293b]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full inline-block">
-              OUR FLAGSHIP PROGRAMS
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Industry-Standard Engineering & Energy Courses
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              Practical, accredited programs engineered to take you from fundamentals to commercial deployment.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 w-full text-left">
-            {courses.map((course) => (
-              <div
-                key={course.id}
-                className="rounded-2xl border border-slate-800 bg-[#0b1528] overflow-hidden flex flex-col shadow-xl"
-              >
-                <div className="relative w-full h-48 bg-slate-900 border-b border-slate-800">
-                  <img
-                    src={course.image}
-                    alt={course.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (course.fallback && target.src !== course.fallback) {
-                        target.src = course.fallback;
-                      }
-                    }}
-                  />
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-amber-400 text-xs font-bold px-2 py-1 rounded border border-amber-400/30 bg-amber-400/10 uppercase tracking-wide">
-                      {course.id}
-                    </span>
-                    <span className="text-slate-400 text-xs font-semibold px-2 py-1 rounded bg-slate-800/50">
-                      {course.level}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-3 leading-snug">
-                    {course.title}
-                  </h3>
-                  <p className="text-sm text-slate-300 leading-relaxed">
-                    {course.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Course Catalog WhatsApp CTA */}
-          <div className="mt-12 p-8 rounded-2xl bg-gradient-to-r from-[#0c1629] via-[#0f1d38] to-[#0c1629] border border-[#1e293b] flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-1 text-center md:text-left">
-              <h3 className="text-lg font-bold text-white">
-                Need the complete course syllabus & cohort schedule?
-              </h3>
-              <p className="text-xs text-slate-300">
-                Our admissions advisor can send the full training catalog and fee breakdown directly to your WhatsApp.
-              </p>
-            </div>
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => handleWhatsAppClick("Course Catalog WhatsApp CTA")}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-bold text-sm shadow-md transition-all shrink-0 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <WhatsAppIcon className="w-4 h-4 fill-slate-950 shrink-0" />
-              <span>Request Full Course Catalog on WhatsApp</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. SOCIAL PROOF & TRUST SECTION */}
-      <section className="py-20 bg-[#080e1a] relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full inline-block">
-              CREDIBILITY & ALUMNI SUCCESS
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Trusted by Practicing Engineers & Corporate Clients
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              Subway Energy Limited (RC: 1837154) has trained over 10,000 technicians and engineers
-              who now lead clean energy projects across West Africa.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Testimonial 1 */}
-            <div className="rounded-2xl bg-[#0c1629] border border-[#1e293b] p-6 space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex text-amber-400 text-sm">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
-                  &ldquo;Engr. Asanga&apos;s breakdown of equipment nameplate surge currents and phantom load
-                  management saved our company over ₦4.2M on an oversized inverter quotation for a
-                  beverage packaging plant. The 3 months field attachment is unparalleled.&rdquo;
-                </p>
-              </div>
-              <div className="pt-4 border-t border-[#1e293b]">
-                <div className="font-bold text-white text-sm">Tunde Balogun, MNSE</div>
-                <div className="text-xs text-slate-400">
-                  Lead Electrical Engineer, Apex Power Solutions
-                </div>
-              </div>
-            </div>
-
-            {/* Testimonial 2 */}
-            <div className="rounded-2xl bg-[#0c1629] border border-[#1e293b] p-6 space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex text-amber-400 text-sm">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
-                  &ldquo;Before Subway Schools, I only understood panels in series. This academy taught me
-                  actual mathematical deratings for ambient temperature, inverter clipping limits, and
-                  Deye hybrid wiring. I secured an EPC project developer role right after my field
-                  attachment.&rdquo;
-                </p>
-              </div>
-              <div className="pt-4 border-t border-[#1e293b]">
-                <div className="font-bold text-white text-sm">Chidinma Okafor</div>
-                <div className="text-xs text-slate-400">
-                  Renewable Energy Project Developer • Alumna
-                </div>
-              </div>
-            </div>
-
-            {/* Testimonial 3 */}
-            <div className="rounded-2xl bg-[#0c1629] border border-[#1e293b] p-6 space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex text-amber-400 text-sm">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
-                  &ldquo;Subway Energy performed a comprehensive power audit on our 24/7 medical center and
-                  deployed a 60kW hybrid system with zero-export control. Their training academy
-                  faculty are technically immaculate and field-tested.&rdquo;
-                </p>
-              </div>
-              <div className="pt-4 border-t border-[#1e293b]">
-                <div className="font-bold text-white text-sm">Engr. Ibrahim Sanusi</div>
-                <div className="text-xs text-slate-400">
-                  Facility Director, Prime Care Clinics
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Handbook Feature Sub-Banner */}
-          <div className="mt-16 rounded-2xl bg-[#0c1629] border border-amber-500/30 p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8">
-            <div className="w-full md:w-1/3 aspect-[4/3] relative rounded-xl overflow-hidden bg-slate-900 border border-slate-700">
-              <Image
-                src="/images/books/solar-books-podium-1.jpg"
-                alt="Solar Engineering Handbooks by Engr. Asanga"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 350px"
-              />
-            </div>
-            <div className="w-full md:w-2/3 space-y-4 text-left">
-              <div className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-400 uppercase bg-amber-500/10 px-2.5 py-1 rounded">
-                <BookOpen className="w-3.5 h-3.5" />
-                <span>INCLUDED COURSE COMPANION TEXTS</span>
-              </div>
-              <h3 className="text-2xl font-bold text-white">
-                Learn from the Author of &ldquo;49 Reasons Why Solar Installations Fail&rdquo;
-              </h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                Trainees receive direct reference manuals, solar sizing templates, and engineering
-                calculators created by Engr. Asanga. Avoid the common rookie mistakes that cost solar
-                installers millions in burnt inverters and degraded battery packs.
-              </p>
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => handleWhatsAppClick("Handbook Callout WhatsApp CTA")}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-bold text-xs sm:text-sm transition-all"
-                >
-                  <WhatsAppIcon className="w-4 h-4 fill-slate-950 shrink-0" />
-                  <span>Ask for Enrollee Book Package</span>
-                </a>
-                <a
-                  href={groupFallbackUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-amber-400 hover:text-amber-300 font-semibold underline underline-offset-4"
-                >
-                  Join the Solar Reading & Engineering Group &rarr;
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 8. LIMITED COHORT CALLOUT & URGENCY */}
-      <section className="py-16 bg-[#0b1528] border-t border-[#1e293b]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
-            <Flame className="w-4 h-4 text-amber-400" />
-            <span>Strict 25-Seat Quality Cap</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-            Small Cohort Model for Guaranteed Equipment Time
-          </h2>
-
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-            Unlike mass lecture seminars where you watch from row 15, Subway Schools keeps each cohort
-            strictly limited to 25 engineers. You personally wire inverters, configure BMS parameters,
-            and complete live commissioning tests.
-          </p>
-
-          <div className="pt-2">
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => handleWhatsAppClick("Cohort Section WhatsApp CTA")}
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-black text-base sm:text-lg shadow-xl shadow-[#25D366]/20 transition-all hover:scale-[1.02]"
-            >
-              <WhatsAppIcon className="w-5 h-5 fill-slate-950 shrink-0" />
-              <span>Check Remaining Slots on WhatsApp</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. FREQUENTLY ASKED QUESTIONS */}
-      <section className="py-20 bg-[#080e1a] border-t border-[#1e293b]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 space-y-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full inline-block">
-              QUESTIONS & ANSWERS
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base">
-              Everything you need to know about enrollment, requirements, and field attachments.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {FAQS.map((faq, idx) => {
-              const isOpen = openFaq === idx;
-              return (
-                <div
-                  key={idx}
-                  className="rounded-xl border border-[#1e293b] bg-[#0c1629] overflow-hidden transition-all"
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleFaq(idx)}
-                    className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 text-white font-bold text-sm sm:text-base hover:text-amber-400 transition-colors"
-                  >
-                    <span>{faq.question}</span>
-                    <ChevronDown
-                      className={`w-5 h-5 shrink-0 transition-transform duration-200 text-slate-400 ${
-                        isOpen ? "rotate-180 text-amber-400" : ""
-                      }`}
-                    />
-                  </button>
-
-                  {isOpen && (
-                    <div className="px-6 pb-5 pt-1 text-slate-300 text-xs sm:text-sm leading-relaxed border-t border-[#1e293b]/60">
-                      {faq.answer}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 10. FINAL HIGH-CONVERTING CTA BOX */}
-      <section className="py-20 bg-gradient-to-b from-[#0b1528] to-[#080e1a] border-t border-[#1e293b] relative">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="p-8 sm:p-12 rounded-3xl bg-[#0c1629] border border-amber-500/40 shadow-2xl relative overflow-hidden">
-            {/* Background Accent */}
-            <div className="absolute -top-24 -right-24 w-72 h-72 bg-amber-500/10 blur-[100px] rounded-full pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
-
-            <div className="relative z-10 space-y-6">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30 inline-block">
-                BECOME AN ACCREDITED SOLAR INSTALLATION PRO
-              </span>
-
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
-                Launch or Accelerate Your Renewable Energy Career
-              </h2>
-
-              <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-                Connect directly with an admissions advisor on WhatsApp. We will discuss your current
-                technical background, explain our upcoming cohort dates, and provide the exact
-                curriculum syllabus.
-              </p>
-
-              <div className="pt-2">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => handleWhatsAppClick("Final Footer Box WhatsApp CTA")}
-                  className="inline-flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-black text-base sm:text-xl shadow-2xl shadow-[#25D366]/30 transition-all transform hover:-translate-y-1 active:translate-y-0"
-                >
-                  <WhatsAppIcon className="w-6 h-6 fill-slate-950 shrink-0" />
-                  <span>Chat with an Admissions Advisor on WhatsApp</span>
-                </a>
-              </div>
-
-              <div className="pt-4 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-amber-400" />
-                  Average response: under 15 minutes
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  RC: 1837154 Corporate Accreditation
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-blue-400" />
-                  Cohort Limited to 25 Seats
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 11. ISOLATED LANDING PAGE FOOTER (NO GLOBAL LINKS) */}
-      <footer className="border-t border-[#1e293b] bg-[#050a14] py-8 text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          <div className="space-y-1">
-            <p className="font-bold text-slate-300">
-              Subway Schools • Subway Energy Limited (RC: 1837154)
-            </p>
-            <p className="text-[11px] text-slate-400">
-              Accredited solar photovoltaic engineering, energy storage and commercial power audit training.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4 text-[11px] text-slate-400">
-            <span>&copy; {new Date().getFullYear()} Subway Energy Limited. All Rights Reserved.</span>
-          </div>
-        </div>
-      </footer>
-
-      {/* 12. FIXED MOBILE STICKY WHATSAPP BAR (md:hidden) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-3 bg-[#080e1a]/95 backdrop-blur-lg border-t border-[#1e293b] shadow-2xl">
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => handleWhatsAppClick("Sticky Mobile WhatsApp Bar")}
-          className="flex items-center justify-center gap-2.5 w-full py-3.5 px-4 rounded-xl bg-[#25D366] active:bg-[#20ba5a] text-slate-950 font-black text-sm tracking-wide shadow-lg shadow-[#25D366]/30 transition-transform active:scale-[0.98]"
-        >
-          <WhatsAppIcon className="w-5 h-5 fill-slate-950 shrink-0" />
-          <span>Chat with Admissions on WhatsApp</span>
-        </a>
-      </div>
-    </div>
-  );
-}
+const WHATSAPP_WEBINAR_URL =
+  "https://chat.whatsapp.com/KOI7BGwsQot4AQgEXce0zF?s=cl&p=i&iam=2";
 
 function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
@@ -974,11 +22,555 @@ function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
       className={className}
       viewBox="0 0 24 24"
       fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
-      <path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.978-.276-.1-.477-.15-.678.15-.201.3-.778.978-.954 1.179-.176.2-.351.226-.652.075-.301-.15-1.27-.468-2.42-1.494-.895-.798-1.5-1.784-1.676-2.085-.176-.301-.019-.464.131-.614.136-.135.301-.351.452-.527.15-.176.201-.301.301-.502.1-.201.05-.376-.025-.526-.075-.15-.678-1.634-.929-2.238-.244-.588-.493-.509-.678-.518-.175-.009-.376-.009-.577-.009-.201 0-.527.075-.803.376s-1.054 1.029-1.054 2.509 1.079 2.91 1.23 3.111c.15.201 2.122 3.24 5.141 4.544.718.31 1.279.496 1.716.635.722.23 1.38.197 1.9-.119.579-.352 1.78-7.26 2.031-1.428.251-.703.251-1.305.176-1.429-.075-.125-.276-.201-.577-.351z" />
-      <path d="M12.004 2C6.48 2 2 6.48 2 12c0 1.947.56 3.764 1.524 5.301L2 22l4.834-1.472C8.309 21.464 10.103 22 12.004 22c5.523 0 10-4.48 10-10s-4.477-10-10-10zm0 18.273c-1.642 0-3.167-.47-4.464-1.282l-.32-.202-2.871.874.887-2.8-.21-.334C4.168 15.172 3.727 13.626 3.727 12c0-4.564 3.713-8.273 8.277-8.273 4.563 0 8.273 3.709 8.273 8.273 0 4.564-3.71 8.273-8.273 8.273z" />
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.63C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.05 20.16C10.57 20.16 9.12 19.76 7.85 19.01L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.8 7.37 7.5 3.67 12.05 3.67C14.25 3.67 16.32 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.16 12.05 20.16ZM16.57 14.37C16.32 14.25 15.1 13.65 14.88 13.56C14.65 13.48 14.48 13.44 14.32 13.69C14.15 13.94 13.67 14.5 13.52 14.67C13.38 14.84 13.23 14.86 12.98 14.74C12.73 14.61 11.94 14.35 11 13.51C10.27 12.86 9.77 12.05 9.63 11.8C9.48 11.55 9.61 11.42 9.74 11.29C9.85 11.18 9.99 11 10.11 10.86C10.24 10.72 10.28 10.62 10.36 10.45C10.45 10.29 10.41 10.14 10.34 10.02C10.28 9.89 9.79 8.68 9.58 8.19C9.38 7.7 9.18 7.77 9.02 7.76C8.88 7.75 8.71 7.75 8.54 7.75C8.38 7.75 8.1 7.81 7.87 8.06C7.64 8.31 7 8.91 7 10.13C7 11.35 7.89 12.52 8.01 12.69C8.14 12.86 9.76 15.35 12.24 16.42C12.83 16.67 13.29 16.82 13.65 16.94C14.24 17.13 14.79 17.1 15.22 17.04C15.7 16.97 16.69 16.44 16.9 15.85C17.11 15.27 17.11 14.77 17.04 14.67C16.98 14.56 16.82 14.5 16.57 14.37Z" />
     </svg>
   );
 }
 
+function WhatsAppCTAButton({
+  className = "",
+  size = "default",
+}: {
+  className?: string;
+  size?: "compact" | "default" | "large";
+}) {
+  const sizeClasses = {
+    compact: "px-4 py-2 text-xs sm:text-sm gap-2",
+    default: "px-6 py-3.5 text-sm sm:text-base gap-2.5",
+    large: "px-8 py-4 sm:py-4.5 text-base sm:text-lg gap-3",
+  }[size];
+
+  return (
+    <a
+      href={WHATSAPP_WEBINAR_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex items-center justify-center font-extrabold uppercase tracking-wide rounded-xl sm:rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/45 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ${sizeClasses} ${className}`}
+    >
+      <WhatsAppIcon className={size === "compact" ? "w-4 h-4 shrink-0" : "w-5 h-5 sm:w-6 sm:h-6 shrink-0"} />
+      <span>JOIN THE FREE WEBINAR</span>
+    </a>
+  );
+}
+
+export default function SolarLandingClient() {
+  return (
+    <div className="min-h-screen bg-[#070e1b] text-slate-100 flex flex-col antialiased selection:bg-amber-500/30 selection:text-amber-200 pb-20 sm:pb-0 overflow-x-hidden">
+      
+      {/* ═════════════════════════════════════════════════════════════════════
+          A. MINIMAL BRANDED HEADER (STICKY)
+         ═════════════════════════════════════════════════════════════════════ */}
+      <header className="sticky top-0 z-50 bg-[#070e1b]/95 backdrop-blur-md border-b border-slate-800/80 transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+          {/* Left Brand Identity */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white p-1 border border-slate-700/80 flex items-center justify-center shrink-0 shadow-md">
+              <Image
+                src="/images/subway-logo.png"
+                alt="Subway Schools Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-white font-extrabold text-base sm:text-lg tracking-wider group-hover:text-amber-400 transition-colors">
+                SUBWAY SCHOOLS
+              </span>
+              <span className="text-slate-400 text-[10px] sm:text-xs font-medium tracking-tight">
+                Subway Energy Limited • RC: 1837154
+              </span>
+            </div>
+          </Link>
+
+          {/* Right Header CTA */}
+          <WhatsAppCTAButton size="compact" className="hidden xs:inline-flex" />
+        </div>
+      </header>
+
+      <main className="flex-1">
+        {/* ═════════════════════════════════════════════════════════════════════
+            B. SECTION 1 — HERO / FIRST IMPRESSION
+           ═════════════════════════════════════════════════════════════════════ */}
+        <section className="relative bg-[#070e1b] text-white pt-10 sm:pt-16 pb-16 sm:pb-24 border-b border-slate-800/80 overflow-hidden">
+          {/* Subtle background glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-blue-600/15 via-amber-500/5 to-transparent blur-3xl pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+              
+              {/* Left Column: Headlines & CTA */}
+              <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+                
+                {/* Eyebrow & Highlight Pill */}
+                <div className="space-y-3">
+                  <div className="text-xs sm:text-sm font-bold tracking-widest text-amber-400 uppercase">
+                    SUBWAY SCHOOLS PRESENTS
+                  </div>
+                  <div>
+                    <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-blue-500/10 text-sky-400 border border-blue-500/25 shadow-sm">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      FREE SOLAR ENERGY CAREER &amp; BUSINESS WEBINAR
+                    </span>
+                  </div>
+                </div>
+
+                {/* Main H1 Headline */}
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] font-black text-white tracking-tight leading-[1.15]">
+                  TAP FROM THE{" "}
+                  <span className="text-amber-400 underline decoration-amber-500/40 underline-offset-8 decoration-4">
+                    $268.93 BILLION
+                  </span>{" "}
+                  OF SOLAR ENERGY MARKET VALUE WHEN YOU ATTEND THIS WEBINAR
+                </h1>
+
+                {/* Subheadline */}
+                <p className="text-base sm:text-lg md:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  Discover How to Build a Successful Career in the Solar Energy Industry and Make a Fortune For Yourself Quick.
+                </p>
+
+                {/* Hero CTA & Urgency */}
+                <div className="pt-2 sm:pt-4 space-y-3">
+                  <div>
+                    <WhatsAppCTAButton size="large" className="w-full sm:w-auto" />
+                  </div>
+                  <div className="flex items-center justify-center lg:justify-start gap-2 text-amber-400 font-semibold text-xs sm:text-sm">
+                    <Clock className="w-4 h-4 shrink-0 text-amber-400" />
+                    <span>We are starting the webinar this weekend…. Don&apos;t miss it…</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Authentic Real Solar Installation Photo */}
+              <div className="lg:col-span-5">
+                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800 shadow-2xl shadow-blue-950/60 group">
+                  <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full">
+                    <Image
+                      src="/images/solutions/solutions-installation.jpg"
+                      alt="Subway Schools Real Field Solar Engineering Installation"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#070e1b] via-transparent to-transparent opacity-60" />
+                  </div>
+                  {/* Subtle Authentic Caption */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#070e1b]/90 backdrop-blur-md border-t border-slate-800 text-left">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                      <Shield className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>Subway Energy Practical Field Installation</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ═════════════════════════════════════════════════════════════════════
+            C. SECTION 2 — THE OPPORTUNITY
+           ═════════════════════════════════════════════════════════════════════ */}
+        <section className="bg-white text-slate-900 py-16 sm:py-24 border-b border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              
+              {/* Left Column: Editorial & Checklist */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                {/* Intro Body Copy */}
+                <div className="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed">
+                  <p>
+                    It&apos;s no longer a news that electricity is essential to homes, businesses, industries, hospitals, schools, and virtually every aspect of modern life.
+                  </p>
+                  <p>
+                    As more individuals and organisations seek reliable alternative power solutions, solar energy is creating job and career opportunities for people with the right technical knowledge and practical skills.
+                  </p>
+                </div>
+
+                {/* Sub-lead */}
+                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight pt-2">
+                  Think about it:
+                </h3>
+
+                {/* Styled Checklist (5 items) */}
+                <div className="space-y-3 pt-1">
+                  {[
+                    "Homes need reliable solar power solutions.",
+                    "Businesses need alternative electricity systems to reduce dependence on conventional power.",
+                    "Industries require experienced professionals to design and manage larger energy systems.",
+                    "Solar companies need competent technicians, installers, designers, and engineers.",
+                    "Entrepreneurs have opportunities to establish and grow businesses in the renewable energy sector.",
+                  ].map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3.5 p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-sm"
+                    >
+                      <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm sm:text-base font-semibold text-slate-800 leading-snug">
+                        {item}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Follow-up Copy */}
+                <div className="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed pt-2">
+                  <p>
+                    But there&apos;s a difference between being interested in solar energy and having the professional skills to work in the industry.
+                  </p>
+                  <p>
+                    The opportunity is growing. The question is: will you develop the skills to become part of it?
+                  </p>
+                  <p>
+                    The world is moving towards renewable energy, and the demand for skilled solar professionals continues to create new opportunities.
+                  </p>
+                </div>
+
+                {/* Highlighted Callout Box */}
+                <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50/60 border-l-4 border-amber-500 shadow-sm">
+                  <p className="text-base sm:text-lg font-bold text-slate-900 leading-relaxed">
+                    Whether you are an electrician, engineer, graduate, technician, entrepreneur, or someone looking to acquire a valuable professional skill, this is your opportunity to discover what the solar energy industry has to offer.
+                  </p>
+                </div>
+
+              </div>
+
+              {/* Right Column: Supporting Solar Installation Photo */}
+              <div className="lg:col-span-5 space-y-6">
+                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
+                  <div className="relative aspect-[4/3] w-full">
+                    <Image
+                      src="/images/solutions/solutions-inverters.jpg"
+                      alt="Commercial Inverter Integration and Power Systems"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+                
+                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl hidden sm:block">
+                  <div className="relative aspect-[16/9] w-full">
+                    <Image
+                      src="/images/solutions/field-work.jpg"
+                      alt="Field Technical Skills in Action"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ═════════════════════════════════════════════════════════════════════
+            D. SECTION 3 — CLARITY BEFORE YOU INVEST
+           ═════════════════════════════════════════════════════════════════════ */}
+        <section className="bg-slate-50 text-slate-900 py-16 sm:py-24 border-b border-slate-200">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            
+            {/* Headline & Lead Copy */}
+            <div className="text-center max-w-3xl mx-auto space-y-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                Before You Invest in Solar Training, Get the Knowledge You Need to Make the Right Decision.
+              </h2>
+              <div className="text-base sm:text-lg text-slate-600 space-y-1">
+                <p>Choosing a professional training programme is an important decision.</p>
+                <p className="font-semibold text-slate-800">You probably have questions:</p>
+              </div>
+            </div>
+
+            {/* 6 Questions Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[
+                "What exactly does solar installation involve?",
+                "What skills do I need to become a solar professional?",
+                "Can I build a career or business in the solar industry?",
+                "What is the difference between basic solar installation and professional solar engineering?",
+                "Where should I begin if I have little or no experience?",
+                "How can I improve my existing electrical or technical skills?",
+              ].map((question, idx) => (
+                <div
+                  key={idx}
+                  className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-start gap-4 hover:border-blue-400 hover:shadow-md transition-all"
+                >
+                  <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">
+                    <HelpCircle className="w-4 h-4" />
+                  </div>
+                  <p className="text-sm sm:text-base font-bold text-slate-800 leading-snug">
+                    {question}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Positioning & Free Offer Block */}
+            <div className="bg-white border-2 border-slate-300/80 rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-lg max-w-3xl mx-auto text-center space-y-5">
+              <p className="text-base sm:text-lg text-slate-700 font-medium">
+                We understand these concerns.
+              </p>
+              <p className="text-base sm:text-lg text-slate-700 leading-relaxed">
+                That&apos;s why Subway Schools is inviting you to a special solar energy webinar designed to introduce you to the industry, help you understand the available opportunities, and show you the skills required to build a future in this field and make a fortune for yourself.
+              </p>
+              <p className="text-base sm:text-lg text-slate-700 leading-relaxed">
+                This is an opportunity to learn, ask questions, and gain clarity before deciding on your next step.
+              </p>
+
+              {/* Bold and Red Highlight */}
+              <div className="py-2">
+                <span className="font-bold text-red-600 text-lg sm:text-xl md:text-2xl tracking-wide uppercase block">
+                  And I can tell you that it&apos;s absolutely FREE.
+                </span>
+              </div>
+
+              <div className="space-y-2 text-base sm:text-lg text-slate-700">
+                <p>You don&apos;t have to enroll in a course to attend the webinar.</p>
+                <p className="font-semibold text-slate-900">
+                  Come with your questions. Leave with a better understanding of the opportunities ahead.
+                </p>
+              </div>
+
+              {/* CTA & Urgency */}
+              <div className="pt-4 space-y-3">
+                <WhatsAppCTAButton size="large" className="w-full sm:w-auto" />
+                <p className="text-xs sm:text-sm font-bold text-amber-600 flex items-center justify-center gap-1.5">
+                  <Clock className="w-4 h-4 shrink-0 text-amber-600" />
+                  <span>We are starting the webinar this weekend…. Don&apos;t miss it…</span>
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ═════════════════════════════════════════════════════════════════════
+            E. SECTION 4 — WHAT YOU WILL GAIN
+           ═════════════════════════════════════════════ */}
+        <section className="bg-white text-slate-900 py-16 sm:py-24 border-b border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+            
+            {/* Headline */}
+            <div className="text-center max-w-3xl mx-auto">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                What Will You Gain From Attending This Webinar?
+              </h2>
+            </div>
+
+            {/* 6 Numbered Cards Grid (01–06) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {[
+                {
+                  num: "01",
+                  title: "Discover Opportunities in the Solar Energy Industry:",
+                  desc: "Understand the different areas of the solar energy industry and the opportunities available to skilled individuals.",
+                },
+                {
+                  num: "02",
+                  title: "Understand the Skills Required to Become a Solar Professional:",
+                  desc: "Discover the technical knowledge involved in solar system design, installation, maintenance, troubleshooting, and energy storage.",
+                },
+                {
+                  num: "03",
+                  title: "Explore Career and Business Opportunities:",
+                  desc: "Learn how solar energy skills can create opportunities in employment, contracting, freelance projects, entrepreneurship, and business expansion.",
+                },
+                {
+                  num: "04",
+                  title: "Understand How Solar Systems Work:",
+                  desc: "Get introduced to the major components of solar energy systems, including solar panels, inverters, batteries, charge controllers, Earthing and other essential equipment.",
+                },
+                {
+                  num: "05",
+                  title: "Discover the Right Learning Path for You:",
+                  desc: "Whether you are a beginner, electrician, technician, engineer, or business owner, understand the training areas that may suit your background and goals.",
+                },
+                {
+                  num: "06",
+                  title: "Interact With Experienced Professionals:",
+                  desc: "Get the opportunity to ask questions, clarify your concerns, and gain insights into the realities of working in the solar energy industry.",
+                },
+              ].map((card) => (
+                <div
+                  key={card.num}
+                  className="p-6 sm:p-7 rounded-2xl bg-slate-50 border border-slate-200 hover:border-slate-300 shadow-sm flex flex-col justify-between group hover:shadow-md transition-all"
+                >
+                  <div className="space-y-3">
+                    <span className="font-mono text-2xl sm:text-3xl font-extrabold text-amber-500 block">
+                      {card.num}
+                    </span>
+                    <h3 className="text-base sm:text-lg font-extrabold text-slate-900 leading-snug">
+                      {card.title}
+                    </h3>
+                    <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                      {card.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Mid-Page Conversion Banner */}
+            <div className="rounded-3xl bg-[#0a152d] text-white p-8 sm:p-12 border border-blue-900/50 shadow-2xl max-w-4xl mx-auto text-center space-y-6 relative overflow-hidden">
+              <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="space-y-4 max-w-2xl mx-auto relative z-10">
+                <p className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-snug">
+                  One webinar could give you the clarity you need to take your next professional step.
+                </p>
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+                  Join Subway Schools for an insightful webinar where you will discover the opportunities, essential technical skills, business possibilities, and professional training pathways available in the solar energy industry.
+                </p>
+              </div>
+
+              <div className="pt-2 space-y-3 relative z-10">
+                <WhatsAppCTAButton size="large" className="w-full sm:w-auto" />
+                <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+                  Join our WhatsApp group to receive your webinar date, time, access link, and important announcements.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ═════════════════════════════════════════════════════════════════════
+            F. SECTION 5 — ABOUT SUBWAY SCHOOLS
+           ═════════════════════════════════════════════════════════════════════ */}
+        <section className="bg-slate-50 text-slate-900 py-16 sm:py-24 border-b border-slate-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            
+            {/* Header / Eyebrow / Headlines */}
+            <div className="text-center space-y-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-amber-600">
+                ABOUT SUBWAY SCHOOLS
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                THE BIGGER DREAM:
+              </h2>
+              <h3 className="text-lg sm:text-xl font-bold text-blue-700 tracking-wide">
+                A GLOBAL HOME FOR LEARNING, GROWTH AND OPPORTUNITY
+              </h3>
+            </div>
+
+            {/* Supporting Real Solar Image */}
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-md">
+              <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full">
+                <Image
+                  src="/images/solutions/solutions-rooftop-sunset.jpg"
+                  alt="Subway Schools Clean Energy Vision"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 800px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Exact Verbatim Paragraphs (1–13) */}
+            <div className="space-y-5 text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
+              <p>Every great institution begins with a dream.</p>
+              <p>But some dreams are too big to be restricted by geographical boundaries, industries or professional limitations.</p>
+              <p>At Subway Schools, we started with a passion for technical education, particularly in the power and renewable energy sector.</p>
+              <p>However, as our vision continues to grow, we have come to realise that our responsibility and potential impact must go far beyond one industry.</p>
+              <p>We dream of a future where a young person searching for direction, a professional seeking career advancement, an entrepreneur looking to acquire new skills, or an individual simply passionate about learning can find a place at Subway Schools.</p>
+              <p>We want to build a platform where people can access courses in virtually every field of human endeavour, learn from knowledgeable instructors, develop practical skills and discover opportunities they may never have imagined possible.</p>
+              <p>Our ambition is to make Subway Schools a global destination for learning, where geographical location, professional background or previous experience does not determine how far someone can go.</p>
+              <p>We understand that behind every person seeking education is a dream, a challenge, a family, a responsibility or a future waiting to be transformed.</p>
+              <p>That is why we do not see education merely as the transfer of knowledge.</p>
+              <p>We see it as an opportunity to unlock human potential, create possibilities, empower generations and give people the confidence to pursue bigger dreams.</p>
+              <p>We want to be remembered not just for the courses we offer, but for the lives we touch, the opportunities we create, the professionals we develop and the generations we inspire.</p>
+              <p>Our dream is simple but powerful: to build an educational institution whose impact will be felt across industries, communities, countries and generations.</p>
+              <p>Subway Schools is not just preparing people for today&apos;s opportunities; we are building a platform to prepare generations for the opportunities of tomorrow.</p>
+            </div>
+
+            {/* Styled Signature Block */}
+            <div className="pt-6 border-t border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="space-y-1">
+                <div className="text-lg font-extrabold text-slate-900">
+                  Subway Schools
+                </div>
+                <div>
+                  <Link
+                    href="/"
+                    className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    www.subwayschools.com
+                  </Link>
+                </div>
+                <div className="text-xs sm:text-sm italic font-serif text-slate-500">
+                  Changing Lives, One Student at a Time.
+                </div>
+              </div>
+
+              {/* Final Section CTA */}
+              <div>
+                <WhatsAppCTAButton size="default" className="w-full sm:w-auto" />
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </main>
+
+      {/* ═════════════════════════════════════════════════════════════════════
+          G. CLEAN BRANDED FOOTER
+         ═════════════════════════════════════════════ */}
+      <footer className="bg-[#070e1b] text-slate-400 py-12 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+          
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
+              <Image
+                src="/images/subway-logo.png"
+                alt="Subway Schools Logo"
+                width={36}
+                height={36}
+                className="object-contain"
+              />
+            </div>
+            <div>
+              <p className="text-white text-xs sm:text-sm font-bold">
+                Subway Schools • Subway Energy Limited (RC: 1837154)
+              </p>
+              <p className="text-slate-400 text-xs italic font-serif">
+                Changing Lives, One Student at a Time.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-xs text-slate-500">
+            © 2026 Subway Energy Limited. All Rights Reserved.
+          </div>
+        </div>
+      </footer>
+
+      {/* ═════════════════════════════════════════════════════════════════════
+          FLOATING WHATSAPP CTA
+          (Desktop bottom-right pill / Mobile full-width sticky bottom bar)
+         ═════════════════════════════════════════════ */}
+      
+      {/* Desktop Floating Pill */}
+      <div className="fixed bottom-6 right-6 z-40 hidden sm:block">
+        <WhatsAppCTAButton
+          size="default"
+          className="shadow-2xl shadow-emerald-600/50 border border-white/20"
+        />
+      </div>
+
+      {/* Mobile Sticky Full-Width Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden p-3 bg-[#070e1b]/95 backdrop-blur-md border-t border-slate-800 shadow-2xl">
+        <WhatsAppCTAButton size="default" className="w-full py-3" />
+      </div>
+
+    </div>
+  );
+}
