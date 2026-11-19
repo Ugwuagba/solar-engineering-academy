@@ -17,7 +17,15 @@ const reorderSchema = z.object({
 async function handleReorder(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user?.role !== "ADMIN" && session.user?.role !== "INSTRUCTOR")) {
+    const role = session?.user?.role;
+    const isAuthorized =
+      role === "ADMIN" ||
+      role === "PROGRAM_ADMIN" ||
+      role === "SUPER_ADMIN" ||
+      role === "INSTRUCTOR" ||
+      role === "DIRECTOR";
+
+    if (!session || !isAuthorized) {
       return NextResponse.json(
         { error: "Unauthorized. Admin privileges required." },
         { status: 401 }
@@ -47,6 +55,8 @@ async function handleReorder(req: NextRequest) {
     try {
       revalidatePath("/");
       revalidatePath("/courses");
+      revalidatePath("/admin");
+      revalidatePath("/program-admin");
     } catch (e) {
       console.warn("Revalidation warning in reorder route:", e);
     }

@@ -13,7 +13,14 @@ export async function DELETE(
 
     // 1. Authentication & Authorization Check
     const role = session?.user?.role;
-    if (!session?.user || (role !== "ADMIN" && role !== "DIRECTOR" && role !== "INSTRUCTOR")) {
+    const isAuthorized =
+      role === "ADMIN" ||
+      role === "PROGRAM_ADMIN" ||
+      role === "SUPER_ADMIN" ||
+      role === "INSTRUCTOR" ||
+      role === "DIRECTOR";
+
+    if (!session?.user || !isAuthorized) {
       return NextResponse.json(
         { error: "Unauthorized. Admin or Director privileges required." },
         { status: 403 }
@@ -59,6 +66,8 @@ export async function DELETE(
     try {
       revalidatePath("/");
       revalidatePath("/courses");
+      revalidatePath("/admin");
+      revalidatePath("/program-admin");
       if (course.slug) {
         revalidatePath(`/courses/${course.slug}`);
       }
@@ -94,7 +103,14 @@ export async function PATCH(
     const session = await getServerSession(authOptions);
 
     const role = session?.user?.role;
-    if (!session?.user || (role !== "ADMIN" && role !== "DIRECTOR" && role !== "INSTRUCTOR")) {
+    const isAuthorized =
+      role === "ADMIN" ||
+      role === "PROGRAM_ADMIN" ||
+      role === "SUPER_ADMIN" ||
+      role === "INSTRUCTOR" ||
+      role === "DIRECTOR";
+
+    if (!session?.user || !isAuthorized) {
       return NextResponse.json(
         { error: "Unauthorized. Admin or Instructor privileges required." },
         { status: 403 }
@@ -171,6 +187,8 @@ export async function PATCH(
     try {
       revalidatePath("/");
       revalidatePath("/courses");
+      revalidatePath("/admin");
+      revalidatePath("/program-admin");
       if (updated.slug) {
         revalidatePath(`/courses/${updated.slug}`);
       }

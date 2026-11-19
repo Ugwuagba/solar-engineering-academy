@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { Role } from "@prisma/client";
 import { 
   Users, 
   BookOpen, 
@@ -22,11 +23,8 @@ export default async function AdminStudioPage() {
 
   // 1. Dynamic Server Component Prisma Queries for Metric Cards
   const totalCandidates = await prisma.user.count({
-    where: { role: "STUDENT" },
-  }).catch(async () => {
-    // Fallback if role is not partitioned or uses different casing:
-    return await prisma.user.count();
-  });
+    where: { role: { in: [Role.STUDENT, Role.LEARNER] } },
+  }).catch(() => 0);
 
   const [
     totalEnrollments,

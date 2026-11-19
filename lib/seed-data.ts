@@ -52,6 +52,8 @@ export interface SeedCourse {
   imageUrl?: string;
   badge?: string;
   isPublished: boolean;
+  status?: string;
+  instructorId?: string;
   whatYouWillLearn?: string[];
   requirements?: string[];
   targetAudience?: string[];

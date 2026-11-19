@@ -64,12 +64,14 @@ interface Props {
     email?: string | null;
     role?: string;
   };
+  basePath?: string;
 }
 
 export default function StudentsManagementClient({
   initialStudents,
   initialEnrollments,
   sessionUser,
+  basePath = "/admin",
 }: Props) {
   const [activeTab, setActiveTab] = useState<"users" | "enrollments">("users");
   const [searchQuery, setSearchQuery] = useState("");
@@ -175,7 +177,7 @@ export default function StudentsManagementClient({
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <Link
-                href="/admin"
+                href={basePath}
                 prefetch={false}
                 className="text-xs font-semibold text-slate-500 hover:text-[#2B82C9] flex items-center gap-1 transition-colors"
               >
@@ -206,7 +208,7 @@ export default function StudentsManagementClient({
               <span>Export CSV</span>
             </button>
             <Link
-              href="/admin/courses/new"
+              href={`${basePath}/courses/new`}
               prefetch={false}
               className="px-4 py-2.5 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >

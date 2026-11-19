@@ -2,8 +2,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
-import { Role } from "@prisma/client";
+import { Role, CourseStatus } from "@prisma/client";
 import { createStaffAccount } from "../actions/user-actions";
+import ActiveCoursesRoster from "./ActiveCoursesRoster";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -48,10 +49,12 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
     redirect("/dashboard");
   }
 
-  // Resolve current active tab (?tab=staff | ?tab=learners | ?tab=financials)
+  // Resolve current active tab (?tab=staff | ?tab=learners | ?tab=financials | ?tab=courses)
   const resolvedParams = searchParams ? await searchParams : {};
   const activeTab =
-    resolvedParams.tab === "learners" || resolvedParams.tab === "financials"
+    resolvedParams.tab === "learners" ||
+    resolvedParams.tab === "financials" ||
+    resolvedParams.tab === "courses"
       ? resolvedParams.tab
       : "staff";
 
@@ -63,6 +66,7 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
     instructorsCount,
     learnersCount,
     allPaymentsTotal,
+    publishedCoursesCount,
   ] = await Promise.all([
     prisma.user.count().catch(() => 0),
     prisma.user.count({ where: { role: Role.SUPER_ADMIN } }).catch(() => 0),
@@ -70,13 +74,21 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
     prisma.user.count({ where: { role: Role.INSTRUCTOR } }).catch(() => 0),
     prisma.user.count({
       where: {
-        role: { in: [Role.LEARNER, Role.STUDENT, "LEARNER", "STUDENT"] },
+        role: { in: [Role.LEARNER, Role.STUDENT] },
       },
     }).catch(() => 0),
     prisma.payment.aggregate({
       _sum: { amount: true },
       where: { status: "COMPLETED" },
     }).catch(() => ({ _sum: { amount: 0 } })),
+    prisma.course.count({
+      where: {
+        OR: [
+          { status: CourseStatus.PUBLISHED },
+          { isPublished: true },
+        ],
+      },
+    }).catch(() => 0),
   ]);
 
   const totalRevenue = allPaymentsTotal._sum?.amount || 0;
@@ -93,10 +105,6 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
                 Role.PROGRAM_ADMIN,
                 Role.INSTRUCTOR,
                 Role.ADMIN,
-                "SUPER_ADMIN",
-                "PROGRAM_ADMIN",
-                "INSTRUCTOR",
-                "ADMIN",
               ],
             },
           },
@@ -124,7 +132,7 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
     activeTab === "learners"
       ? await prisma.user.findMany({
           where: {
-            role: { in: [Role.LEARNER, Role.STUDENT, "LEARNER", "STUDENT"] },
+            role: { in: [Role.LEARNER, Role.STUDENT] },
           },
           select: {
             id: true,
@@ -180,6 +188,74 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
           orderBy: { createdAt: "desc" },
         })
       : [];
+
+  // Active Courses: Published courses with instructors and enrolled student rosters
+  const publishedCourses =
+    activeTab === "courses"
+      ? await prisma.course.findMany({
+          where: {
+            OR: [
+              { status: CourseStatus.PUBLISHED },
+              { isPublished: true },
+            ],
+          },
+          select: {
+            id: true,
+            title: true,
+            code: true,
+            slug: true,
+            level: true,
+            price: true,
+            status: true,
+            instructorName: true,
+            instructor: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
+            enrollments: {
+              orderBy: {
+                enrolledAt: "desc",
+              },
+              select: {
+                id: true,
+                status: true,
+                progressPercent: true,
+                enrolledAt: true,
+                createdAt: true,
+                user: {
+                  select: {
+                    name: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: [{ order: "asc" }, { updatedAt: "desc" }],
+        })
+      : [];
+
+  const serializedPublishedCourses = publishedCourses.map((c) => ({
+    id: c.id,
+    title: c.title,
+    code: c.code,
+    slug: c.slug,
+    level: c.level,
+    price: Number(c.price || 0),
+    status: c.status,
+    instructorName: c.instructor?.name || c.instructorName || "Faculty Lead",
+    instructorEmail: c.instructor?.email || "No email available",
+    enrollments: c.enrollments.map((e) => ({
+      id: e.id,
+      name: e.user?.name || "Student Learner",
+      email: e.user?.email || "No email available",
+      enrolledAt: (e.enrolledAt || e.createdAt).toISOString(),
+      status: e.status || "ACTIVE",
+      progressPercent: Math.round(e.progressPercent || 0),
+    })),
+  }));
 
   return (
     <div className="min-h-screen bg-[#070e1b] text-slate-100 p-4 sm:p-6 lg:p-8">
@@ -305,6 +381,21 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
             Payment Receipts
             <span className="ml-1.5 px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">
               ₦{totalRevenue.toLocaleString()}
+            </span>
+          </Link>
+
+          <Link
+            href="/super-admin/users?tab=courses"
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
+              activeTab === "courses"
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-md shadow-emerald-500/5"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border-transparent"
+            }`}
+          >
+            <GraduationCap className="w-4 h-4" />
+            Active Courses &amp; Rosters
+            <span className="ml-1.5 px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">
+              {publishedCoursesCount}
             </span>
           </Link>
         </div>
@@ -711,6 +802,13 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
               </table>
             </div>
           </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════════════
+            TAB 4: ACTIVE COURSES & ROSTERS (?tab=courses)
+           ═══════════════════════════════════════════════════════════════════════ */}
+        {activeTab === "courses" && (
+          <ActiveCoursesRoster courses={serializedPublishedCourses} />
         )}
 
       </div>

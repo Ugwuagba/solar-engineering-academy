@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { Role } from "@prisma/client";
 import { 
   ChevronRight, 
   Award, 
@@ -13,7 +16,8 @@ import {
   Clock,
   BookOpen,
   FileText,
-  Smartphone
+  Smartphone,
+  Eye
 } from "lucide-react";
 import { getCourseBySlug, getAllCourses } from "@/lib/courses";
 import SyllabusAccordion from "@/components/course/SyllabusAccordion";
@@ -63,6 +67,23 @@ export default async function CourseDetailPage({
     notFound();
   }
 
+  // Check publication status and RBAC preview authorization
+  const isPublished = course.isPublished || course.status === "PUBLISHED";
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+  const isPrivileged =
+    user?.role === Role.PROGRAM_ADMIN ||
+    user?.role === "PROGRAM_ADMIN" ||
+    user?.role === Role.SUPER_ADMIN ||
+    user?.role === "SUPER_ADMIN" ||
+    user?.role === Role.ADMIN ||
+    user?.role === "ADMIN" ||
+    Boolean(course.instructorId && course.instructorId === user?.id);
+
+  if (!isPublished && !isPrivileged) {
+    notFound();
+  }
+
   const modules = Array.isArray(course?.modules) ? course.modules : [];
   const totalLessons = modules.reduce((sum: number, m: any) => sum + (m?.lessons?.length || 0), 0);
   const totalDurationSecs = modules.reduce(
@@ -73,6 +94,16 @@ export default async function CourseDetailPage({
 
   return (
     <div className="relative min-h-screen bg-white">
+      {/* Admin Preview Mode Alert Banner */}
+      {!isPublished && (
+        <div className="bg-amber-500 text-slate-950 px-4 py-2.5 text-xs font-bold text-center flex items-center justify-center gap-2 shadow-sm sticky top-0 z-50">
+          <Eye className="w-4 h-4 shrink-0" />
+          <span>
+            Staff Preview Mode: This syllabus is currently <strong className="uppercase underline">{course.status || "UNPUBLISHED"}</strong>. It is hidden from learners and visible only to verified curriculum reviewers and faculty.
+          </span>
+        </div>
+      )}
+
       {/* 1. Full-Bleed 100vw Dark Hero Header Section */}
       <section className="w-full bg-[#080f1e] text-white py-10 lg:py-14 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

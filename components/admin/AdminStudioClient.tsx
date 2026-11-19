@@ -19,9 +19,10 @@ import {
 
 interface AdminStudioClientProps {
   initialCourses: any[];
+  basePath?: string;
 }
 
-export default function AdminStudioClient({ initialCourses }: AdminStudioClientProps) {
+export default function AdminStudioClient({ initialCourses, basePath = "/admin" }: AdminStudioClientProps) {
   const router = useRouter();
   const [courses, setCourses] = useState<any[]>(initialCourses);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -195,7 +196,7 @@ export default function AdminStudioClient({ initialCourses }: AdminStudioClientP
               </p>
             </div>
             <Link
-              href="/admin/courses/new"
+              href={`${basePath}/courses/new`}
               prefetch={false}
               className="px-4 py-2 text-xs font-bold rounded-xl bg-[#2B82C9] hover:bg-blue-600 text-white shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer"
             >
@@ -284,7 +285,7 @@ export default function AdminStudioClient({ initialCourses }: AdminStudioClientP
                   <div className="flex items-center gap-2.5 self-end md:self-center shrink-0">
                     {isDraft ? (
                       <Link
-                        href={`/admin/courses/${course.id || course.slug}/edit`}
+                        href={`${basePath}/courses/${course.id || course.slug}/edit`}
                         prefetch={false}
                         className="px-4 py-2 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                       >
@@ -309,7 +310,7 @@ export default function AdminStudioClient({ initialCourses }: AdminStudioClientP
                           Enter Classroom
                         </Link>
                         <Link
-                          href={`/admin/courses/${course.id || course.slug}/edit`}
+                          href={`${basePath}/courses/${course.id || course.slug}/edit`}
                           prefetch={false}
                           className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-900 shadow-2xs transition-colors flex items-center gap-1"
                           title={`Edit ${course.title}`}

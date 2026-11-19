@@ -107,9 +107,10 @@ const PRESET_REQUIREMENTS = [
 interface CourseStudioFormProps {
   initialCourse?: any;
   mode?: "create" | "edit";
+  basePath?: string;
 }
 
-export default function CourseStudioForm({ initialCourse, mode = "create" }: CourseStudioFormProps) {
+export default function CourseStudioForm({ initialCourse, mode = "create", basePath = "/admin" }: CourseStudioFormProps) {
   const router = useRouter();
   const [currentCourseId, setCurrentCourseId] = useState<string | null>(initialCourse?.id || null);
   const [activeTab, setActiveTab] = useState<"metadata" | "curriculum" | "review">("metadata");
@@ -662,7 +663,7 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
         if (!currentCourseId) {
           setCurrentCourseId(data.courseId);
           if (typeof window !== "undefined") {
-            window.history.replaceState(null, "", `/admin/courses/${data.courseId}/edit`);
+            window.history.replaceState(null, "", `${basePath}/courses/${data.courseId}/edit`);
           }
         }
       }
@@ -808,7 +809,7 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
       }
 
       showToast("Course published successfully to the live catalog!", "success");
-      router.push("/admin");
+      router.push(basePath);
     } catch (err: any) {
       setSubmissionError(err.message || "An unexpected error occurred while publishing the course.");
     } finally {
@@ -828,7 +829,7 @@ export default function CourseStudioForm({ initialCourse, mode = "create" }: Cou
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
-              href="/admin"
+              href={basePath}
               prefetch={false}
               className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
               title="Return to Admin Studio"

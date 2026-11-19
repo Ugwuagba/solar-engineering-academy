@@ -7,7 +7,7 @@ import { Role, CourseStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 /**
- * Ensures caller is authenticated and has PROGRAM_ADMIN or SUPER_ADMIN role.
+ * Ensures caller is authenticated and has PROGRAM_ADMIN, SUPER_ADMIN, or legacy ADMIN role.
  */
 async function requireProgramOrSuperAdmin() {
   const session = await getServerSession(authOptions);
@@ -28,13 +28,7 @@ async function requireProgramOrSuperAdmin() {
     throw new Error("Unauthorized: Program Admin or Super Admin privileges required.");
   }
 
-  // Fetch admin user from Prisma to inspect role
-  const adminUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { id: true, role: true },
-  });
-
-  return { session, adminUser, isSuperAdmin };
+  return { session, isSuperAdmin };
 }
 
 /**
@@ -60,7 +54,6 @@ export async function publishCourse(courseIdOrFormData: string | FormData): Prom
     throw new Error(`Course with ID "${courseId}" was not found.`);
   }
 
-  // Execute update and audit log in transaction
   await prisma.$transaction(async (tx) => {
     await tx.course.update({
       where: { id: courseId },
@@ -89,6 +82,7 @@ export async function publishCourse(courseIdOrFormData: string | FormData): Prom
   });
 
   revalidatePath("/program-admin");
+  revalidatePath("/program-admin/review-queue");
   revalidatePath("/instructor");
   revalidatePath("/courses");
   revalidatePath("/");
@@ -134,7 +128,6 @@ export async function requestRevision(
     throw new Error(`Course with ID "${courseId}" was not found.`);
   }
 
-  // Execute update and audit log in transaction
   await prisma.$transaction(async (tx) => {
     await tx.course.update({
       where: { id: courseId },
@@ -164,6 +157,7 @@ export async function requestRevision(
   });
 
   revalidatePath("/program-admin");
+  revalidatePath("/program-admin/review-queue");
   revalidatePath("/instructor");
 }
 

@@ -69,8 +69,10 @@ function mapPrismaCourseToSeedCourse(c: any): SeedCourse {
     imageUrl,
     badge: c?.badge || (c?.originalPrice ? "Special Offer" : "Accredited"),
     instructor: c?.instructorName || "Engr. Asanga (Certified Solar Professional, 20+ Years Experience)",
+    instructorId: c?.instructorId || undefined,
     fieldAttachment: "Official Subway Schools Accredited Certificate of Completion",
     isPublished: c?.isPublished ?? true,
+    status: c?.status || (c?.isPublished ? "PUBLISHED" : "DRAFT"),
     whatYouWillLearn,
     requirements: (Array.isArray(c.requirements) && c.requirements.length > 0)
       ? c.requirements

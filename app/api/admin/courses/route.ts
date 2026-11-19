@@ -66,6 +66,21 @@ const createCourseSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    const role = session?.user?.role;
+    const isAuthorized =
+      role === "ADMIN" ||
+      role === "PROGRAM_ADMIN" ||
+      role === "SUPER_ADMIN" ||
+      role === "INSTRUCTOR" ||
+      role === "DIRECTOR";
+
+    if (!session?.user || !isAuthorized) {
+      return NextResponse.json(
+        { error: "Unauthorized. Admin privileges required to create courses." },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
 
     const parsed = createCourseSchema.safeParse(body);
@@ -86,7 +101,7 @@ export async function POST(req: NextRequest) {
     if (!instructorId) {
       // Find or create default admin director user
       const defaultAdmin = await prisma.user.findFirst({
-        where: { role: "ADMIN" },
+        where: { role: { in: ["ADMIN", "PROGRAM_ADMIN", "SUPER_ADMIN"] } },
       });
       if (defaultAdmin) {
         instructorId = defaultAdmin.id;
@@ -209,6 +224,8 @@ export async function POST(req: NextRequest) {
     try {
       revalidatePath("/");
       revalidatePath("/courses");
+      revalidatePath("/admin");
+      revalidatePath("/program-admin");
       if (createdCourse.slug) {
         revalidatePath(`/courses/${createdCourse.slug}`);
       }
