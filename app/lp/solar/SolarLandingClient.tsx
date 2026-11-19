@@ -554,19 +554,8 @@ export default function SolarLandingClient() {
       </footer>
 
       {/* ═════════════════════════════════════════════════════════════════════
-          FLOATING WHATSAPP CTA
-          (Desktop bottom-right pill / Mobile full-width sticky bottom bar)
+          MOBILE FLOATING WHATSAPP CTA
          ═════════════════════════════════════════════ */}
-      
-      {/* Desktop Floating Pill */}
-      <div className="fixed bottom-6 right-6 z-40 hidden sm:block">
-        <WhatsAppCTAButton
-          size="default"
-          className="shadow-2xl shadow-emerald-600/50 border border-white/20"
-        />
-      </div>
-
-      {/* Mobile Sticky Full-Width Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden p-3 bg-[#070e1b]/95 backdrop-blur-md border-t border-slate-800 shadow-2xl">
         <WhatsAppCTAButton size="default" className="w-full py-3" />
       </div>
