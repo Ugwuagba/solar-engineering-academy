@@ -103,7 +103,7 @@ export default function SolarLandingClient() {
 
                 {/* Eyebrow & Highlight Pill */}
                 <div className="space-y-3">
-                  <div className="text-xs sm:text-sm font-bold tracking-widest text-amber-400 uppercase">
+                  <div className="text-sm sm:text-base font-extrabold tracking-widest text-amber-400 uppercase">
                     SUBWAY SCHOOLS PRESENTS
                   </div>
                   <div>
