@@ -57,7 +57,7 @@ function WhatsAppCTAButton({
 export default function SolarLandingClient() {
   return (
     <div className="min-h-screen bg-[#070e1b] text-slate-100 flex flex-col antialiased selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden">
-      
+
       {/* ═════════════════════════════════════════════════════════════════════
           A. MINIMAL BRANDED HEADER (STICKY)
          ═════════════════════════════════════════════════════════════════════ */}
@@ -100,10 +100,10 @@ export default function SolarLandingClient() {
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-              
+
               {/* Left Column: Headlines & CTA */}
               <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-                
+
                 {/* Eyebrow & Highlight Pill */}
                 <div className="space-y-3">
                   <div className="text-xs sm:text-sm font-bold tracking-widest text-amber-400 uppercase">
@@ -177,10 +177,10 @@ export default function SolarLandingClient() {
         <section className="bg-white text-slate-900 py-16 sm:py-24 border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              
+
               {/* Left Column: Editorial & Checklist */}
               <div className="lg:col-span-7 space-y-6">
-                
+
                 {/* Intro Body Copy */}
                 <div className="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed">
                   <p>
@@ -254,7 +254,7 @@ export default function SolarLandingClient() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl hidden sm:block">
                   <div className="relative aspect-[16/9] w-full">
                     <Image
@@ -277,7 +277,7 @@ export default function SolarLandingClient() {
            ═════════════════════════════════════════════════════════════════════ */}
         <section className="bg-slate-50 text-slate-900 py-16 sm:py-24 border-b border-slate-200">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-            
+
             {/* Headline & Lead Copy */}
             <div className="text-center max-w-3xl mx-auto space-y-4">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
@@ -357,7 +357,7 @@ export default function SolarLandingClient() {
            ═════════════════════════════════════════════ */}
         <section className="bg-white text-slate-900 py-16 sm:py-24 border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-            
+
             {/* Headline */}
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -421,7 +421,7 @@ export default function SolarLandingClient() {
             {/* Mid-Page Conversion Banner */}
             <div className="rounded-3xl bg-[#0a152d] text-white p-8 sm:p-12 border border-blue-900/50 shadow-2xl max-w-4xl mx-auto text-center space-y-6 relative overflow-hidden">
               <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-              
+
               <div className="space-y-4 max-w-2xl mx-auto relative z-10">
                 <p className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-snug">
                   One webinar could give you the clarity you need to take your next professional step.
@@ -447,7 +447,7 @@ export default function SolarLandingClient() {
            ═════════════════════════════════════════════════════════════════════ */}
         <section className="bg-slate-50 text-slate-900 py-16 sm:py-24 border-b border-slate-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-            
+
             {/* Header / Eyebrow / Headlines */}
             <div className="text-center space-y-2">
               <span className="text-xs font-bold uppercase tracking-widest text-amber-600">
@@ -497,9 +497,7 @@ export default function SolarLandingClient() {
                 <div className="text-lg font-extrabold text-slate-900">
                   Subway Schools
                 </div>
-                <div className="text-sm font-semibold text-slate-600 select-none cursor-default">
-                  www.subwayschools.com
-                </div>
+
                 <div className="text-xs sm:text-sm italic font-serif text-slate-500">
                   Changing Lives, One Student at a Time.
                 </div>
@@ -520,7 +518,7 @@ export default function SolarLandingClient() {
          ═════════════════════════════════════════════ */}
       <footer className="bg-[#070e1b] text-slate-400 py-12 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
-          
+
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
               <Image
