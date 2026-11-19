@@ -37,7 +37,7 @@ function WhatsAppCTAButton({
 }) {
   const sizeClasses = {
     compact: "px-4 py-2 text-xs sm:text-sm gap-2",
-    default: "px-6 py-3.5 text-sm sm:text-base gap-2.5",
+    default: "px-6 py-3 text-xs sm:text-sm md:text-base gap-2.5",
     large: "px-8 py-4 sm:py-4.5 text-base sm:text-lg gap-3",
   }[size];
 
@@ -48,8 +48,8 @@ function WhatsAppCTAButton({
       rel="noopener noreferrer"
       className={`inline-flex items-center justify-center font-extrabold uppercase tracking-wide rounded-xl sm:rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/45 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ${sizeClasses} ${className}`}
     >
-      <WhatsAppIcon className={size === "compact" ? "w-4 h-4 shrink-0" : "w-5 h-5 sm:w-6 sm:h-6 shrink-0"} />
-      <span>JOIN THE FREE WEBINAR</span>
+      <WhatsAppIcon className={size === "compact" ? "w-4 h-4 shrink-0" : "w-5 h-5 shrink-0"} />
+      <span className="whitespace-nowrap">JOIN THE FREE WEBINAR</span>
     </a>
   );
 }
@@ -429,7 +429,7 @@ export default function SolarLandingClient() {
               </div>
 
               <div className="pt-2 space-y-3 relative z-10">
-                <WhatsAppCTAButton size="large" className="w-full sm:w-auto" />
+                <WhatsAppCTAButton size="default" className="w-full sm:w-auto" />
                 <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
                   Join our WhatsApp group to receive your webinar date, time, access link, and important announcements.
                 </p>
