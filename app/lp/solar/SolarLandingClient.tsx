@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
   CheckCircle2,
   HelpCircle,
@@ -139,7 +138,7 @@ export default function SolarLandingClient() {
                   </div>
                   <div className="flex items-center justify-center lg:justify-start gap-2 text-amber-400 font-semibold text-xs sm:text-sm">
                     <Clock className="w-4 h-4 shrink-0 text-amber-400" />
-                    <span>We are starting the webinar this weekend…. Don&apos;t miss it…</span>
+                    <span>We are starting the webinar soonest…. Don&apos;t miss it…</span>
                   </div>
                 </div>
               </div>
@@ -345,7 +344,7 @@ export default function SolarLandingClient() {
                 <WhatsAppCTAButton size="large" className="w-full sm:w-auto" />
                 <p className="text-xs sm:text-sm font-bold text-amber-600 flex items-center justify-center gap-1.5">
                   <Clock className="w-4 h-4 shrink-0 text-amber-600" />
-                  <span>We are starting the webinar this weekend…. Don&apos;t miss it…</span>
+                  <span>We are starting the webinar soonest…. Don&apos;t miss it…</span>
                 </p>
               </div>
             </div>
@@ -498,13 +497,8 @@ export default function SolarLandingClient() {
                 <div className="text-lg font-extrabold text-slate-900">
                   Subway Schools
                 </div>
-                <div>
-                  <Link
-                    href="/"
-                    className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline"
-                  >
-                    www.subwayschools.com
-                  </Link>
+                <div className="text-sm font-semibold text-slate-600 select-none cursor-default">
+                  www.subwayschools.com
                 </div>
                 <div className="text-xs sm:text-sm italic font-serif text-slate-500">
                   Changing Lives, One Student at a Time.
