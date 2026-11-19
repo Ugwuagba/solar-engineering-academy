@@ -62,8 +62,8 @@ export default function SolarLandingClient() {
           A. MINIMAL BRANDED HEADER (STICKY)
          ═════════════════════════════════════════════════════════════════════ */}
       <header className="sticky top-0 z-50 bg-[#070e1b]/95 backdrop-blur-md border-b border-slate-800/80 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
-          {/* Left Brand Identity (Non-clickable to keep visitors focused on conversion) */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center">
+          {/* Brand Identity (Non-clickable to keep visitors focused on conversion) */}
           <div className="flex items-center gap-3 select-none cursor-default">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white p-1 border border-slate-700/80 flex items-center justify-center shrink-0 shadow-md">
               <Image
@@ -84,9 +84,6 @@ export default function SolarLandingClient() {
               </span>
             </div>
           </div>
-
-          {/* Right Header CTA */}
-          <WhatsAppCTAButton size="compact" className="hidden xs:inline-flex" />
         </div>
       </header>
 
