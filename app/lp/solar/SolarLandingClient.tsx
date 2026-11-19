@@ -57,7 +57,7 @@ function WhatsAppCTAButton({
 
 export default function SolarLandingClient() {
   return (
-    <div className="min-h-screen bg-[#070e1b] text-slate-100 flex flex-col antialiased selection:bg-amber-500/30 selection:text-amber-200 pb-20 sm:pb-0 overflow-x-hidden">
+    <div className="min-h-screen bg-[#070e1b] text-slate-100 flex flex-col antialiased selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden">
       
       {/* ═════════════════════════════════════════════════════════════════════
           A. MINIMAL BRANDED HEADER (STICKY)
@@ -552,13 +552,6 @@ export default function SolarLandingClient() {
           </div>
         </div>
       </footer>
-
-      {/* ═════════════════════════════════════════════════════════════════════
-          MOBILE FLOATING WHATSAPP CTA
-         ═════════════════════════════════════════════ */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden p-3 bg-[#070e1b]/95 backdrop-blur-md border-t border-slate-800 shadow-2xl">
-        <WhatsAppCTAButton size="default" className="w-full py-3" />
-      </div>
 
     </div>
   );
