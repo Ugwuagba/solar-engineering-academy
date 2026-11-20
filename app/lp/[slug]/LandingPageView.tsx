@@ -2,18 +2,18 @@
 
 import React from "react";
 import Image from "next/image";
+import Script from "next/script";
 import {
   CheckCircle2,
   HelpCircle,
   Clock,
   Sparkles,
-  ArrowRight,
   Shield,
-  Zap,
+  Play,
 } from "lucide-react";
-
-const WHATSAPP_WEBINAR_URL =
-  "https://chat.whatsapp.com/KOI7BGwsQot4AQgEXce0zF?s=cl&p=i&iam=2";
+import { SerializedLandingPage } from "@/lib/landing-page-types";
+import VideoEmbedPlayer from "./VideoEmbedPlayer";
+import MediaPlaceholder from "./MediaPlaceholder";
 
 function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
@@ -29,9 +29,13 @@ function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
 }
 
 function WhatsAppCTAButton({
+  url,
+  label = "JOIN THE FREE WEBINAR",
   className = "",
   size = "default",
 }: {
+  url: string;
+  label?: string;
   className?: string;
   size?: "compact" | "default" | "large";
 }) {
@@ -43,27 +47,61 @@ function WhatsAppCTAButton({
 
   return (
     <a
-      href={WHATSAPP_WEBINAR_URL}
+      href={url}
       target="_blank"
       rel="noopener noreferrer"
       className={`inline-flex items-center justify-center font-extrabold uppercase tracking-wide rounded-xl sm:rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/45 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ${sizeClasses} ${className}`}
     >
       <WhatsAppIcon className={size === "compact" ? "w-4 h-4 shrink-0" : "w-5 h-5 shrink-0"} />
-      <span className="whitespace-nowrap">JOIN THE FREE WEBINAR</span>
+      <span className="whitespace-nowrap">{label}</span>
     </a>
   );
 }
 
-export default function SolarLandingClient() {
+interface LandingPageViewProps {
+  page: SerializedLandingPage;
+}
+
+export default function LandingPageView({ page }: LandingPageViewProps) {
+  const { content, media, whatsappUrl, showPlaceholders, metaPixelId } = page;
+
+  const hasHeroImage = Boolean(media.heroImageUrl?.trim());
+  const hasVideoEmbed = Boolean(media.videoEmbedUrl?.trim());
+  const hasSection2Img1 = Boolean(media.section2Image1Url?.trim());
+  const hasSection2Img2 = Boolean(media.section2Image2Url?.trim());
+  const hasAboutImage = Boolean(media.aboutImageUrl?.trim());
+
+  const showHeroMedia = hasHeroImage || showPlaceholders;
+  const showVideoSection = hasVideoEmbed || showPlaceholders;
+  const showSection2Media = hasSection2Img1 || hasSection2Img2 || showPlaceholders;
+  const showAboutMedia = hasAboutImage || showPlaceholders;
+
   return (
     <div className="min-h-screen bg-[#070e1b] text-slate-100 flex flex-col antialiased selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden">
+      
+      {/* ─── Optional Meta Pixel Tracking ─── */}
+      {metaPixelId && (
+        <Script id={`meta-pixel-${page.id}`} strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '${metaPixelId}');
+            fbq('track', 'PageView');
+          `}
+        </Script>
+      )}
 
       {/* ═════════════════════════════════════════════════════════════════════
           A. MINIMAL BRANDED HEADER (STICKY)
          ═════════════════════════════════════════════════════════════════════ */}
       <header className="sticky top-0 z-50 bg-[#070e1b]/95 backdrop-blur-md border-b border-slate-800/80 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center">
-          {/* Brand Identity (Non-clickable to keep visitors focused on conversion) */}
           <div className="flex items-center gap-3 select-none cursor-default">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white p-1 border border-slate-700/80 flex items-center justify-center shrink-0 shadow-md">
               <Image
@@ -77,10 +115,10 @@ export default function SolarLandingClient() {
             </div>
             <div className="flex flex-col">
               <span className="text-white font-extrabold text-base sm:text-lg tracking-wider">
-                SUBWAY SCHOOLS
+                {content.header?.brandName || "SUBWAY SCHOOLS"}
               </span>
               <span className="text-slate-400 text-[10px] sm:text-xs font-medium tracking-tight">
-                Subway Energy Limited • RC: 1837154
+                {content.header?.brandTagline || "Subway Energy Limited • RC: 1837154"}
               </span>
             </div>
           </div>
@@ -90,118 +128,169 @@ export default function SolarLandingClient() {
       <main className="flex-1">
         {/* ═════════════════════════════════════════════════════════════════════
             B. SECTION 1 — HERO / FIRST IMPRESSION
-           ═════════════════════════════════════════════════════════════════════ */}
+           ═════════════════════════════════════════════ */}
         <section className="relative bg-[#070e1b] text-white pt-10 sm:pt-16 pb-16 sm:pb-24 border-b border-slate-800/80 overflow-hidden">
-          {/* Subtle background glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-blue-600/15 via-amber-500/5 to-transparent blur-3xl pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-
+            <div
+              className={`grid grid-cols-1 ${
+                showHeroMedia ? "lg:grid-cols-12" : "max-w-4xl mx-auto"
+              } gap-10 lg:gap-12 items-center`}
+            >
               {/* Left Column: Headlines & CTA */}
-              <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-
+              <div
+                className={`${
+                  showHeroMedia ? "lg:col-span-7" : "w-full text-center"
+                } space-y-6 ${showHeroMedia ? "text-center lg:text-left" : "text-center"}`}
+              >
                 {/* Eyebrow & Highlight Pill */}
                 <div className="space-y-3">
                   <div className="text-sm sm:text-base font-extrabold tracking-widest text-amber-400 uppercase">
-                    SUBWAY SCHOOLS PRESENTS
+                    {content.hero.eyebrow}
                   </div>
                   <div>
                     <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-blue-500/10 text-sky-400 border border-blue-500/25 shadow-sm">
                       <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      FREE SOLAR ENERGY CAREER &amp; BUSINESS WEBINAR
+                      {content.hero.badge}
                     </span>
                   </div>
                 </div>
 
-                {/* Main H1 Headline */}
+                {/* Main H1 Headline with Amber Market Value Highlight */}
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] font-black text-white tracking-tight leading-[1.15]">
-                  TAP FROM THE{" "}
-                  <span className="text-amber-400 underline decoration-amber-500/40 underline-offset-8 decoration-4">
-                    $268.93 BILLION
-                  </span>{" "}
-                  OF SOLAR ENERGY MARKET VALUE WHEN YOU ATTEND THIS WEBINAR
+                  {content.hero.headline.includes("$268.93 BILLION") ? (
+                    <>
+                      {content.hero.headline.split("$268.93 BILLION")[0]}
+                      <span className="text-amber-400 underline decoration-amber-500/40 underline-offset-8 decoration-4">
+                        $268.93 BILLION
+                      </span>
+                      {content.hero.headline.split("$268.93 BILLION")[1]}
+                    </>
+                  ) : (
+                    content.hero.headline
+                  )}
                 </h1>
 
                 {/* Subheadline */}
                 <p className="text-base sm:text-lg md:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                  Discover How to Build a Successful Career in the Solar Energy Industry and Make a Fortune For Yourself Quick.
+                  {content.hero.subheadline}
                 </p>
 
                 {/* Hero CTA & Urgency */}
                 <div className="pt-2 sm:pt-4 space-y-3">
                   <div>
-                    <WhatsAppCTAButton size="large" className="w-full sm:w-auto" />
+                    <WhatsAppCTAButton
+                      url={whatsappUrl}
+                      label={content.hero.ctaText}
+                      size="default"
+                      className="w-full sm:w-auto"
+                    />
                   </div>
                   <div className="flex items-center justify-center lg:justify-start gap-2 text-amber-400 font-semibold text-xs sm:text-sm">
                     <Clock className="w-4 h-4 shrink-0 text-amber-400" />
-                    <span>We are starting the webinar soonest…. Don&apos;t miss it…</span>
+                    <span>{content.hero.urgencyText}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Authentic Real Solar Installation Photo */}
-              <div className="lg:col-span-5">
-                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800 shadow-2xl shadow-blue-950/60 group">
-                  <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full">
-                    <Image
-                      src="/images/webinar/webinar-hero.jpg"
-                      alt="Subway Schools Real Field Solar Engineering Installation"
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 40vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                      priority
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#070e1b] via-transparent to-transparent opacity-60" />
-                  </div>
-                  {/* Subtle Authentic Caption */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#070e1b]/90 backdrop-blur-md border-t border-slate-800 text-left">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                      <Shield className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span>Subway Energy Practical Field Installation</span>
+              {/* Right Column: Hero Image or Placeholder */}
+              {showHeroMedia && (
+                <div className="lg:col-span-5">
+                  {hasHeroImage ? (
+                    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800 shadow-2xl shadow-blue-950/60 group">
+                      <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full">
+                        <Image
+                          src={media.heroImageUrl!}
+                          alt="Subway Schools Real Field Solar Engineering Installation"
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 40vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          priority
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#070e1b] via-transparent to-transparent opacity-60" />
+                      </div>
+                      {media.heroCaption && (
+                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#070e1b]/90 backdrop-blur-md border-t border-slate-800 text-left">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                            <Shield className="w-4 h-4 text-amber-400 shrink-0" />
+                            <span>{media.heroCaption}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  ) : (
+                    <MediaPlaceholder
+                      label="Hero Image Slot"
+                      subtitle="Max 500KB • Recommended 1200x800px"
+                      type="image"
+                      theme="dark"
+                      aspect="aspect-[4/3] sm:aspect-[16/11]"
+                    />
+                  )}
                 </div>
-              </div>
-
+              )}
             </div>
           </div>
         </section>
 
         {/* ═════════════════════════════════════════════════════════════════════
+            VIDEO EMBED SECTION (Between Hero and Section 2)
+           ═════════════════════════════════════════════ */}
+        {showVideoSection && (
+          <section className="bg-[#050b16] py-12 sm:py-16 border-b border-slate-800/80">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+              <div className="text-center space-y-1">
+                <span className="text-xs font-bold font-mono uppercase tracking-widest text-sky-400">
+                  FEATURED PRESENTATION
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-white">
+                  {media.videoTitle || "Interactive Webinar Preview & Practical Demonstration"}
+                </h3>
+              </div>
+
+              {hasVideoEmbed ? (
+                <VideoEmbedPlayer
+                  url={media.videoEmbedUrl!}
+                  title={media.videoTitle || "Webinar Video"}
+                />
+              ) : (
+                <MediaPlaceholder
+                  label="Hosted Video Embed Slot"
+                  subtitle="Supports YouTube (watch, youtu.be, shorts), Vimeo, or direct MP4 URLs"
+                  type="video"
+                  theme="dark"
+                  aspect="aspect-video"
+                />
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ═════════════════════════════════════════════════════════════════════
             C. SECTION 2 — THE OPPORTUNITY
-           ═════════════════════════════════════════════════════════════════════ */}
+           ═════════════════════════════════════════════ */}
         <section className="bg-white text-slate-900 py-16 sm:py-24 border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-
+            <div
+              className={`grid grid-cols-1 ${
+                showSection2Media ? "lg:grid-cols-12" : "max-w-4xl mx-auto"
+              } gap-12 items-center`}
+            >
               {/* Left Column: Editorial & Checklist */}
-              <div className="lg:col-span-7 space-y-6">
-
-                {/* Intro Body Copy */}
+              <div className={`${showSection2Media ? "lg:col-span-7" : "w-full"} space-y-6`}>
                 <div className="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed">
-                  <p>
-                    It&apos;s no longer a news that electricity is essential to homes, businesses, industries, hospitals, schools, and virtually every aspect of modern life.
-                  </p>
-                  <p>
-                    As more individuals and organisations seek reliable alternative power solutions, solar energy is creating job and career opportunities for people with the right technical knowledge and practical skills.
-                  </p>
+                  <p>{content.opportunity.introP1}</p>
+                  <p>{content.opportunity.introP2}</p>
                 </div>
 
-                {/* Sub-lead */}
                 <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight pt-2">
-                  Think about it:
+                  {content.opportunity.subLead}
                 </h3>
 
-                {/* Styled Checklist (5 items) */}
+                {/* Styled Checklist */}
                 <div className="space-y-3 pt-1">
-                  {[
-                    "Homes need reliable solar power solutions.",
-                    "Businesses need alternative electricity systems to reduce dependence on conventional power.",
-                    "Industries require experienced professionals to design and manage larger energy systems.",
-                    "Solar companies need competent technicians, installers, designers, and engineers.",
-                    "Entrepreneurs have opportunities to establish and grow businesses in the renewable energy sector.",
-                  ].map((item, idx) => (
+                  {content.opportunity.checklist.map((item, idx) => (
                     <div
                       key={idx}
                       className="flex items-start gap-3.5 p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-sm"
@@ -216,86 +305,91 @@ export default function SolarLandingClient() {
                   ))}
                 </div>
 
-                {/* Follow-up Copy */}
                 <div className="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed pt-2">
-                  <p>
-                    But there&apos;s a difference between being interested in solar energy and having the professional skills to work in the industry.
-                  </p>
-                  <p>
-                    The opportunity is growing. The question is: will you develop the skills to become part of it?
-                  </p>
-                  <p>
-                    The world is moving towards renewable energy, and the demand for skilled solar professionals continues to create new opportunities.
-                  </p>
+                  <p>{content.opportunity.followUpP1}</p>
+                  <p>{content.opportunity.followUpP2}</p>
+                  <p>{content.opportunity.followUpP3}</p>
                 </div>
 
-                {/* Highlighted Callout Box */}
                 <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50/60 border-l-4 border-amber-500 shadow-sm">
                   <p className="text-base sm:text-lg font-bold text-slate-900 leading-relaxed">
-                    Whether you are an electrician, engineer, graduate, technician, entrepreneur, or someone looking to acquire a valuable professional skill, this is your opportunity to discover what the solar energy industry has to offer.
+                    {content.opportunity.calloutBox}
                   </p>
                 </div>
-
               </div>
 
-              {/* Right Column: Supporting Solar Installation Photos */}
-              <div className="lg:col-span-5 space-y-6">
-                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
-                  <div className="relative aspect-[4/3] w-full">
-                    <Image
-                      src="/images/webinar/webinar-inverters-bank.jpg"
-                      alt="Commercial Inverter Integration and Power Systems"
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 40vw"
-                      className="object-cover"
+              {/* Right Column: Media Slots 1 & 2 */}
+              {showSection2Media && (
+                <div className="lg:col-span-5 space-y-6">
+                  {/* Slot 1 */}
+                  {hasSection2Img1 ? (
+                    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
+                      <div className="relative aspect-[4/3] w-full">
+                        <Image
+                          src={media.section2Image1Url!}
+                          alt="Commercial Inverter Integration and Power Systems"
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 40vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  ) : showPlaceholders ? (
+                    <MediaPlaceholder
+                      label="Field Photo Slot 1"
+                      subtitle="Recommended 800x600px • Max 500KB"
+                      type="image"
+                      theme="light"
+                      aspect="aspect-[4/3]"
                     />
-                  </div>
-                </div>
+                  ) : null}
 
-                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
-                  <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full">
-                    <Image
-                      src="/images/webinar/webinar-technicians.jpg"
-                      alt="Field Technical Skills in Action"
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 40vw"
-                      className="object-cover"
+                  {/* Slot 2 */}
+                  {hasSection2Img2 ? (
+                    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
+                      <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full">
+                        <Image
+                          src={media.section2Image2Url!}
+                          alt="Field Technical Skills in Action"
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 40vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  ) : showPlaceholders ? (
+                    <MediaPlaceholder
+                      label="Field Photo Slot 2"
+                      subtitle="Recommended 800x600px • Max 500KB"
+                      type="image"
+                      theme="light"
+                      aspect="aspect-[4/3] sm:aspect-[16/10]"
                     />
-                  </div>
+                  ) : null}
                 </div>
-              </div>
-
+              )}
             </div>
           </div>
         </section>
 
         {/* ═════════════════════════════════════════════════════════════════════
             D. SECTION 3 — CLARITY BEFORE YOU INVEST
-           ═════════════════════════════════════════════════════════════════════ */}
+           ═════════════════════════════════════════════ */}
         <section className="bg-slate-50 text-slate-900 py-16 sm:py-24 border-b border-slate-200">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-
-            {/* Headline & Lead Copy */}
             <div className="text-center max-w-3xl mx-auto space-y-4">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Before You Invest in Solar Training, Get the Knowledge You Need to Make the Right Decision.
+                {content.clarity.headline}
               </h2>
               <div className="text-base sm:text-lg text-slate-600 space-y-1">
-                <p>Choosing a professional training programme is an important decision.</p>
-                <p className="font-semibold text-slate-800">You probably have questions:</p>
+                <p>{content.clarity.leadP1}</p>
+                <p className="font-semibold text-slate-800">{content.clarity.leadP2}</p>
               </div>
             </div>
 
-            {/* 6 Questions Grid */}
+            {/* Questions Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {[
-                "What exactly does solar installation involve?",
-                "What skills do I need to become a solar professional?",
-                "Can I build a career or business in the solar industry?",
-                "What is the difference between basic solar installation and professional solar engineering?",
-                "Where should I begin if I have little or no experience?",
-                "How can I improve my existing electrical or technical skills?",
-              ].map((question, idx) => (
+              {content.clarity.questions.map((question, idx) => (
                 <div
                   key={idx}
                   className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-start gap-4 hover:border-blue-400 hover:shadow-md transition-all"
@@ -313,39 +407,42 @@ export default function SolarLandingClient() {
             {/* Positioning & Free Offer Block */}
             <div className="bg-white border-2 border-slate-300/80 rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-lg max-w-3xl mx-auto text-center space-y-5">
               <p className="text-base sm:text-lg text-slate-700 font-medium">
-                We understand these concerns.
+                {content.clarity.offerP1}
               </p>
               <p className="text-base sm:text-lg text-slate-700 leading-relaxed">
-                That&apos;s why Subway Schools is inviting you to a special solar energy webinar designed to introduce you to the industry, help you understand the available opportunities, and show you the skills required to build a future in this field and make a fortune for yourself.
+                {content.clarity.offerP2}
               </p>
               <p className="text-base sm:text-lg text-slate-700 leading-relaxed">
-                This is an opportunity to learn, ask questions, and gain clarity before deciding on your next step.
+                {content.clarity.offerP3}
               </p>
 
               {/* Bold and Red Highlight */}
               <div className="py-2">
                 <span className="font-bold text-red-600 text-lg sm:text-xl md:text-2xl tracking-wide uppercase block">
-                  And I can tell you that it&apos;s absolutely FREE.
+                  {content.clarity.freeHighlight}
                 </span>
               </div>
 
               <div className="space-y-2 text-base sm:text-lg text-slate-700">
-                <p>You don&apos;t have to enroll in a course to attend the webinar.</p>
+                <p>{content.clarity.offerP4}</p>
                 <p className="font-semibold text-slate-900">
-                  Come with your questions. Leave with a better understanding of the opportunities ahead.
+                  {content.clarity.offerP5}
                 </p>
               </div>
 
-              {/* CTA & Urgency */}
               <div className="pt-4 space-y-3">
-                <WhatsAppCTAButton size="large" className="w-full sm:w-auto" />
+                <WhatsAppCTAButton
+                  url={whatsappUrl}
+                  label={content.clarity.ctaText}
+                  size="default"
+                  className="w-full sm:w-auto"
+                />
                 <p className="text-xs sm:text-sm font-bold text-amber-600 flex items-center justify-center gap-1.5">
                   <Clock className="w-4 h-4 shrink-0 text-amber-600" />
-                  <span>We are starting the webinar soonest…. Don&apos;t miss it…</span>
+                  <span>{content.clarity.urgencyText}</span>
                 </p>
               </div>
             </div>
-
           </div>
         </section>
 
@@ -354,48 +451,14 @@ export default function SolarLandingClient() {
            ═════════════════════════════════════════════ */}
         <section className="bg-white text-slate-900 py-16 sm:py-24 border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-
-            {/* Headline */}
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                What Will You Gain From Attending This Webinar?
+                {content.webinarGains.headline}
               </h2>
             </div>
 
-            {/* 6 Numbered Cards Grid (01–06) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {[
-                {
-                  num: "01",
-                  title: "Discover Opportunities in the Solar Energy Industry:",
-                  desc: "Understand the different areas of the solar energy industry and the opportunities available to skilled individuals.",
-                },
-                {
-                  num: "02",
-                  title: "Understand the Skills Required to Become a Solar Professional:",
-                  desc: "Discover the technical knowledge involved in solar system design, installation, maintenance, troubleshooting, and energy storage.",
-                },
-                {
-                  num: "03",
-                  title: "Explore Career and Business Opportunities:",
-                  desc: "Learn how solar energy skills can create opportunities in employment, contracting, freelance projects, entrepreneurship, and business expansion.",
-                },
-                {
-                  num: "04",
-                  title: "Understand How Solar Systems Work:",
-                  desc: "Get introduced to the major components of solar energy systems, including solar panels, inverters, batteries, charge controllers, Earthing and other essential equipment.",
-                },
-                {
-                  num: "05",
-                  title: "Discover the Right Learning Path for You:",
-                  desc: "Whether you are a beginner, electrician, technician, engineer, or business owner, understand the training areas that may suit your background and goals.",
-                },
-                {
-                  num: "06",
-                  title: "Interact With Experienced Professionals:",
-                  desc: "Get the opportunity to ask questions, clarify your concerns, and gain insights into the realities of working in the solar energy industry.",
-                },
-              ].map((card) => (
+              {content.webinarGains.cards.map((card) => (
                 <div
                   key={card.num}
                   className="p-6 sm:p-7 rounded-2xl bg-slate-50 border border-slate-200 hover:border-slate-300 shadow-sm flex flex-col justify-between group hover:shadow-md transition-all"
@@ -421,91 +484,99 @@ export default function SolarLandingClient() {
 
               <div className="space-y-4 max-w-2xl mx-auto relative z-10">
                 <p className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-snug">
-                  One webinar could give you the clarity you need to take your next professional step.
+                  {content.webinarGains.bannerHeading}
                 </p>
                 <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                  Join Subway Schools for an insightful webinar where you will discover the opportunities, essential technical skills, business possibilities, and professional training pathways available in the solar energy industry.
+                  {content.webinarGains.bannerSubheading}
                 </p>
               </div>
 
               <div className="pt-2 space-y-3 relative z-10">
-                <WhatsAppCTAButton size="default" className="w-full sm:w-auto" />
+                <WhatsAppCTAButton
+                  url={whatsappUrl}
+                  label={content.webinarGains.bannerCtaText}
+                  size="default"
+                  className="w-full sm:w-auto"
+                />
                 <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-                  Join our WhatsApp group to receive your webinar date, time, access link, and important announcements.
+                  {content.webinarGains.bannerSubtext}
                 </p>
               </div>
             </div>
-
           </div>
         </section>
 
         {/* ═════════════════════════════════════════════════════════════════════
             F. SECTION 5 — ABOUT SUBWAY SCHOOLS
-           ═════════════════════════════════════════════════════════════════════ */}
+           ═════════════════════════════════════════════ */}
         <section className="bg-slate-50 text-slate-900 py-16 sm:py-24 border-b border-slate-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-
-            {/* Header / Eyebrow / Headlines */}
             <div className="text-center space-y-2">
               <span className="text-xs font-bold uppercase tracking-widest text-amber-600">
-                ABOUT SUBWAY SCHOOLS
+                {content.about.eyebrow}
               </span>
               <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                THE BIGGER DREAM:
+                {content.about.headline}
               </h2>
               <h3 className="text-lg sm:text-xl font-bold text-blue-700 tracking-wide">
-                A GLOBAL HOME FOR LEARNING, GROWTH AND OPPORTUNITY
+                {content.about.subheadline}
               </h3>
             </div>
 
-            {/* Supporting Real Solar Image */}
-            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-md">
-              <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full">
-                <Image
-                  src="/images/webinar/webinar-rooftop-array.jpg"
-                  alt="Subway Schools Clean Energy Vision"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 800px"
-                  className="object-cover"
-                />
+            {/* Supporting Real Solar Image or Placeholder */}
+            {showAboutMedia && (
+              <div>
+                {hasAboutImage ? (
+                  <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-md">
+                    <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full">
+                      <Image
+                        src={media.aboutImageUrl!}
+                        alt="Subway Schools Clean Energy Vision"
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 800px"
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <MediaPlaceholder
+                    label="About Banner Image Slot"
+                    subtitle="Recommended 1600x600px • Max 500KB"
+                    type="image"
+                    theme="light"
+                    aspect="aspect-[16/9] sm:aspect-[21/9]"
+                  />
+                )}
               </div>
-            </div>
+            )}
 
-            {/* Exact Verbatim Paragraphs (1–13) */}
+            {/* Paragraphs */}
             <div className="space-y-5 text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
-              <p>Every great institution begins with a dream.</p>
-              <p>But some dreams are too big to be restricted by geographical boundaries, industries or professional limitations.</p>
-              <p>At Subway Schools, we started with a passion for technical education, particularly in the power and renewable energy sector.</p>
-              <p>However, as our vision continues to grow, we have come to realise that our responsibility and potential impact must go far beyond one industry.</p>
-              <p>We dream of a future where a young person searching for direction, a professional seeking career advancement, an entrepreneur looking to acquire new skills, or an individual simply passionate about learning can find a place at Subway Schools.</p>
-              <p>We want to build a platform where people can access courses in virtually every field of human endeavour, learn from knowledgeable instructors, develop practical skills and discover opportunities they may never have imagined possible.</p>
-              <p>Our ambition is to make Subway Schools a global destination for learning, where geographical location, professional background or previous experience does not determine how far someone can go.</p>
-              <p>We understand that behind every person seeking education is a dream, a challenge, a family, a responsibility or a future waiting to be transformed.</p>
-              <p>That is why we do not see education merely as the transfer of knowledge.</p>
-              <p>We see it as an opportunity to unlock human potential, create possibilities, empower generations and give people the confidence to pursue bigger dreams.</p>
-              <p>We want to be remembered not just for the courses we offer, but for the lives we touch, the opportunities we create, the professionals we develop and the generations we inspire.</p>
-              <p>Our dream is simple but powerful: to build an educational institution whose impact will be felt across industries, communities, countries and generations.</p>
-              <p>Subway Schools is not just preparing people for today&apos;s opportunities; we are building a platform to prepare generations for the opportunities of tomorrow.</p>
+              {content.about.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
             </div>
 
-            {/* Styled Signature Block */}
+            {/* Signature Block */}
             <div className="pt-6 border-t border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
               <div className="space-y-1">
                 <div className="text-lg font-extrabold text-slate-900">
-                  Subway Schools
+                  {content.about.signatureTitle}
                 </div>
-
                 <div className="text-xs sm:text-sm italic font-serif text-slate-500">
-                  Changing Lives, One Student at a Time.
+                  {content.about.signatureMotto}
                 </div>
               </div>
 
-              {/* Final Section CTA */}
               <div>
-                <WhatsAppCTAButton size="default" className="w-full sm:w-auto" />
+                <WhatsAppCTAButton
+                  url={whatsappUrl}
+                  label={content.about.ctaText}
+                  size="default"
+                  className="w-full sm:w-auto"
+                />
               </div>
             </div>
-
           </div>
         </section>
       </main>
@@ -515,7 +586,6 @@ export default function SolarLandingClient() {
          ═════════════════════════════════════════════ */}
       <footer className="bg-[#070e1b] text-slate-400 py-12 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
-
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
               <Image
@@ -528,16 +598,16 @@ export default function SolarLandingClient() {
             </div>
             <div>
               <p className="text-white text-xs sm:text-sm font-bold">
-                Subway Schools • Subway Energy Limited (RC: 1837154)
+                {content.footer?.brandLine || "Subway Schools • Subway Energy Limited (RC: 1837154)"}
               </p>
               <p className="text-slate-400 text-xs italic font-serif">
-                Changing Lives, One Student at a Time.
+                {content.footer?.motto || "Changing Lives, One Student at a Time."}
               </p>
             </div>
           </div>
 
           <div className="text-xs text-slate-500">
-            © 2026 Subway Energy Limited. All Rights Reserved.
+            {content.footer?.copyright || "© 2026 Subway Energy Limited. All Rights Reserved."}
           </div>
         </div>
       </footer>
@@ -545,3 +615,4 @@ export default function SolarLandingClient() {
     </div>
   );
 }
+

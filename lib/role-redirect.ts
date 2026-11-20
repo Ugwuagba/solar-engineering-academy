@@ -9,6 +9,8 @@ export function getRoleRedirectPath(role?: string | null): string {
     case "PROGRAM_ADMIN":
     case "ADMIN":
       return "/program-admin";
+    case "LP_EDITOR":
+      return "/lp-admin";
     case "INSTRUCTOR":
       return "/instructor";
     case "LEARNER":

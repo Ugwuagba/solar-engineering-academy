@@ -12,7 +12,8 @@ import {
   CheckCircle2, 
   Plus, 
   ArrowLeft,
-  Clock
+  Clock,
+  Layers
 } from "lucide-react";
 import AdminStudioClient from "@/components/admin/AdminStudioClient";
 
@@ -55,6 +56,7 @@ export default async function ProgramAdminStudioPage() {
     passedQuizAttempts,
     completedEnrollmentsCount,
     pendingApprovalCount,
+    landingPagesCount,
   ] = await Promise.all([
     prisma.enrollment.count().catch(() => 0),
     prisma.course.count().catch(() => 0),
@@ -63,6 +65,7 @@ export default async function ProgramAdminStudioPage() {
     prisma.quizAttempt.count({ where: { passed: true } }).catch(() => 0),
     prisma.enrollment.count({ where: { status: "COMPLETED" } }).catch(() => 0),
     prisma.course.count({ where: { status: CourseStatus.PENDING_APPROVAL } }).catch(() => 0),
+    prisma.landingPage.count().catch(() => 0),
   ]);
 
   // Dynamic milestone pass rate calculation from real database records
@@ -146,6 +149,19 @@ export default async function ProgramAdminStudioPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/lp-admin"
+              prefetch={false}
+              className="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 hover:text-slate-900 flex items-center gap-2 shadow-2xs transition-all cursor-pointer bg-white"
+            >
+              <Layers className="w-4 h-4 text-amber-600" />
+              <span>Landing Pages</span>
+              {landingPagesCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                  {landingPagesCount}
+                </span>
+              )}
+            </Link>
             <Link
               href="/program-admin/review-queue"
               prefetch={false}

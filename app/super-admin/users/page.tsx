@@ -21,7 +21,11 @@ import {
   Receipt,
   Layers,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  ExternalLink,
+  Edit,
+  Globe,
+  Sparkles
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -49,12 +53,13 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
     redirect("/dashboard");
   }
 
-  // Resolve current active tab (?tab=staff | ?tab=learners | ?tab=financials | ?tab=courses)
+  // Resolve current active tab (?tab=staff | ?tab=learners | ?tab=financials | ?tab=courses | ?tab=landing-pages)
   const resolvedParams = searchParams ? await searchParams : {};
   const activeTab =
     resolvedParams.tab === "learners" ||
     resolvedParams.tab === "financials" ||
-    resolvedParams.tab === "courses"
+    resolvedParams.tab === "courses" ||
+    resolvedParams.tab === "landing-pages"
       ? resolvedParams.tab
       : "staff";
 
@@ -64,14 +69,17 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
     superAdminsCount,
     programAdminsCount,
     instructorsCount,
+    lpEditorsCount,
     learnersCount,
     allPaymentsTotal,
     publishedCoursesCount,
+    landingPagesCount,
   ] = await Promise.all([
     prisma.user.count().catch(() => 0),
     prisma.user.count({ where: { role: Role.SUPER_ADMIN } }).catch(() => 0),
     prisma.user.count({ where: { role: Role.PROGRAM_ADMIN } }).catch(() => 0),
     prisma.user.count({ where: { role: Role.INSTRUCTOR } }).catch(() => 0),
+    prisma.user.count({ where: { role: Role.LP_EDITOR } }).catch(() => 0),
     prisma.user.count({
       where: {
         role: { in: [Role.LEARNER, Role.STUDENT] },
@@ -89,12 +97,13 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
         ],
       },
     }).catch(() => 0),
+    prisma.landingPage.count().catch(() => 0),
   ]);
 
   const totalRevenue = allPaymentsTotal._sum?.amount || 0;
 
   // 3. Tab-specific data fetching
-  // Staff users: Super Admins, Program Admins, Instructors
+  // Staff users: Super Admins, Program Admins, Instructors, LP Editors
   const staffUsers =
     activeTab === "staff"
       ? await prisma.user.findMany({
@@ -105,6 +114,7 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
                 Role.PROGRAM_ADMIN,
                 Role.INSTRUCTOR,
                 Role.ADMIN,
+                Role.LP_EDITOR,
               ],
             },
           },
@@ -124,6 +134,14 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
             },
           },
           orderBy: { createdAt: "desc" },
+        })
+      : [];
+
+  // Landing pages
+  const landingPages =
+    activeTab === "landing-pages"
+      ? await prisma.landingPage.findMany({
+          orderBy: [{ isPublished: "desc" }, { updatedAt: "desc" }],
         })
       : [];
 
@@ -350,7 +368,7 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
             <Shield className="w-4 h-4" />
             Staff Governance
             <span className="ml-1.5 px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">
-              {superAdminsCount + programAdminsCount + instructorsCount}
+              {superAdminsCount + programAdminsCount + instructorsCount + lpEditorsCount}
             </span>
           </Link>
 
@@ -396,6 +414,21 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
             Active Courses &amp; Rosters
             <span className="ml-1.5 px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">
               {publishedCoursesCount}
+            </span>
+          </Link>
+
+          <Link
+            href="/super-admin/users?tab=landing-pages"
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
+              activeTab === "landing-pages"
+                ? "bg-sky-500/10 text-sky-400 border-sky-500/30 shadow-md shadow-sky-500/5"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border-transparent"
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            Landing Pages
+            <span className="ml-1.5 px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">
+              {landingPagesCount}
             </span>
           </Link>
         </div>
@@ -452,6 +485,7 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
                   >
                     <option value="PROGRAM_ADMIN">Program Admin (Curriculum & Ops)</option>
                     <option value="INSTRUCTOR">Instructor (Faculty / Lead)</option>
+                    <option value="LP_EDITOR">Landing Page Editor (LP_EDITOR)</option>
                   </select>
                 </div>
 
@@ -517,6 +551,9 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
                         } else if (roleStr === "ADMIN") {
                           badgeStyles = "bg-orange-500/10 text-orange-400 border-orange-500/30";
                           roleLabel = "ADMIN";
+                        } else if (roleStr === "LP_EDITOR") {
+                          badgeStyles = "bg-purple-500/10 text-purple-400 border-purple-500/30";
+                          roleLabel = "LP EDITOR";
                         }
 
                         const courseCount = u.courses?.length || 0;
@@ -809,6 +846,163 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
            ═══════════════════════════════════════════════════════════════════════ */}
         {activeTab === "courses" && (
           <ActiveCoursesRoster courses={serializedPublishedCourses} />
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════════════
+            TAB 5: LANDING PAGES (?tab=landing-pages)
+           ═══════════════════════════════════════════════════════════════════════ */}
+        {activeTab === "landing-pages" && (
+          <div className="space-y-6">
+            {/* Top Info & Studio Link */}
+            <div className="bg-[#0b1528] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                    <Globe className="w-3.5 h-3.5" /> Funnel System
+                  </span>
+                  <span className="text-xs text-slate-500 font-mono">
+                    CMS &amp; CAMPAIGN PAGES
+                  </span>
+                </div>
+                <h2 className="text-lg font-bold text-white">
+                  Marketing &amp; Solar Landing Pages
+                </h2>
+                <p className="text-xs text-slate-400 max-w-2xl">
+                  Manage all webinar conversion funnels, custom URL routes, media slots, and WhatsApp group routing. Staff accounts with the <strong>LP_EDITOR</strong> role have focused access to manage these pages.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href="/lp-admin"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                >
+                  <Layers className="w-4 h-4" />
+                  <span>Open Landing Page Studio</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Landing Pages Table */}
+            <div className="bg-[#0b1528] border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-white">Active Page Directory</h3>
+                  <p className="text-xs text-slate-400">
+                    Showing all registered landing page slugs and their publish states.
+                  </p>
+                </div>
+                <span className="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
+                  {landingPages.length} {landingPages.length === 1 ? "Page" : "Pages"}
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-[#070e1b]/80 border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                    <tr>
+                      <th scope="col" className="px-6 py-3.5">Page Title</th>
+                      <th scope="col" className="px-6 py-3.5">Live Route</th>
+                      <th scope="col" className="px-6 py-3.5">Status</th>
+                      <th scope="col" className="px-6 py-3.5">Placeholders</th>
+                      <th scope="col" className="px-6 py-3.5">Last Updated</th>
+                      <th scope="col" className="px-6 py-3.5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 font-normal">
+                    {landingPages.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                          No landing pages found. Open the Landing Page Studio to create one.
+                        </td>
+                      </tr>
+                    ) : (
+                      landingPages.map((lp) => (
+                        <tr key={lp.id} className="hover:bg-slate-800/30 transition-colors">
+                          {/* Title */}
+                          <td className="px-6 py-4">
+                            <div className="font-medium text-white">{lp.title}</div>
+                            {lp.slug === "solar" && (
+                              <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                                Master Template
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Live Route */}
+                          <td className="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-300">
+                            <span className="text-slate-500">/lp/</span>
+                            <span className="text-amber-400 font-bold">{lp.slug}</span>
+                          </td>
+
+                          {/* Status */}
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                                lp.isPublished
+                                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                  : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                              }`}
+                            >
+                              {lp.isPublished ? "Published" : "Draft"}
+                            </span>
+                          </td>
+
+                          {/* Placeholders */}
+                          <td className="px-6 py-4 whitespace-nowrap text-xs">
+                            <span
+                              className={`px-2 py-0.5 rounded-md font-mono text-[11px] ${
+                                lp.showPlaceholders
+                                  ? "bg-sky-500/10 text-sky-400 border border-sky-500/20"
+                                  : "bg-slate-800 text-slate-400"
+                              }`}
+                            >
+                              {lp.showPlaceholders ? "Active" : "Off"}
+                            </span>
+                          </td>
+
+                          {/* Last Updated */}
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-400">
+                            <div className="inline-flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                              {new Date(lp.updatedAt).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </div>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                            <div className="inline-flex items-center justify-end gap-2">
+                              <a
+                                href={`/lp/${lp.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                <span>Live</span>
+                              </a>
+                              <Link
+                                href={`/lp-admin/${lp.id}/edit`}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/20 transition-colors"
+                              >
+                                <Edit className="w-3 h-3" />
+                                <span>Edit</span>
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
 
       </div>

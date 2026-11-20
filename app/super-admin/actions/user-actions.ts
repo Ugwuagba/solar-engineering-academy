@@ -44,10 +44,11 @@ export async function createStaffAccount(formData: FormData) {
     Role.PROGRAM_ADMIN,
     Role.INSTRUCTOR,
     Role.SUPER_ADMIN,
+    Role.LP_EDITOR,
   ];
 
   if (!validRoles.includes(role)) {
-    throw new Error(`Invalid staff role: ${roleRaw}. Allowed roles: PROGRAM_ADMIN, INSTRUCTOR, SUPER_ADMIN.`);
+    throw new Error(`Invalid staff role: ${roleRaw}. Allowed roles: PROGRAM_ADMIN, INSTRUCTOR, SUPER_ADMIN, LP_EDITOR.`);
   }
 
   // 1. Query Prisma to check if a user with that email already exists
