@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
     const isAuthorized =
       role === "ADMIN" ||
       role === "INSTRUCTOR" ||
+      role === "SUPER_ADMIN" ||
+      role === "PROGRAM_ADMIN" ||
       (role as string) === "DIRECTOR" ||
       process.env.NODE_ENV === "development";
 

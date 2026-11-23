@@ -2,76 +2,251 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
-import { Role } from "@prisma/client";
-import { draftCourse, submitForApproval } from "./actions/course-actions";
 import Link from "next/link";
+import InstructorCoursesAndRosters, {
+  InstructorCourseItem,
+} from "./InstructorCoursesAndRosters";
 import {
   GraduationCap,
   BookPlus,
-  Send,
-  Building2,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  FileText,
   ArrowLeft,
-  Sparkles,
-  Layers
+  Layers,
+  Plus,
+  Users,
+  CreditCard,
+  Receipt,
+  Clock
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata = {
-  title: "Instructor Studio | Course Drafting & Approvals",
-  description: "Draft solar and storage engineering courses, track approval progress, and manage curriculum modules.",
+  title: "Instructor Studio | Course Drafting, Revenue & Student Rosters",
+  description:
+    "Draft solar engineering courses, track admin approvals, inspect paid student rosters, and monitor live curriculum revenue.",
 };
 
 export default async function InstructorStudioPage() {
-  // 1. Verify INSTRUCTOR role server-side
+  // 1. Verify INSTRUCTOR or administrative role server-side
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
     redirect("/login?callbackUrl=/instructor");
   }
 
-  const role = session.user.role;
-  if (role !== Role.INSTRUCTOR && role !== "INSTRUCTOR") {
+  const userRole = session.user.role as string;
+  const isAuthorized =
+    userRole === "INSTRUCTOR" ||
+    userRole === "SUPER_ADMIN" ||
+    userRole === "PROGRAM_ADMIN" ||
+    userRole === "ADMIN";
+
+  if (!isAuthorized) {
     redirect("/dashboard");
   }
 
+  const isInstructor = userRole === "INSTRUCTOR";
   const instructorId = session.user.id;
 
-  // 2. Fetch courses belonging to this instructor
+  // 2. Fetch courses belonging to this instructor (or all if admin viewing studio)
+  // Include modules/lessons for progress calculation, enrollments with user details, and payments
   const courses = await prisma.course.findMany({
-    where: {
-      instructorId,
-    },
+    where: isInstructor ? { instructorId } : {},
     orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      code: true,
-      title: true,
-      slug: true,
-      status: true,
-      contactHours: true,
-      price: true,
-      createdAt: true,
-      updatedAt: true,
+    include: {
+      modules: {
+        include: {
+          lessons: {
+            select: { id: true },
+          },
+        },
+      },
+      enrollments: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          progresses: {
+            select: {
+              isCompleted: true,
+            },
+          },
+        },
+        orderBy: { enrolledAt: "desc" },
+      },
+      payments: {
+        where: { status: "COMPLETED" },
+        select: {
+          id: true,
+          userId: true,
+          amount: true,
+          status: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 
-  // Calculate metrics
-  const totalCourses = courses.length;
-  const draftCount = courses.filter((c) => c.status === "DRAFT").length;
-  const pendingCount = courses.filter((c) => c.status === "PENDING_APPROVAL").length;
-  const publishedCount = courses.filter((c) => c.status === "PUBLISHED").length;
-  const revisionCount = courses.filter((c) => c.status === "REVISION_REQUESTED").length;
+  // Fetch any recent revision request audit feedback for authored courses
+  const courseIds = courses.map((c) => c.id);
+  const revisionLogs = await prisma.auditLog.findMany({
+    where: {
+      action: "COURSE_REVISION_REQUESTED",
+      resource: { in: courseIds },
+    },
+    orderBy: { timestamp: "desc" },
+  });
+
+  const feedbackMap: Record<string, string> = {};
+  for (const log of revisionLogs) {
+    if (!feedbackMap[log.resource]) {
+      const details = log.details as any;
+      if (details?.feedback) {
+        feedbackMap[log.resource] = details.feedback;
+      }
+    }
+  }
+
+  // 3. Serialize courses and calculate organic metrics per-course and platform-wide
+  const serializedCourses: InstructorCourseItem[] = courses.map((course) => {
+    const totalLessons = course.modules.reduce(
+      (sum, m) => sum + m.lessons.length,
+      0
+    );
+
+    // Map verified completed payments for this course
+    const userPaymentsMap = new Map<string, { amount: number; createdAt: Date }>();
+    let coursePaymentsSum = 0;
+    for (const p of course.payments) {
+      if (p.status === "COMPLETED") {
+        coursePaymentsSum += Number(p.amount || 0);
+        if (!userPaymentsMap.has(p.userId)) {
+          userPaymentsMap.set(p.userId, {
+            amount: Number(p.amount || 0),
+            createdAt: p.createdAt,
+          });
+        }
+      }
+    }
+
+    // Map enrolled students (Strictly belonging to this instructor's course)
+    const enrolledStudents = course.enrollments.map((e) => {
+      const paymentInfo = userPaymentsMap.get(e.userId);
+      const recordedAmount = e.amountPaid != null ? Number(e.amountPaid) : 0;
+      const paymentAmount = paymentInfo ? paymentInfo.amount : 0;
+      const finalAmountPaid =
+        recordedAmount > 0 ? recordedAmount : paymentAmount;
+
+      const isPaid =
+        finalAmountPaid > 0 ||
+        (Number(course.price || 0) > 0 && Boolean(paymentInfo));
+
+      let paymentStatus: "PAID" | "UNPAID" | "FREE" = "UNPAID";
+      if (isPaid) {
+        paymentStatus = "PAID";
+      } else if (Number(course.price || 0) === 0) {
+        paymentStatus = "FREE";
+      }
+
+      let progressPercent = Math.round(Number(e.progressPercent || 0));
+      if (
+        progressPercent === 0 &&
+        totalLessons > 0 &&
+        e.progresses.length > 0
+      ) {
+        const completed = e.progresses.filter((p) => p.isCompleted).length;
+        progressPercent = Math.round((completed / totalLessons) * 100);
+      }
+      if (progressPercent > 100) progressPercent = 100;
+
+      return {
+        id: e.id,
+        userId: e.userId,
+        name: e.user?.name || "Student Learner",
+        email: e.user?.email || "No email available",
+        image: null,
+        enrolledAt: e.enrolledAt.toISOString(),
+        status: e.status || "ACTIVE",
+        progressPercent,
+        amountPaid: finalAmountPaid,
+        isPaid,
+        paymentStatus,
+        courseId: course.id,
+        courseTitle: course.title,
+        courseCode: course.code,
+        paymentDate: paymentInfo?.createdAt
+          ? paymentInfo.createdAt.toISOString()
+          : e.enrolledAt.toISOString(),
+      };
+    });
+
+    // Compute total course revenue
+    let courseRevenue = coursePaymentsSum;
+    for (const e of course.enrollments) {
+      if (
+        !userPaymentsMap.has(e.userId) &&
+        e.amountPaid != null &&
+        Number(e.amountPaid) > 0
+      ) {
+        courseRevenue += Number(e.amountPaid);
+      }
+    }
+
+    const enrolledCount = enrolledStudents.length;
+    const paidCount = enrolledStudents.filter((s) => s.isPaid).length;
+
+    return {
+      id: course.id,
+      code: course.code,
+      title: course.title,
+      slug: course.slug,
+      status: String(course.status),
+      isPublished: Boolean(course.isPublished),
+      price: Number(course.price || 0),
+      contactHours: Number(course.contactHours || 0),
+      revisionFeedback: feedbackMap[course.id] || null,
+      enrolledCount,
+      paidCount,
+      revenue: courseRevenue,
+      students: enrolledStudents,
+    };
+  });
+
+  // Calculate platform aggregate metrics for instructor
+  const totalCourses = serializedCourses.length;
+  const draftCount = serializedCourses.filter((c) => c.status === "DRAFT").length;
+  const pendingCount = serializedCourses.filter(
+    (c) => c.status === "PENDING_APPROVAL"
+  ).length;
+  const publishedCount = serializedCourses.filter(
+    (c) => c.status === "PUBLISHED" || c.isPublished
+  ).length;
+  const revisionCount = serializedCourses.filter(
+    (c) => c.status === "REVISION_REQUESTED"
+  ).length;
+
+  const totalEnrolledStudents = serializedCourses.reduce(
+    (sum, c) => sum + c.enrolledCount,
+    0
+  );
+  const totalPaidStudents = serializedCourses.reduce(
+    (sum, c) => sum + c.paidCount,
+    0
+  );
+  const totalRevenue = serializedCourses.reduce(
+    (sum, c) => sum + c.revenue,
+    0
+  );
 
   return (
     <div className="min-h-screen bg-[#070e1b] text-slate-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-
         {/* ─── Header Section ─── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
           <div className="space-y-1">
@@ -79,224 +254,139 @@ export default async function InstructorStudioPage() {
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 <GraduationCap className="w-3.5 h-3.5" /> INSTRUCTOR STUDIO
               </span>
-              <span className="text-xs text-slate-500 font-mono">CURRICULUM WORKFLOW</span>
+              <span className="text-xs text-slate-500 font-mono">
+                CURRICULUM &amp; REVENUE LEDGER
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Course Authoring & Submission
+              Course Authoring &amp; Student Rosters
             </h1>
             <p className="text-sm text-slate-400">
-              Draft technical modules, assign departmental codes, and submit courses for Program Administration review.
+              Draft technical modules, inspect admin approval states, and track enrolled &amp; paid students across your syllabi.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition"
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> My Classroom
+            </Link>
+            <Link
+              href="/instructor/courses/new"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all"
+            >
+              <Plus className="w-4 h-4 text-slate-950" />
+              <span>+ Create New Program</span>
             </Link>
           </div>
         </div>
 
-        {/* ─── Metric Overview Cards ─── */}
+        {/* ─── 5 Crisp Dark-Mode KPI Cards ─── */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
+          {/* 1. My Courses */}
           <div className="bg-[#0b1528] border border-slate-800 rounded-xl p-4">
             <div className="flex items-center justify-between text-slate-400 mb-1">
               <span className="text-xs font-medium">My Courses</span>
               <Layers className="w-4 h-4 text-slate-400" />
             </div>
             <p className="text-xl sm:text-2xl font-bold text-white">{totalCourses}</p>
+            <p className="text-[11px] text-slate-400 mt-1 font-mono">
+              {publishedCount} Published • {draftCount} Drafts
+            </p>
           </div>
 
+          {/* 2. Enrolled Students */}
           <div className="bg-[#0b1528] border border-slate-800 rounded-xl p-4">
-            <div className="flex items-center justify-between text-slate-400 mb-1">
-              <span className="text-xs font-medium">Drafts</span>
-              <FileText className="w-4 h-4" />
+            <div className="flex items-center justify-between text-sky-400 mb-1">
+              <span className="text-xs font-medium text-slate-400">Enrolled Students</span>
+              <Users className="w-4 h-4 text-sky-400" />
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-slate-200">{draftCount}</p>
+            <p className="text-xl sm:text-2xl font-bold text-white">{totalEnrolledStudents}</p>
+            <p className="text-[11px] text-slate-400 mt-1">Across your authored tracks</p>
           </div>
 
-          <div className="bg-[#0b1528] border border-slate-800 rounded-xl p-4">
-            <div className="flex items-center justify-between text-amber-400 mb-1">
-              <span className="text-xs font-medium">Pending Review</span>
-              <Clock className="w-4 h-4" />
-            </div>
-            <p className="text-xl sm:text-2xl font-bold text-amber-400">{pendingCount}</p>
-          </div>
-
+          {/* 3. Paid Students */}
           <div className="bg-[#0b1528] border border-slate-800 rounded-xl p-4">
             <div className="flex items-center justify-between text-emerald-400 mb-1">
-              <span className="text-xs font-medium">Published</span>
-              <CheckCircle2 className="w-4 h-4" />
+              <span className="text-xs font-medium text-slate-400">Paid Students</span>
+              <CreditCard className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-emerald-400">{publishedCount}</p>
+            <p className="text-xl sm:text-2xl font-bold text-emerald-400 font-mono">
+              {totalPaidStudents}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-1">Verified tuition enrollments</p>
           </div>
 
-          <div className="bg-[#0b1528] border border-slate-800 rounded-xl p-4 col-span-2 sm:col-span-1">
-            <div className="flex items-center justify-between text-rose-400 mb-1">
-              <span className="text-xs font-medium">Revisions</span>
-              <AlertCircle className="w-4 h-4" />
+          {/* 4. Revenue Generated */}
+          <div className="bg-[#0b1528] border border-slate-800 rounded-xl p-4">
+            <div className="flex items-center justify-between text-emerald-400 mb-1">
+              <span className="text-xs font-medium text-slate-400">Revenue Generated</span>
+              <Receipt className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-rose-400">{revisionCount}</p>
+            <p className="text-xl sm:text-2xl font-bold text-emerald-400 font-mono">
+              ₦{totalRevenue.toLocaleString()}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-1">Total course earnings</p>
+          </div>
+
+          {/* 5. Review Status */}
+          <div className="bg-[#0b1528] border border-slate-800 rounded-xl p-4 col-span-2 sm:col-span-1">
+            <div className="flex items-center justify-between text-amber-400 mb-1">
+              <span className="text-xs font-medium text-slate-400">Review Status</span>
+              <Clock className="w-4 h-4 text-amber-400" />
+            </div>
+            <p className="text-xl sm:text-2xl font-bold text-amber-400">
+              {pendingCount} Pending
+            </p>
+            <p className="text-[11px] text-slate-400 mt-1">
+              {revisionCount} Revisions requested
+            </p>
           </div>
         </div>
 
-        {/* ─── React Server Component Course Draft Form ─── */}
-        <div className="bg-[#0b1528] border border-slate-800 rounded-2xl p-6 shadow-xl">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <BookPlus className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-white">Draft a New Course</h2>
-              <p className="text-xs text-slate-400">
-                Initialize a draft syllabus in your portfolio. Once ready, you can submit it to the Program Administrator for review.
-              </p>
-            </div>
-          </div>
+        {/* ─── Studio Architect Launch Banner ─── */}
+        <div className="bg-gradient-to-br from-[#0b1528] via-[#0b1528] to-[#070e1b] border border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
-          <form action={draftCourse} className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            {/* Title Input */}
-            <div className="md:col-span-9 space-y-1.5">
-              <label htmlFor="title" className="block text-xs font-semibold text-slate-300">
-                Course Title <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input
-                  id="title"
-                  name="title"
-                  type="text"
-                  required
-                  placeholder="e.g. SOLAR 203 - Commercial Microgrid Protection & Sync"
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#070e1b] border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
-                />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 shadow-inner">
+                <BookPlus className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    FULL STUDIO ARCHITECT
+                  </span>
+                  <span className="text-xs text-slate-500">•</span>
+                  <span className="text-xs text-slate-400 font-mono">3-STEP WORKFLOW</span>
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-white">
+                  Architect a New Solar Engineering Program
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
+                  Design end-to-end curriculums with drag-and-drop high-res thumbnails, video stream lectures (HLS/MP4), downloadable technical sheets, and interactive graded module assessments.
+                </p>
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="md:col-span-3 flex items-end">
-              <button
-                type="submit"
-                className="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-sm rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            <div className="flex items-center gap-3 shrink-0">
+              <Link
+                href="/instructor/courses/new"
+                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-bold text-xs sm:text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
               >
-                <BookPlus className="w-4 h-4" />
-                Draft Course
-              </button>
+                <Plus className="w-4 h-4 text-slate-950" />
+                <span>Launch Course Architect</span>
+              </Link>
             </div>
-          </form>
-        </div>
-
-        {/* ─── Tailwind Course Pipeline Table ─── */}
-        <div className="bg-[#0b1528] border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-white">My Authored Courses</h2>
-              <p className="text-xs text-slate-400">
-                Manage your syllabus drafts, inspect review states, and send ready courses to the approval queue.
-              </p>
-            </div>
-            <span className="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
-              {courses.length} {courses.length === 1 ? "Program" : "Programs"}
-            </span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#070e1b]/80 border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                <tr>
-                  <th scope="col" className="px-6 py-3.5">Course Title</th>
-                  <th scope="col" className="px-6 py-3.5">Status</th>
-                  <th scope="col" className="px-6 py-3.5 text-right">Workflow Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-normal">
-                {courses.length === 0 ? (
-                  <tr>
-                    <td colSpan={3} className="px-6 py-12 text-center text-slate-500">
-                      You haven&apos;t drafted any courses yet. Use the form above to initialize your first curriculum.
-                    </td>
-                  </tr>
-                ) : (
-                  courses.map((course) => {
-                    const statusStr = String(course.status);
-
-                    // Color-coded status badge configuration
-                    let badgeStyles = "bg-slate-800 text-slate-300 border-slate-700";
-                    let statusLabel = statusStr;
-
-                    if (statusStr === "DRAFT") {
-                      badgeStyles = "bg-slate-800 text-slate-300 border-slate-700";
-                      statusLabel = "DRAFT";
-                    } else if (statusStr === "PENDING_APPROVAL") {
-                      badgeStyles = "bg-amber-500/10 text-amber-400 border-amber-500/30";
-                      statusLabel = "PENDING APPROVAL";
-                    } else if (statusStr === "PUBLISHED") {
-                      badgeStyles = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
-                      statusLabel = "PUBLISHED";
-                    } else if (statusStr === "REVISION_REQUESTED") {
-                      badgeStyles = "bg-rose-500/10 text-rose-400 border-rose-500/30";
-                      statusLabel = "REVISION REQUESTED";
-                    }
-
-                    // Submission allowed ONLY if status is DRAFT or REVISION_REQUESTED
-                    const canSubmit = statusStr === "DRAFT" || statusStr === "REVISION_REQUESTED";
-
-                    return (
-                      <tr key={course.id} className="hover:bg-slate-800/30 transition-colors">
-                        {/* Course Title & Code */}
-                        <td className="px-6 py-4">
-                          <div className="font-medium text-white">{course.title}</div>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="font-mono text-xs text-amber-400/90">{course.code}</span>
-                            <span className="text-slate-600">•</span>
-                            <span className="text-xs text-slate-500 font-mono">/{course.slug}</span>
-                          </div>
-                        </td>
-
-                        {/* Status Badge */}
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeStyles}`}>
-                            {statusLabel}
-                          </span>
-                        </td>
-
-                        {/* Workflow Action */}
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                          {canSubmit ? (
-                            <form action={submitForApproval.bind(null, course.id)} className="inline-block">
-                              <button
-                                type="submit"
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs shadow-md shadow-amber-500/10 transition-all cursor-pointer active:scale-95"
-                              >
-                                <Send className="w-3.5 h-3.5" />
-                                Submit for Approval
-                              </button>
-                            </form>
-                          ) : statusStr === "PENDING_APPROVAL" ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/60 text-slate-400 text-xs border border-slate-800 cursor-not-allowed">
-                              <Clock className="w-3.5 h-3.5 text-amber-400" />
-                              Under Review
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/60 text-emerald-400 text-xs border border-emerald-500/20 cursor-not-allowed">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                              Live on Platform
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
           </div>
         </div>
 
+        {/* ─── Interactive Courses, Rosters & Paid Students Component ─── */}
+        <InstructorCoursesAndRosters courses={serializedCourses} />
       </div>
     </div>
   );
 }
-

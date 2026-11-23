@@ -86,9 +86,19 @@ export default withAuth(
       }
     }
 
-    // 7. Paths starting with /instructor: Allow Role.INSTRUCTOR
+    // 7. Paths starting with /instructor: Allow Role.INSTRUCTOR, SUPER_ADMIN, PROGRAM_ADMIN, and ADMIN
     if (path.startsWith("/instructor")) {
-      if (role !== Role.INSTRUCTOR && role !== "INSTRUCTOR") {
+      const isAllowedInstructor =
+        role === Role.INSTRUCTOR ||
+        role === "INSTRUCTOR" ||
+        role === Role.SUPER_ADMIN ||
+        role === "SUPER_ADMIN" ||
+        role === Role.PROGRAM_ADMIN ||
+        role === "PROGRAM_ADMIN" ||
+        role === Role.ADMIN ||
+        role === "ADMIN";
+
+      if (!isAllowedInstructor) {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     }
