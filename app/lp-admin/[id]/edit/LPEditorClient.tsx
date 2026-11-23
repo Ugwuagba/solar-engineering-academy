@@ -56,11 +56,16 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
   const [media, setMedia] = useState<LandingPageMediaConfig>({
     heroImageUrl: initialPage.media?.heroImageUrl || "",
     heroCaption: initialPage.media?.heroCaption || "",
+    showHeroImage: initialPage.media?.showHeroImage !== false,
     videoEmbedUrl: initialPage.media?.videoEmbedUrl || "",
     videoTitle: initialPage.media?.videoTitle || "",
+    showVideo: initialPage.media?.showVideo !== false,
     section2Image1Url: initialPage.media?.section2Image1Url || "",
+    showSection2Image1: initialPage.media?.showSection2Image1 !== false,
     section2Image2Url: initialPage.media?.section2Image2Url || "",
+    showSection2Image2: initialPage.media?.showSection2Image2 !== false,
     aboutImageUrl: initialPage.media?.aboutImageUrl || "",
+    showAboutImage: initialPage.media?.showAboutImage !== false,
   });
 
   // Content Sections State
@@ -306,10 +311,22 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
         throw new Error(data.error || "Failed to upload image.");
       }
 
-      setMedia((prev) => ({
-        ...prev,
-        [slotKey]: data.url,
-      }));
+      setMedia((prev) => {
+        const toggleKey =
+          slotKey === "heroImageUrl"
+            ? "showHeroImage"
+            : slotKey === "section2Image1Url"
+            ? "showSection2Image1"
+            : slotKey === "section2Image2Url"
+            ? "showSection2Image2"
+            : "showAboutImage";
+
+        return {
+          ...prev,
+          [slotKey]: data.url,
+          [toggleKey]: true,
+        };
+      });
 
       setSaveMessage({
         type: "success",
@@ -646,32 +663,19 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                   </button>
                 </div>
 
-                {/* Show Placeholders Toggle */}
+                {/* Auto-Reflow Layout Information */}
                 <div className="flex items-start justify-between gap-4 p-4 rounded-2xl bg-slate-950 border border-slate-800">
                   <div>
                     <p className="text-sm font-bold text-white">
-                      Display Visual Media Placeholders
+                      Automatic Layout Reflow
                     </p>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      When ON, empty image slots and unconfigured video slots
-                      render clean labeled dashed cards (ideal for drafting and
-                      reviewing template structure). When OFF, empty media slots
-                      are hidden cleanly without gaps.
+                      When empty or toggled OFF in the Media tab, media slots automatically collapse and the page layout reflows seamlessly without any placeholder boxes or empty gaps.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowPlaceholders(!showPlaceholders)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      showPlaceholders ? "bg-amber-500" : "bg-slate-700"
-                    }`}
-                  >
-                    <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                        showPlaceholders ? "translate-x-5" : "translate-x-0"
-                      }`}
-                    />
-                  </button>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
+                    Auto-Reflow Active
+                  </span>
                 </div>
               </div>
             </div>
@@ -683,16 +687,74 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
         {/* ============================================================== */}
         {activeTab === "media" && (
           <div className="space-y-8 max-w-5xl">
+            {/* Helper Note */}
+            <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-sky-200 text-xs sm:text-sm flex items-start gap-3">
+              <Info className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-white">
+                  Adaptive Layout Reflow
+                </p>
+                <p className="text-slate-300 mt-0.5">
+                  Empty or turned-off media slots are automatically hidden on the live page, and the layout adjusts cleanly.
+                </p>
+              </div>
+            </div>
+
             {/* Video Manager Card */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                  <Video className="w-5 h-5 text-amber-400" />
-                  <span>Hosted Video Embed Player</span>
-                </h2>
-                <span className="text-xs text-slate-400 font-mono">
-                  YouTube / Vimeo / MP4
-                </span>
+            <div
+              className={`bg-slate-900 border rounded-3xl p-6 sm:p-8 space-y-6 transition-all ${
+                media.showVideo === false
+                  ? "border-slate-800/80 opacity-75"
+                  : "border-slate-800"
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <Video className="w-5 h-5 text-amber-400" />
+                    <span>Hosted Video Embed Player</span>
+                  </h2>
+                  <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+                    YouTube / Vimeo / MP4
+                  </span>
+                </div>
+
+                {/* Per-Slot Video Toggle */}
+                <div className="flex items-center gap-3">
+                  {media.showVideo === false && (
+                    <span className="text-[10px] font-semibold text-amber-400/90 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                      Hidden on live page
+                    </span>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-300 font-medium">
+                      Show on live page
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setMedia((prev) => ({
+                          ...prev,
+                          showVideo: prev.showVideo === false ? true : false,
+                        }))
+                      }
+                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        media.showVideo !== false ? "bg-emerald-500" : "bg-slate-700"
+                      }`}
+                      title={
+                        media.showVideo !== false
+                          ? "Hide video on live page"
+                          : "Show video on live page"
+                      }
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                          media.showVideo !== false ? "translate-x-4" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -708,6 +770,7 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                         setMedia((prev) => ({
                           ...prev,
                           videoEmbedUrl: e.target.value,
+                          showVideo: true, // auto flip on when URL entered
                         }))
                       }
                       placeholder="e.g. https://www.youtube.com/watch?v=..."
@@ -791,8 +854,7 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                     <span>Image Asset Manager (4 Configurable Slots)</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Maximum file size is strictly 500 KB per image. Images are
-                    served via high-speed immutable caching.
+                    Maximum file size is strictly 500 KB per image. Empty or disabled slots auto-hide cleanly on live pages.
                   </p>
                 </div>
               </div>
@@ -805,6 +867,10 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                   currentUrl={media.heroImageUrl}
                   caption={media.heroCaption}
                   captionKey="heroCaption"
+                  isEnabled={media.showHeroImage !== false}
+                  onToggleEnabled={(enabled) =>
+                    setMedia((prev) => ({ ...prev, showHeroImage: enabled }))
+                  }
                   isUploading={uploadingSlot === "heroImageUrl"}
                   fileInputRef={heroFileRef}
                   onUpload={(e) => handleImageUpload(e, "heroImageUrl")}
@@ -816,7 +882,11 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                     }))
                   }
                   onUrlChange={(url) =>
-                    setMedia((prev) => ({ ...prev, heroImageUrl: url }))
+                    setMedia((prev) => ({
+                      ...prev,
+                      heroImageUrl: url,
+                      showHeroImage: url ? true : prev.showHeroImage,
+                    }))
                   }
                   onCaptionChange={(caption) =>
                     setMedia((prev) => ({ ...prev, heroCaption: caption }))
@@ -828,6 +898,10 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                   title="Field Installation Photo 1 (Section 2)"
                   slotKey="section2Image1Url"
                   currentUrl={media.section2Image1Url}
+                  isEnabled={media.showSection2Image1 !== false}
+                  onToggleEnabled={(enabled) =>
+                    setMedia((prev) => ({ ...prev, showSection2Image1: enabled }))
+                  }
                   isUploading={uploadingSlot === "section2Image1Url"}
                   fileInputRef={sec2Img1FileRef}
                   onUpload={(e) => handleImageUpload(e, "section2Image1Url")}
@@ -835,7 +909,11 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                     setMedia((prev) => ({ ...prev, section2Image1Url: "" }))
                   }
                   onUrlChange={(url) =>
-                    setMedia((prev) => ({ ...prev, section2Image1Url: url }))
+                    setMedia((prev) => ({
+                      ...prev,
+                      section2Image1Url: url,
+                      showSection2Image1: url ? true : prev.showSection2Image1,
+                    }))
                   }
                 />
 
@@ -844,6 +922,10 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                   title="Field Installation Photo 2 (Section 2)"
                   slotKey="section2Image2Url"
                   currentUrl={media.section2Image2Url}
+                  isEnabled={media.showSection2Image2 !== false}
+                  onToggleEnabled={(enabled) =>
+                    setMedia((prev) => ({ ...prev, showSection2Image2: enabled }))
+                  }
                   isUploading={uploadingSlot === "section2Image2Url"}
                   fileInputRef={sec2Img2FileRef}
                   onUpload={(e) => handleImageUpload(e, "section2Image2Url")}
@@ -851,7 +933,11 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                     setMedia((prev) => ({ ...prev, section2Image2Url: "" }))
                   }
                   onUrlChange={(url) =>
-                    setMedia((prev) => ({ ...prev, section2Image2Url: url }))
+                    setMedia((prev) => ({
+                      ...prev,
+                      section2Image2Url: url,
+                      showSection2Image2: url ? true : prev.showSection2Image2,
+                    }))
                   }
                 />
 
@@ -860,6 +946,10 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                   title="About & Vision Banner Image"
                   slotKey="aboutImageUrl"
                   currentUrl={media.aboutImageUrl}
+                  isEnabled={media.showAboutImage !== false}
+                  onToggleEnabled={(enabled) =>
+                    setMedia((prev) => ({ ...prev, showAboutImage: enabled }))
+                  }
                   isUploading={uploadingSlot === "aboutImageUrl"}
                   fileInputRef={aboutImgFileRef}
                   onUpload={(e) => handleImageUpload(e, "aboutImageUrl")}
@@ -867,7 +957,11 @@ export default function LPEditorClient({ initialPage }: LPEditorClientProps) {
                     setMedia((prev) => ({ ...prev, aboutImageUrl: "" }))
                   }
                   onUrlChange={(url) =>
-                    setMedia((prev) => ({ ...prev, aboutImageUrl: url }))
+                    setMedia((prev) => ({
+                      ...prev,
+                      aboutImageUrl: url,
+                      showAboutImage: url ? true : prev.showAboutImage,
+                    }))
                   }
                 />
               </div>
@@ -1784,6 +1878,8 @@ interface ImageSlotCardProps {
   currentUrl?: string;
   caption?: string;
   captionKey?: string;
+  isEnabled: boolean;
+  onToggleEnabled: (enabled: boolean) => void;
   isUploading: boolean;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -1797,6 +1893,8 @@ function ImageSlotCard({
   currentUrl,
   caption,
   captionKey,
+  isEnabled,
+  onToggleEnabled,
   isUploading,
   fileInputRef,
   onUpload,
@@ -1805,15 +1903,40 @@ function ImageSlotCard({
   onCaptionChange,
 }: ImageSlotCardProps) {
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4 flex flex-col justify-between">
+    <div
+      className={`bg-slate-900 border rounded-3xl p-5 space-y-4 flex flex-col justify-between transition-all ${
+        !isEnabled ? "border-slate-800/80 opacity-75" : "border-slate-800"
+      }`}
+    >
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h3 className="text-xs sm:text-sm font-bold text-white truncate">
             {title}
           </h3>
-          <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-            Max 500KB
-          </span>
+          <div className="flex items-center gap-2">
+            {!isEnabled && (
+              <span className="text-[10px] font-semibold text-amber-400/90 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                Hidden on live page
+              </span>
+            )}
+            <span className="text-[11px] text-slate-400 hidden sm:inline">
+              Show on live page
+            </span>
+            <button
+              type="button"
+              onClick={() => onToggleEnabled(!isEnabled)}
+              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                isEnabled ? "bg-emerald-500" : "bg-slate-700"
+              }`}
+              title={isEnabled ? "Hide on live page" : "Show on live page"}
+            >
+              <span
+                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                  isEnabled ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
         </div>
 
         {/* Preview Container */}
@@ -1830,7 +1953,7 @@ function ImageSlotCard({
               <ImageIcon className="w-8 h-8 mb-1.5 opacity-50" />
               <p className="text-xs font-medium">Slot is Empty</p>
               <p className="text-[10px] text-slate-600 mt-0.5">
-                Shows placeholder card if placeholders are enabled.
+                Automatically hidden on live page with adaptive layout reflow.
               </p>
             </div>
           )}

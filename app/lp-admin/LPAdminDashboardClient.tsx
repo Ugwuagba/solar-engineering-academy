@@ -67,13 +67,13 @@ export default function LPAdminDashboardClient({
   const [dupSourceId, setDupSourceId] = useState("");
   const [dupTitle, setDupTitle] = useState("");
   const [dupSlug, setDupSlug] = useState("");
-  const [dupPlaceholders, setDupPlaceholders] = useState(true);
+  const [dupPlaceholders, setDupPlaceholders] = useState(false);
   const [dupLoading, setDupLoading] = useState(false);
   const [dupError, setDupError] = useState<string | null>(null);
 
   // Bulk Duplicate form state
   const [bulkSourceId, setBulkSourceId] = useState(pages[0]?.id || "");
-  const [bulkPlaceholders, setBulkPlaceholders] = useState(true);
+  const [bulkPlaceholders, setBulkPlaceholders] = useState(false);
   const [bulkRows, setBulkRows] = useState([
     { title: "Solar Ad Campaign 1", slug: "solar-ad-1" },
     { title: "Solar Ad Campaign 2", slug: "solar-ad-2" },
@@ -150,7 +150,7 @@ export default function LPAdminDashboardClient({
     setDupSourceId(page.id);
     setDupTitle(`${page.title} (Copy)`);
     setDupSlug(cleanInputSlug(`${page.slug}-copy`));
-    setDupPlaceholders(true);
+    setDupPlaceholders(false);
     setDupError(null);
     setSingleDupModalOpen(true);
   };
@@ -385,10 +385,10 @@ export default function LPAdminDashboardClient({
           </div>
           <div className="p-4 sm:p-5 rounded-2xl bg-[#0b1528] border border-slate-800 shadow-md">
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-              Placeholders Active
+              Auto-Reflow Engine
             </span>
-            <span className="text-2xl sm:text-3xl font-black text-amber-400 mt-1 block">
-              {pages.filter((p) => p.showPlaceholders).length}
+            <span className="text-2xl sm:text-3xl font-black text-emerald-400 mt-1 block">
+              Active
             </span>
           </div>
         </div>
@@ -431,7 +431,7 @@ export default function LPAdminDashboardClient({
                 <tr className="border-b border-slate-800/80 bg-slate-900/60 text-[11px] font-mono text-slate-400 uppercase tracking-wider">
                   <th className="px-6 py-4">Page Title &amp; Live Slug</th>
                   <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Placeholders</th>
+                  <th className="px-6 py-4">Media Mode</th>
                   <th className="px-6 py-4">Funnel WhatsApp</th>
                   <th className="px-6 py-4">Last Updated</th>
                   <th className="px-6 py-4 text-right">Actions</th>
@@ -500,17 +500,11 @@ export default function LPAdminDashboardClient({
                         </button>
                       </td>
 
-                      {/* Placeholders */}
+                      {/* Media Mode */}
                       <td className="px-6 py-4">
-                        {page.showPlaceholders ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                            Active (Slots Visible)
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
-                            Hidden (Clean)
-                          </span>
-                        )}
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          Auto-Reflow
+                        </span>
                       </td>
 
                       {/* WhatsApp Indicator */}
@@ -763,10 +757,10 @@ export default function LPAdminDashboardClient({
               <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-4">
                 <div>
                   <span className="text-xs font-bold text-white block">
-                    Enable Media Placeholders
+                    Clear Media URLs on Duplicate
                   </span>
                   <span className="text-[11px] text-slate-400 block">
-                    Clears photos on duplicate so visual upload slots are highlighted.
+                    Start with empty media slots (the live page reflows cleanly without placeholders).
                   </span>
                 </div>
                 <input
@@ -853,10 +847,10 @@ export default function LPAdminDashboardClient({
                 <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 self-end">
                   <div>
                     <span className="text-xs font-bold text-white block">
-                      Use Media Placeholders
+                      Clear Media URLs
                     </span>
                     <span className="text-[11px] text-slate-400 block">
-                      Recommended for fresh campaigns
+                      Start fresh with clean empty slots (auto-reflows cleanly)
                     </span>
                   </div>
                   <input

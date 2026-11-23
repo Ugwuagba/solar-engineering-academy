@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { SerializedLandingPage } from "@/lib/landing-page-types";
 import VideoEmbedPlayer from "./VideoEmbedPlayer";
-import MediaPlaceholder from "./MediaPlaceholder";
 
 function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
@@ -63,18 +62,21 @@ interface LandingPageViewProps {
 }
 
 export default function LandingPageView({ page }: LandingPageViewProps) {
-  const { content, media, whatsappUrl, showPlaceholders, metaPixelId } = page;
+  const { content, media, whatsappUrl, metaPixelId } = page;
 
-  const hasHeroImage = Boolean(media.heroImageUrl?.trim());
-  const hasVideoEmbed = Boolean(media.videoEmbedUrl?.trim());
-  const hasSection2Img1 = Boolean(media.section2Image1Url?.trim());
-  const hasSection2Img2 = Boolean(media.section2Image2Url?.trim());
-  const hasAboutImage = Boolean(media.aboutImageUrl?.trim());
-
-  const showHeroMedia = hasHeroImage || showPlaceholders;
-  const showVideoSection = hasVideoEmbed || showPlaceholders;
-  const showSection2Media = hasSection2Img1 || hasSection2Img2 || showPlaceholders;
-  const showAboutMedia = hasAboutImage || showPlaceholders;
+  const hasHeroImage =
+    media.showHeroImage !== false && Boolean(media.heroImageUrl?.trim());
+  const hasVideo =
+    media.showVideo !== false && Boolean(media.videoEmbedUrl?.trim());
+  const hasSection2Image1 =
+    media.showSection2Image1 !== false &&
+    Boolean(media.section2Image1Url?.trim());
+  const hasSection2Image2 =
+    media.showSection2Image2 !== false &&
+    Boolean(media.section2Image2Url?.trim());
+  const hasAnySection2Image = hasSection2Image1 || hasSection2Image2;
+  const hasAboutImage =
+    media.showAboutImage !== false && Boolean(media.aboutImageUrl?.trim());
 
   return (
     <div className="min-h-screen bg-[#070e1b] text-slate-100 flex flex-col antialiased selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden">
@@ -133,17 +135,89 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-blue-600/15 via-amber-500/5 to-transparent blur-3xl pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div
-              className={`grid grid-cols-1 ${
-                showHeroMedia ? "lg:grid-cols-12" : "max-w-4xl mx-auto"
-              } gap-10 lg:gap-12 items-center`}
-            >
-              {/* Left Column: Headlines & CTA */}
-              <div
-                className={`${
-                  showHeroMedia ? "lg:col-span-7" : "w-full text-center"
-                } space-y-6 ${showHeroMedia ? "text-center lg:text-left" : "text-center"}`}
-              >
+            {hasHeroImage ? (
+              /* Two-Column Hero Layout when Media IS Present (100% Unchanged UI) */
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                {/* Left Column: Headlines & CTA */}
+                <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+                  {/* Eyebrow & Highlight Pill */}
+                  <div className="space-y-3">
+                    <div className="text-sm sm:text-base font-extrabold tracking-widest text-amber-400 uppercase">
+                      {content.hero.eyebrow}
+                    </div>
+                    <div>
+                      <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-blue-500/10 text-sky-400 border border-blue-500/25 shadow-sm">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        {content.hero.badge}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Main H1 Headline with Amber Market Value Highlight */}
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] font-black text-white tracking-tight leading-[1.15]">
+                    {content.hero.headline.includes("$268.93 BILLION") ? (
+                      <>
+                        {content.hero.headline.split("$268.93 BILLION")[0]}
+                        <span className="text-amber-400 underline decoration-amber-500/40 underline-offset-8 decoration-4">
+                          $268.93 BILLION
+                        </span>
+                        {content.hero.headline.split("$268.93 BILLION")[1]}
+                      </>
+                    ) : (
+                      content.hero.headline
+                    )}
+                  </h1>
+
+                  {/* Subheadline */}
+                  <p className="text-base sm:text-lg md:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    {content.hero.subheadline}
+                  </p>
+
+                  {/* Hero CTA & Urgency */}
+                  <div className="pt-2 sm:pt-4 space-y-3">
+                    <div>
+                      <WhatsAppCTAButton
+                        url={whatsappUrl}
+                        label={content.hero.ctaText}
+                        size="default"
+                        className="w-full sm:w-auto"
+                      />
+                    </div>
+                    <div className="flex items-center justify-center lg:justify-start gap-2 text-amber-400 font-semibold text-xs sm:text-sm">
+                      <Clock className="w-4 h-4 shrink-0 text-amber-400" />
+                      <span>{content.hero.urgencyText}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Hero Image */}
+                <div className="lg:col-span-5">
+                  <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800 shadow-2xl shadow-blue-950/60 group">
+                    <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full">
+                      <Image
+                        src={media.heroImageUrl!}
+                        alt="Subway Schools Real Field Solar Engineering Installation"
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 40vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                        priority
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#070e1b] via-transparent to-transparent opacity-60" />
+                    </div>
+                    {media.heroCaption && (
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#070e1b]/90 backdrop-blur-md border-t border-slate-800 text-left">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                          <Shield className="w-4 h-4 text-amber-400 shrink-0" />
+                          <span>{media.heroCaption}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Centered Adaptive Layout when Hero Media is Empty or Disabled */
+              <div className="max-w-4xl mx-auto text-center space-y-6">
                 {/* Eyebrow & Highlight Pill */}
                 <div className="space-y-3">
                   <div className="text-sm sm:text-base font-extrabold tracking-widest text-amber-400 uppercase">
@@ -173,12 +247,12 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
                 </h1>
 
                 {/* Subheadline */}
-                <p className="text-base sm:text-lg md:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                <p className="text-base sm:text-lg md:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto">
                   {content.hero.subheadline}
                 </p>
 
                 {/* Hero CTA & Urgency */}
-                <div className="pt-2 sm:pt-4 space-y-3">
+                <div className="pt-2 sm:pt-4 space-y-3 flex flex-col items-center justify-center">
                   <div>
                     <WhatsAppCTAButton
                       url={whatsappUrl}
@@ -187,57 +261,20 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
                       className="w-full sm:w-auto"
                     />
                   </div>
-                  <div className="flex items-center justify-center lg:justify-start gap-2 text-amber-400 font-semibold text-xs sm:text-sm">
+                  <div className="flex items-center justify-center gap-2 text-amber-400 font-semibold text-xs sm:text-sm">
                     <Clock className="w-4 h-4 shrink-0 text-amber-400" />
                     <span>{content.hero.urgencyText}</span>
                   </div>
                 </div>
               </div>
-
-              {/* Right Column: Hero Image or Placeholder */}
-              {showHeroMedia && (
-                <div className="lg:col-span-5">
-                  {hasHeroImage ? (
-                    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800 shadow-2xl shadow-blue-950/60 group">
-                      <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full">
-                        <Image
-                          src={media.heroImageUrl!}
-                          alt="Subway Schools Real Field Solar Engineering Installation"
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 40vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-700"
-                          priority
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#070e1b] via-transparent to-transparent opacity-60" />
-                      </div>
-                      {media.heroCaption && (
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#070e1b]/90 backdrop-blur-md border-t border-slate-800 text-left">
-                          <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                            <Shield className="w-4 h-4 text-amber-400 shrink-0" />
-                            <span>{media.heroCaption}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <MediaPlaceholder
-                      label="Hero Image Slot"
-                      subtitle="Max 500KB • Recommended 1200x800px"
-                      type="image"
-                      theme="dark"
-                      aspect="aspect-[4/3] sm:aspect-[16/11]"
-                    />
-                  )}
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </section>
 
         {/* ═════════════════════════════════════════════════════════════════════
-            VIDEO EMBED SECTION (Between Hero and Section 2)
+            VIDEO EMBED SECTION (Between Hero and Section 2) - Only if Active
            ═════════════════════════════════════════════ */}
-        {showVideoSection && (
+        {hasVideo && (
           <section className="bg-[#050b16] py-12 sm:py-16 border-b border-slate-800/80">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
               <div className="text-center space-y-1">
@@ -249,20 +286,10 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
                 </h3>
               </div>
 
-              {hasVideoEmbed ? (
-                <VideoEmbedPlayer
-                  url={media.videoEmbedUrl!}
-                  title={media.videoTitle || "Webinar Video"}
-                />
-              ) : (
-                <MediaPlaceholder
-                  label="Hosted Video Embed Slot"
-                  subtitle="Supports YouTube (watch, youtu.be, shorts), Vimeo, or direct MP4 URLs"
-                  type="video"
-                  theme="dark"
-                  aspect="aspect-video"
-                />
-              )}
+              <VideoEmbedPlayer
+                url={media.videoEmbedUrl!}
+                title={media.videoTitle || "Webinar Video"}
+              />
             </div>
           </section>
         )}
@@ -272,13 +299,84 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
            ═════════════════════════════════════════════ */}
         <section className="bg-white text-slate-900 py-16 sm:py-24 border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div
-              className={`grid grid-cols-1 ${
-                showSection2Media ? "lg:grid-cols-12" : "max-w-4xl mx-auto"
-              } gap-12 items-center`}
-            >
-              {/* Left Column: Editorial & Checklist */}
-              <div className={`${showSection2Media ? "lg:col-span-7" : "w-full"} space-y-6`}>
+            {hasAnySection2Image ? (
+              /* Two-Column Layout when Section 2 Photos ARE Present */
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                {/* Left Column: Editorial & Checklist */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed">
+                    <p>{content.opportunity.introP1}</p>
+                    <p>{content.opportunity.introP2}</p>
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight pt-2">
+                    {content.opportunity.subLead}
+                  </h3>
+
+                  {/* Styled Checklist */}
+                  <div className="space-y-3 pt-1">
+                    {content.opportunity.checklist.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-3.5 p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-sm"
+                      >
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm sm:text-base font-semibold text-slate-800 leading-snug">
+                          {item}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed pt-2">
+                    <p>{content.opportunity.followUpP1}</p>
+                    <p>{content.opportunity.followUpP2}</p>
+                    <p>{content.opportunity.followUpP3}</p>
+                  </div>
+
+                  <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50/60 border-l-4 border-amber-500 shadow-sm">
+                    <p className="text-base sm:text-lg font-bold text-slate-900 leading-relaxed">
+                      {content.opportunity.calloutBox}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Column: Render ONLY active images (never empty boxes) */}
+                <div className="lg:col-span-5 space-y-6">
+                  {hasSection2Image1 && (
+                    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
+                      <div className="relative aspect-[4/3] w-full">
+                        <Image
+                          src={media.section2Image1Url!}
+                          alt="Commercial Inverter Integration and Power Systems"
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 40vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {hasSection2Image2 && (
+                    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
+                      <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full">
+                        <Image
+                          src={media.section2Image2Url!}
+                          alt="Field Technical Skills in Action"
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 40vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Centered Adaptive Layout when No Section 2 Photos are Active */
+              <div className="max-w-4xl mx-auto space-y-6 text-slate-700">
                 <div className="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed">
                   <p>{content.opportunity.introP1}</p>
                   <p>{content.opportunity.introP2}</p>
@@ -288,21 +386,28 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
                   {content.opportunity.subLead}
                 </h3>
 
-                {/* Styled Checklist */}
-                <div className="space-y-3 pt-1">
-                  {content.opportunity.checklist.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-3.5 p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-sm"
-                    >
-                      <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
-                        <CheckCircle2 className="w-4 h-4" />
+                {/* Checklist arranged into responsive 2-column grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
+                  {content.opportunity.checklist.map((item, idx) => {
+                    const isLastSingle =
+                      idx === content.opportunity.checklist.length - 1 &&
+                      content.opportunity.checklist.length % 2 === 1;
+                    return (
+                      <div
+                        key={idx}
+                        className={`flex items-start gap-3.5 p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-sm ${
+                          isLastSingle ? "md:col-span-2" : ""
+                        }`}
+                      >
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm sm:text-base font-semibold text-slate-800 leading-snug">
+                          {item}
+                        </span>
                       </div>
-                      <span className="text-sm sm:text-base font-semibold text-slate-800 leading-snug">
-                        {item}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed pt-2">
@@ -317,58 +422,7 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
                   </p>
                 </div>
               </div>
-
-              {/* Right Column: Media Slots 1 & 2 */}
-              {showSection2Media && (
-                <div className="lg:col-span-5 space-y-6">
-                  {/* Slot 1 */}
-                  {hasSection2Img1 ? (
-                    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
-                      <div className="relative aspect-[4/3] w-full">
-                        <Image
-                          src={media.section2Image1Url!}
-                          alt="Commercial Inverter Integration and Power Systems"
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 40vw"
-                          className="object-cover"
-                        />
-                      </div>
-                    </div>
-                  ) : showPlaceholders ? (
-                    <MediaPlaceholder
-                      label="Field Photo Slot 1"
-                      subtitle="Recommended 800x600px • Max 500KB"
-                      type="image"
-                      theme="light"
-                      aspect="aspect-[4/3]"
-                    />
-                  ) : null}
-
-                  {/* Slot 2 */}
-                  {hasSection2Img2 ? (
-                    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
-                      <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full">
-                        <Image
-                          src={media.section2Image2Url!}
-                          alt="Field Technical Skills in Action"
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 40vw"
-                          className="object-cover"
-                        />
-                      </div>
-                    </div>
-                  ) : showPlaceholders ? (
-                    <MediaPlaceholder
-                      label="Field Photo Slot 2"
-                      subtitle="Recommended 800x600px • Max 500KB"
-                      type="image"
-                      theme="light"
-                      aspect="aspect-[4/3] sm:aspect-[16/10]"
-                    />
-                  ) : null}
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </section>
 
@@ -523,31 +577,24 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
               </h3>
             </div>
 
-            {/* Supporting Real Solar Image or Placeholder */}
-            {showAboutMedia && (
+            {/* Supporting Real Solar Image (Only when Active) */}
+            {hasAboutImage ? (
               <div>
-                {hasAboutImage ? (
-                  <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-md">
-                    <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full">
-                      <Image
-                        src={media.aboutImageUrl!}
-                        alt="Subway Schools Clean Energy Vision"
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 800px"
-                        className="object-cover"
-                      />
-                    </div>
+                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-md">
+                  <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full">
+                    <Image
+                      src={media.aboutImageUrl!}
+                      alt="Subway Schools Clean Energy Vision"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 800px"
+                      className="object-cover"
+                    />
                   </div>
-                ) : (
-                  <MediaPlaceholder
-                    label="About Banner Image Slot"
-                    subtitle="Recommended 1600x600px • Max 500KB"
-                    type="image"
-                    theme="light"
-                    aspect="aspect-[16/9] sm:aspect-[21/9]"
-                  />
-                )}
+                </div>
               </div>
+            ) : (
+              /* Clean branded accent divider bar when about image is disabled or empty */
+              <div className="w-16 h-1 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full mx-auto my-2" />
             )}
 
             {/* Paragraphs */}

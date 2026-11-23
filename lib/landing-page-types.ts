@@ -72,11 +72,16 @@ export interface LandingPageContent {
 export interface LandingPageMediaConfig {
   heroImageUrl?: string;
   heroCaption?: string;
+  showHeroImage?: boolean;
   videoEmbedUrl?: string;
   videoTitle?: string;
+  showVideo?: boolean;
   section2Image1Url?: string;
+  showSection2Image1?: boolean;
   section2Image2Url?: string;
+  showSection2Image2?: boolean;
   aboutImageUrl?: string;
+  showAboutImage?: boolean;
 }
 
 export interface SerializedLandingPage {

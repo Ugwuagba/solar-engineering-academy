@@ -232,7 +232,7 @@ export async function createLandingPage(data: {
       title,
       slug: cleanSlug,
       isPublished: true,
-      showPlaceholders: true,
+      showPlaceholders: false,
       whatsappUrl:
         data.whatsappUrl?.trim() ||
         master?.whatsappUrl ||
@@ -241,11 +241,16 @@ export async function createLandingPage(data: {
       media: {
         heroImageUrl: "",
         heroCaption: "",
+        showHeroImage: true,
         videoEmbedUrl: "",
         videoTitle: "",
+        showVideo: true,
         section2Image1Url: "",
+        showSection2Image1: true,
         section2Image2Url: "",
+        showSection2Image2: true,
         aboutImageUrl: "",
+        showAboutImage: true,
       } as any,
     },
   });
@@ -345,15 +350,21 @@ export async function duplicateLandingPage(
     throw new Error(`A landing page with slug '/lp/${cleanSlug}' already exists.`);
   }
 
+  const sourceMedia = (source.media as any) || {};
   const newMedia = clearMediaForPlaceholders
     ? {
         heroImageUrl: "",
         heroCaption: "",
+        showHeroImage: sourceMedia.showHeroImage !== false,
         videoEmbedUrl: "",
         videoTitle: "",
+        showVideo: sourceMedia.showVideo !== false,
         section2Image1Url: "",
+        showSection2Image1: sourceMedia.showSection2Image1 !== false,
         section2Image2Url: "",
+        showSection2Image2: sourceMedia.showSection2Image2 !== false,
         aboutImageUrl: "",
+        showAboutImage: sourceMedia.showAboutImage !== false,
       }
     : source.media;
 
@@ -362,7 +373,7 @@ export async function duplicateLandingPage(
       title: newTitleInput.trim() || `${source.title} (Copy)`,
       slug: cleanSlug,
       isPublished: source.isPublished,
-      showPlaceholders: clearMediaForPlaceholders ? true : source.showPlaceholders,
+      showPlaceholders: false,
       whatsappUrl: source.whatsappUrl,
       metaPixelId: source.metaPixelId,
       content: source.content as any,
@@ -429,15 +440,21 @@ export async function bulkDuplicateLandingPages(
     throw new Error(`The following URL slugs are already in use: ${conflicts}. Please choose unique names.`);
   }
 
+  const sourceMedia = (source.media as any) || {};
   const newMedia = clearMediaForPlaceholders
     ? {
         heroImageUrl: "",
         heroCaption: "",
+        showHeroImage: sourceMedia.showHeroImage !== false,
         videoEmbedUrl: "",
         videoTitle: "",
+        showVideo: sourceMedia.showVideo !== false,
         section2Image1Url: "",
+        showSection2Image1: sourceMedia.showSection2Image1 !== false,
         section2Image2Url: "",
+        showSection2Image2: sourceMedia.showSection2Image2 !== false,
         aboutImageUrl: "",
+        showAboutImage: sourceMedia.showAboutImage !== false,
       }
     : source.media;
 
@@ -449,7 +466,7 @@ export async function bulkDuplicateLandingPages(
           title: entry.title,
           slug: entry.slug,
           isPublished: true,
-          showPlaceholders: clearMediaForPlaceholders ? true : source.showPlaceholders,
+          showPlaceholders: false,
           whatsappUrl: source.whatsappUrl,
           metaPixelId: source.metaPixelId,
           content: source.content as any,
