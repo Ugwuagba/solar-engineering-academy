@@ -78,9 +78,9 @@ export default function CourseCarouselSection({ courses = [] }: CourseCarouselSe
         ) : (
           <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-slate-300 max-w-md mx-auto">
             <Award className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-slate-800">New Cohorts in Preparation</h3>
+            <h3 className="text-base font-bold text-slate-800">New Programs in Preparation</h3>
             <p className="text-xs text-slate-500 mt-1">
-              Check back soon or contact admissions for upcoming cohort schedules.
+              Check back soon or contact admissions for upcoming program schedules.
             </p>
           </div>
         )}

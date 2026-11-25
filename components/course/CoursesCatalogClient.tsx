@@ -58,7 +58,7 @@ function CatalogContent({ initialCourses = [] }: { initialCourses?: SeedCourse[]
               <p className="text-xs text-slate-500">
                 {urlQuery.trim()
                   ? "Try searching for other solar engineering topics or browse all programs."
-                  : "Check back soon for upcoming accredited cohorts."}
+                  : "Check back soon for upcoming accredited programs."}
               </p>
               {urlQuery.trim() && (
                 <Link

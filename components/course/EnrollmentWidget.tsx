@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Play, Check, Loader2, Clock, Calendar, Zap, Share2, Gift } from "lucide-react";
+import { Play, Loader2, Clock, Zap, Share2, Gift } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
 import VideoPreviewModal from "./VideoPreviewModal";
@@ -11,9 +11,6 @@ import VideoPreviewModal from "./VideoPreviewModal";
 export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
   const router = useRouter();
   const { data: session, status: authStatus } = useSession();
-  const [selectedCohort, setSelectedCohort] = useState<string>(
-    course.cohorts && course.cohorts.length > 0 ? course.cohorts[0].name : ""
-  );
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -157,39 +154,6 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
               <span>2 days left at this price!</span>
             </div>
           </div>
-
-          {/* Scheduled Cohort Picker if applicable */}
-          {(course?.cohorts?.length || 0) > 0 && (
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#2B82C9]" />
-                Select Cohort Schedule:
-              </label>
-              <div className="space-y-1.5">
-                {course.cohorts?.map((ch) => {
-                  const isSelected = selectedCohort === ch.name;
-                  return (
-                    <div
-                      key={ch.name}
-                      onClick={() => setSelectedCohort(ch.name)}
-                      className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between ${
-                        isSelected
-                          ? "border-[#2B82C9] bg-blue-50/70 text-slate-900 font-semibold"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                      }`}
-                    >
-                      <div className="line-clamp-1 pr-2">
-                        <span>{ch.name}</span>
-                      </div>
-                      <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? "border-[#2B82C9] bg-[#2B82C9] text-white" : "border-slate-300"}`}>
-                        {isSelected && <Check className="w-2 h-2 stroke-[3]" />}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {/* Error Notice */}
           {errorMessage && (

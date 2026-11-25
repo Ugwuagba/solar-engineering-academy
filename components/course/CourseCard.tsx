@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Clock, ArrowRight, Award, Users, CheckCircle, User, Check, Sparkles, Loader2 } from "lucide-react";
+import { Clock, ArrowRight, Award, CheckCircle, User, Check, Sparkles, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
 
@@ -138,17 +138,8 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
 
               <div className="flex items-center gap-1.5 flex-wrap">
                 <div className="flex items-center gap-1 text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-                  {course?.deliveryType === "COHORT" ? (
-                    <>
-                      <Users className="w-3 h-3 text-[#2B82C9]" />
-                      <span>Scheduled Cohort</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-3 h-3 text-emerald-600" />
-                      <span>Self-Paced</span>
-                    </>
-                  )}
+                  <CheckCircle className="w-3 h-3 text-emerald-600" />
+                  <span>Self-Paced</span>
                 </div>
 
                 <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">

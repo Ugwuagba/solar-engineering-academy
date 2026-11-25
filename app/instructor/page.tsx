@@ -8,7 +8,6 @@ import InstructorCoursesAndRosters, {
 } from "./InstructorCoursesAndRosters";
 import {
   GraduationCap,
-  BookPlus,
   ArrowLeft,
   Layers,
   Plus,
@@ -278,7 +277,7 @@ export default async function InstructorStudioPage() {
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all"
             >
               <Plus className="w-4 h-4 text-slate-950" />
-              <span>+ Create New Program</span>
+              <span>Create New Program</span>
             </Link>
           </div>
         </div>
@@ -343,44 +342,6 @@ export default async function InstructorStudioPage() {
             <p className="text-[11px] text-slate-400 mt-1">
               {revisionCount} Revisions requested
             </p>
-          </div>
-        </div>
-
-        {/* ─── Studio Architect Launch Banner ─── */}
-        <div className="bg-gradient-to-br from-[#0b1528] via-[#0b1528] to-[#070e1b] border border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 shadow-inner">
-                <BookPlus className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                    FULL STUDIO ARCHITECT
-                  </span>
-                  <span className="text-xs text-slate-500">•</span>
-                  <span className="text-xs text-slate-400 font-mono">3-STEP WORKFLOW</span>
-                </div>
-                <h2 className="text-lg sm:text-xl font-bold text-white">
-                  Architect a New Solar Engineering Program
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
-                  Design end-to-end curriculums with drag-and-drop high-res thumbnails, video stream lectures (HLS/MP4), downloadable technical sheets, and interactive graded module assessments.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 shrink-0">
-              <Link
-                href="/instructor/courses/new"
-                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-bold text-xs sm:text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
-              >
-                <Plus className="w-4 h-4 text-slate-950" />
-                <span>Launch Course Architect</span>
-              </Link>
-            </div>
           </div>
         </div>
 
