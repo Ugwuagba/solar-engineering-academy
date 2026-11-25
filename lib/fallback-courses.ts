@@ -1206,9 +1206,9 @@ export const PRODUCTION_COURSES_FALLBACK: SeedCourse[] = [
   {
     "id": "cmusan8kl0000l604ezdrwvo8",
     "code": "BATPART2",
-    "title": "Advance Lithium Battery Fabrication Demystified – Part 2",
+    "title": "Advanced Lithium Battery Fabrication Demystified – Part 2",
     "subtitle": "Advanced Techniques for Professional Lithium Battery Design, Assembly and Testing",
-    "slug": "advance-lithium-battery-fabrication-demystified-part-2",
+    "slug": "advanced-lithium-battery-fabrication-demystified-part-2",
     "description": "Advance Lithium Battery Fabrication Demystified – Part 2 is an advanced, practical-focused training designed to take learners beyond the fundamentals of lithium battery fabrication into battery testing, cell evaluation, pack design, capacity calculation, series and parallel configurations, and the fabrication of different battery capacities for real-world applications.\n\nThe course begins with a deeper understanding of Lithium Iron Phosphate (LFP) batteries and other lithium battery types, followed by practical training on using lithium battery testers to determine cell capacity and assess battery condition. Learners will also understand how to determine the required voltage and capacity for different applications and how to properly configure cells in series, parallel, and series/parallel arrangements.",
     "level": "ADVANCED",
     "deliveryType": "SELF_PACED",
@@ -2316,7 +2316,7 @@ export const PRODUCTION_COURSES_FALLBACK: SeedCourse[] = [
   {
     "id": "cmusdp5pn0000ig047smcxou3",
     "code": "CIP1",
-    "title": "INTRODUCTION TO COMMERCIAL, INDUSTRIAL & MINI GRID SOLAR PROJECTS",
+    "title": "Introduction to Commercial, Industrial & Mini-Grid Solar Projects",
     "subtitle": "The Complete Workflow from Project Concept to Completion",
     "slug": "introduction-to-commercial-industrial-mini-grid-solar-projects",
     "description": "This professional course provides a structured understanding of how Commercial, Industrial, and Mini-Grid solar projects are developed from the initial client engagement through project planning, engineering survey, power audit, feasibility assessment, project management, client due diligence, business development, and financing.\n\nParticipants will learn how to understand project requirements, assess energy demand, conduct professional power audits, ask the right questions during client engagement, evaluate contractors, identify common causes of project failure, develop feasibility studies, manage projects professionally, prospect for C&I clients, and explore financing strategies that can reduce the client's upfront financial burden.\n\nThe course is designed to help solar professionals move beyond small-scale residential installations and understand the professional workflow involved in larger and more complex energy projects.",
@@ -3859,9 +3859,9 @@ export const PRODUCTION_COURSES_FALLBACK: SeedCourse[] = [
   {
     "id": "cmuogmbxn0000l404aq18ur8r",
     "code": "CIPART2",
-    "title": "Advance Commercial & Industrial Solar System Design, Installation and Maintenance – Part 2",
+    "title": "Advanced Commercial & Industrial Solar System Design, Installation & Maintenance – Part 2",
     "subtitle": "Advanced Practical Training in C&I Solar Project Execution and Maintenance",
-    "slug": "https-youtu-be-2xp2gztuxr0-si-tjyd6ztxhg0qktsh",
+    "slug": "advanced-commercial-industrial-solar-system-design-installation-maintenance-part-2",
     "description": "Commercial & Industrial Solar System Design, Installation and Maintenance – Part 2 is an advanced professional training designed for learners who want to understand how commercial and industrial solar projects are professionally assessed, designed, installed, commissioned, monitored and maintained.\n\nThe course covers the complete C&I project lifecycle, including energy auditing, load assessment, system sizing, solar resource assessment, component selection, electrical design, protection, installation planning, battery integration, commissioning, maintenance, troubleshooting, HSE, financial analysis and project management.\n\nLearners will also be introduced to the Engineering documentation expected during and after a C&I project, including power audit reports, site drawings, roof information, string diagrams, DC and AC drawings, block diagrams, component designs, system selection documents, BOQs and as-built documentation.\n\nThe course ends in a practical C&I physical project designed to bring together the major skills developed throughout the on training into a physical C&I physical installation where each student will be expected to single handedly execute one project that will be given to him by Subway Energy Limited.",
     "level": "ADVANCED",
     "deliveryType": "SELF_PACED",
@@ -5378,16 +5378,16 @@ export const PRODUCTION_COURSES_FALLBACK: SeedCourse[] = [
     "fieldAttachment": "Official Subway Schools Accredited Certificate of Completion",
     "isPublished": true,
     "whatYouWillLearn": [
-      "Explain the basic concept of solar energy and Understand basic photovoltaic terminologies.",
+      "Explain the basic concepts of solar energy and understand basic photovoltaic terminologies.",
       "Identify the major components of a photovoltaic system.",
-      "Distinguish between different photovoltaic system types and Understand the advantages and disadvantages of each of the photovoltaic system types",
-      "Know how each of the system type affect the cost, sizing and installation of the solar system .",
-      "Explain the relationship between energy sources and electrical loads and Recognize common causes of solar system installation failures",
-      "Understand the reasons why people don’t embrace solar irrespective it numerous advantages .",
-      "Know exactly those factors that determine the size of any solar system installation",
-      "Explain the purpose of a solar power audit and Know the secrets/steps to the success of any professional power audit exercise",
-      "Recognize important roof considerations during solar power projects and Different Types of Roof during solar system installation",
-      "Know the different business opportunities in the Solar Industry and Identify service-sector and product-oriented business opportunities in the solar industry."
+      "Distinguish between different photovoltaic system types and understand the advantages and disadvantages of each.",
+      "Understand how each system type affects the cost, sizing, and installation of a solar system.",
+      "Explain the relationship between energy sources and electrical loads, and recognize common causes of solar system installation failures.",
+      "Understand the reasons why people hesitate to embrace solar energy despite its numerous advantages.",
+      "Know the exact factors that determine the size of any solar system installation.",
+      "Explain the purpose of a solar power audit and master the steps to a successful professional power audit exercise.",
+      "Recognize important roof considerations and different roof types during solar power projects and installations.",
+      "Identify the various service-sector and product-oriented business opportunities in the solar industry."
     ],
     "requirements": [
       "Basic understanding of electrical principles (Voltage, Current, Resistance)",
@@ -6812,7 +6812,7 @@ export const PRODUCTION_COURSES_FALLBACK: SeedCourse[] = [
   {
     "id": "cmusj43vw0000l6043bamcnry",
     "code": "SGFAB",
-    "title": "PROFESSIONAL SOLAR GENERATOR FABRICATION",
+    "title": "Professional Solar Generator Fabrication",
     "subtitle": "Design, Build, Test and Deliver Professional Solar Generator Systems",
     "slug": "professional-solar-generator-fabrication",
     "description": "Professional Solar Generator Fabrication is a practical, step-by-step technical training designed to take learners through the complete process of designing, sizing, assembling, installing, testing, and commissioning a solar generator.\n\nThe course covers both the engineering calculations and practical fabrication workflow, beginning with understanding the solar generator and its major components, followed by energy assessment, battery and solar panel sizing, charge controller and inverter selection, enclosure preparation, component mounting, wiring, finishing, testing, and charging confirmation.\n\nStudents will learn how to approach solar generator fabrication systematically rather than relying on trial and error.",
@@ -7764,7 +7764,7 @@ export const PRODUCTION_COURSES_FALLBACK: SeedCourse[] = [
   {
     "id": "cmudmk8200000jo044dg6vinh",
     "code": "SI102",
-    "title": "SOLAR INSTALLATION 102",
+    "title": "Solar Installation 102",
     "subtitle": "The A – Z of Solar Components, Professional Solar System Design & Maintenance",
     "slug": "solar-installation-102",
     "description": "Professional Solar System Design (Solar Installation 102) is a professional solar training course designed to develop the learner’s understanding of the major components used in photovoltaic (PV) systems and how these components are selected, configured, and properly sized during solar system design.\nThe course focuses on four major components of a solar power system: solar panels, solar charge controllers, solar batteries, and solar inverters.\n\nLearners will study the characteristics, specifications, applications, configuration, and sizing considerations of these components. The course also helps learners understand the relationship between the different components and how their individual specifications affect the overall design, operation, and performance of a solar power system.\n\nThe course is designed to help learners move beyond simply installing solar equipment to developing the technical understanding required for professional solar system design and component selection.",

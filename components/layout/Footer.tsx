@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { 
   Sun, 
@@ -9,7 +10,8 @@ import {
   Send, 
   MapPin, 
   Phone, 
-  Briefcase 
+  Briefcase,
+  Loader2
 } from "lucide-react";
 
 
@@ -18,8 +20,55 @@ interface FooterProps {
 }
 
 export default function Footer({ courseSlugs = {} }: FooterProps) {
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterFeedback, setNewsletterFeedback] = useState<{
+    type: "success" | "info" | "error";
+    text: string;
+  } | null>(null);
+
   const getCourseHref = (code: string) =>
     courseSlugs[code] ? `/courses/${courseSlugs[code]}` : `/courses?q=${encodeURIComponent(code)}`;
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = newsletterEmail.trim();
+    if (!trimmed) {
+      setNewsletterFeedback({ type: "error", text: "Please enter an email address." });
+      return;
+    }
+
+    setNewsletterLoading(true);
+    setNewsletterFeedback(null);
+
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.status === "subscribed") {
+        setNewsletterFeedback({ type: "success", text: data.message || "Subscribed!" });
+        setNewsletterEmail("");
+      } else if (res.ok && data?.status === "already_subscribed") {
+        setNewsletterFeedback({ type: "info", text: data.message || "You're already subscribed." });
+      } else {
+        setNewsletterFeedback({
+          type: "error",
+          text: data?.message || "Unable to subscribe. Please check your email.",
+        });
+      }
+    } catch {
+      setNewsletterFeedback({
+        type: "error",
+        text: "Network error. Please try again.",
+      });
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
 
   return (
     <footer className="border-t border-slate-200 bg-[#0F172A] text-slate-300 text-sm">
@@ -165,20 +214,42 @@ export default function Footer({ courseSlugs = {} }: FooterProps) {
             <p className="text-xs text-slate-400 leading-relaxed">
               Receive quarterly technical briefs on industrial solar, NEC revisions, and new academy program launches.
             </p>
-            <div className="flex items-center gap-1.5">
+            <form onSubmit={handleSubscribe} className="flex items-center gap-1.5">
               <input
                 type="email"
+                required
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="engineer@firm.com"
-                className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-[#2B82C9]"
+                disabled={newsletterLoading}
+                className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-[#2B82C9] disabled:opacity-60"
               />
               <button
-                onClick={() => alert("Subscribed to Subway Energy Bulletin!")}
-                className="p-2 rounded-lg bg-[#2B82C9] hover:bg-[#226ba8] text-white shrink-0 cursor-pointer"
+                type="submit"
+                disabled={newsletterLoading}
+                className="p-2 rounded-lg bg-[#2B82C9] hover:bg-[#226ba8] text-white shrink-0 cursor-pointer disabled:opacity-60"
                 title="Subscribe"
               >
-                <Send className="w-3.5 h-3.5" />
+                {newsletterLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Send className="w-3.5 h-3.5" />
+                )}
               </button>
-            </div>
+            </form>
+            {newsletterFeedback && (
+              <p
+                className={`text-[11px] font-medium ${
+                  newsletterFeedback.type === "success"
+                    ? "text-emerald-400"
+                    : newsletterFeedback.type === "info"
+                    ? "text-sky-400"
+                    : "text-rose-400"
+                }`}
+              >
+                {newsletterFeedback.text}
+              </p>
+            )}
           </div>
         </div>
 
@@ -186,9 +257,15 @@ export default function Footer({ courseSlugs = {} }: FooterProps) {
         <div className="mt-12 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>© 2026 Subway Energy Limited (RC: 1837154). All rights reserved. &ldquo;...light up your world&rdquo;</p>
           <div className="flex gap-6">
-            <span className="hover:text-slate-400 cursor-pointer">Terms of Attachment</span>
-            <span className="hover:text-slate-400 cursor-pointer">Certificate Verification</span>
-            <span className="hover:text-slate-400 cursor-pointer">HSE Protocol</span>
+            <Link href="/terms-of-attachment" className="hover:text-slate-300 transition-colors">
+              Terms of Attachment
+            </Link>
+            <Link href="/certificate-verification" className="hover:text-slate-300 transition-colors">
+              Certificate Verification
+            </Link>
+            <Link href="/hse-protocol" className="hover:text-slate-300 transition-colors">
+              HSE Protocol
+            </Link>
           </div>
         </div>
       </div>

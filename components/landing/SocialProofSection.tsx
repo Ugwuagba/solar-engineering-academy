@@ -3,6 +3,18 @@
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
+function getInitials(fullName: string): string {
+  const withoutCredentials = fullName.split(",")[0].trim();
+  const honorifics = new Set(["engr.", "engr", "dr.", "dr", "mr.", "mr", "mrs.", "mrs", "ms.", "ms", "prof.", "prof"]);
+  const words = withoutCredentials
+    .split(/\s+/)
+    .filter((w) => w.length > 0 && !honorifics.has(w.toLowerCase()));
+
+  if (words.length === 0) return fullName.slice(0, 2).toUpperCase();
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase();
+}
+
 export default function SocialProofSection() {
   const testimonials = [
     {
@@ -17,7 +29,7 @@ export default function SocialProofSection() {
     {
       name: "Chidinma Okafor",
       role: "Renewable Energy Project Developer",
-      course: "Subway Schools Alumna (Cohort 2025)",
+      course: "Subway Schools Alumna",
       content:
         "Before Subway Schools, I only understood panels in series. This academy taught me actual mathematical deratings for ambient temperature, inverter clipping limits, and Deye hybrid wiring. I secured an EPC role right after my field attachment.",
       rating: 5,
@@ -74,7 +86,7 @@ export default function SocialProofSection() {
 
               <div className="pt-4 border-t border-slate-100 flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-full ${item.avatarBg} text-white font-bold flex items-center justify-center text-xs shrink-0`}>
-                  {item.name.slice(0, 2).toUpperCase()}
+                  {getInitials(item.name)}
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-900">{item.name}</h4>

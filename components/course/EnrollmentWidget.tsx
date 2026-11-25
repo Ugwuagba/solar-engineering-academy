@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Play, Loader2, Clock, Zap, Share2, Gift } from "lucide-react";
+import { Play, Loader2, Clock, Zap, Share2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
 import VideoPreviewModal from "./VideoPreviewModal";
@@ -72,9 +72,25 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
     }
   };
 
-  const handleShare = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
+  const handleShare = async () => {
+    if (typeof window === "undefined") return;
+    const shareUrl = window.location.href;
+
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try {
+        await navigator.share({
+          title: course.title,
+          url: shareUrl,
+        });
+        return;
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
+        // Fall back to clipboard if Web Share fails
+      }
+    }
+
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -198,22 +214,15 @@ export default function EnrollmentWidget({ course }: { course: SeedCourse }) {
             </p>
           </div>
 
-          {/* Share / Gift links */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-around text-xs font-semibold text-slate-600">
+          {/* Share link */}
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-center text-xs font-semibold text-slate-600">
             <button 
+              type="button"
               onClick={handleShare}
               className="flex items-center gap-1.5 hover:text-[#2B82C9] transition-colors cursor-pointer"
             >
               <Share2 className="w-3.5 h-3.5" />
               <span>{copied ? "Link Copied!" : "Share"}</span>
-            </button>
-            <span className="text-slate-200">|</span>
-            <button 
-              onClick={handleEnroll}
-              className="flex items-center gap-1.5 hover:text-[#2B82C9] transition-colors cursor-pointer"
-            >
-              <Gift className="w-3.5 h-3.5" />
-              <span>Gift this course</span>
             </button>
           </div>
         </div>
