@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Clock, ArrowRight, Award, CheckCircle, User, Check, Sparkles, Loader2 } from "lucide-react";
+import { Clock, ArrowRight, Award, CheckCircle, User, Check, Sparkles, Loader2, BookOpen } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { SeedCourse } from "@/lib/seed-data";
 
@@ -67,16 +67,58 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
       ? 15
       : (course?.contactHours || 40);
 
-  const outcomes: string[] =
-    (Array.isArray(course?.features) && course.features.length > 0 && course.features) ||
-    (Array.isArray(course?.whatYouWillLearn) && course.whatYouWillLearn.length > 0 && course.whatYouWillLearn) ||
-    (Array.isArray(course?.learningOutcomes) && course.learningOutcomes.length > 0 && course.learningOutcomes) ||
-    (Array.isArray(course?.outcomes) && course.outcomes.length > 0 && course.outcomes) ||
-    [
-      "Master scientific solar PV design according to international standards",
-      "Sizing battery energy storage systems (BESS) for continuous operation",
-      "Equipment commissioning, hybrid inverter programming, and fault diagnostics",
-    ];
+  const parseRawOutcomes = (raw: any): string[] => {
+    if (Array.isArray(raw)) {
+      return raw.filter((item) => typeof item === "string" && item.trim().length > 0);
+    }
+    if (typeof raw === "string" && raw.trim().length > 0) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((item) => typeof item === "string" && item.trim().length > 0);
+        }
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
+  const rawOutcomes =
+    parseRawOutcomes(course?.learningOutcomes).length > 0
+      ? parseRawOutcomes(course?.learningOutcomes)
+      : parseRawOutcomes(course?.whatYouWillLearn).length > 0
+      ? parseRawOutcomes(course?.whatYouWillLearn)
+      : parseRawOutcomes(course?.features).length > 0
+      ? parseRawOutcomes(course?.features)
+      : parseRawOutcomes(course?.outcomes).length > 0
+      ? parseRawOutcomes(course?.outcomes)
+      : parseRawOutcomes(course?.whatYoullLearn);
+
+  const fallbackSummary = (course?.subtitle || course?.shortDescription || course?.description || "").trim();
+  const outcomes: string[] = (
+    rawOutcomes.length > 0
+      ? rawOutcomes
+      : fallbackSummary
+      ? [fallbackSummary]
+      : [course?.title || "Accredited solar engineering curriculum"]
+  ).map((item) => item.replace(/\t+/g, " ").trim());
+
+  const moduleCount: number =
+    typeof course?.modulesCount === "number"
+      ? course.modulesCount
+      : Array.isArray(course?.modules)
+      ? course.modules.length
+      : 0;
+
+  const parsedUpdatedDate = course?.updatedAt ? new Date(course.updatedAt) : null;
+  const updatedLabel =
+    parsedUpdatedDate && !Number.isNaN(parsedUpdatedDate.getTime())
+      ? `Updated ${new Intl.DateTimeFormat("en-US", {
+          month: "long",
+          year: "numeric",
+        }).format(parsedUpdatedDate)}`
+      : "Accredited Program";
 
   const priceFormatted = `₦${course?.price ? Number(course.price).toLocaleString() : '5,000'}`;
 
@@ -129,11 +171,15 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
         {/* Compact Card Content Body */}
         <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
           <div className="space-y-2.5">
-            {/* Rating & Delivery Badges */}
+            {/* Module Count & Delivery Badges */}
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1 text-amber-500 text-xs font-bold font-mono">
-                <span>★ {course?.rating || 4.9}</span>
-                <span className="text-slate-400 font-normal">({(course?.ratingCount || 120).toLocaleString()})</span>
+              <div className="flex items-center gap-1.5 text-slate-600 text-xs font-bold font-mono">
+                <BookOpen className="w-3.5 h-3.5 text-[#2B82C9] shrink-0" />
+                <span>
+                  {moduleCount > 0
+                    ? `${moduleCount} ${moduleCount === 1 ? "Module" : "Modules"}`
+                    : "Accredited Track"}
+                </span>
               </div>
 
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -203,7 +249,7 @@ export default function CourseCard({ course }: { course: SeedCourse | any }) {
               {course?.code || "SUBWAY"} • MASTERCLASS
             </span>
             <span className="text-[10px] font-medium text-slate-400 font-mono">
-              Updated September 2026
+              {updatedLabel}
             </span>
           </div>
 

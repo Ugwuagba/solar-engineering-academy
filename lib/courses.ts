@@ -172,7 +172,12 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
         thumbnailUrl: true,
         badge: true,
         instructorName: true,
+        whatYoullLearn: true,
+        updatedAt: true,
         order: true,
+        _count: {
+          select: { modules: true },
+        },
       },
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
@@ -181,6 +186,8 @@ export async function getAllCourses(): Promise<SeedCourse[]> {
       return dbCourses.map((c) => ({
         ...mapPrismaCourseToSeedCourse(c),
         id: c.id,
+        modulesCount: c._count?.modules ?? 0,
+        updatedAt: c.updatedAt ? new Date(c.updatedAt).toISOString() : undefined,
       }));
     }
 

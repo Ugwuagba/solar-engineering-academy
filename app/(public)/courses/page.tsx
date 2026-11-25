@@ -59,8 +59,7 @@ export default async function CoursesCatalogPage() {
       courses = dbCourses.map((c: any) => {
         try {
           const rawFeatures = c?.features || c?.whatYoullLearn;
-          const parsedFeatures = parseFeatures(rawFeatures);
-          const features = parsedFeatures.length > 0 ? parsedFeatures : (courseFallbackFeatures(c?.code));
+          const features = parseFeatures(rawFeatures);
 
           const formattedPrice = c?.price ? Number(c.price).toLocaleString() : "5,000";
           const priceNgn = `₦${formattedPrice}`;
@@ -114,6 +113,8 @@ export default async function CoursesCatalogPage() {
             modulesCount: c?.modules?.length || 0,
             features,
             whatYouWillLearn: features,
+            learningOutcomes: features,
+            updatedAt: c?.updatedAt ? new Date(c.updatedAt).toISOString() : undefined,
           };
         } catch (itemError) {
           console.error("[COURSES_PAGE_ERROR]: Error processing course record:", itemError);

@@ -9,7 +9,7 @@ import { SeedCourse } from "@/lib/seed-data";
 
 function CatalogContent({ initialCourses = [] }: { initialCourses?: SeedCourse[] | any[] }) {
   const searchParams = useSearchParams();
-  const urlQuery = searchParams.get("query") || "";
+  const urlQuery = searchParams.get("query") || searchParams.get("q") || "";
 
   const baseCourses = Array.isArray(initialCourses) ? initialCourses : [];
 

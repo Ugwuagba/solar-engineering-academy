@@ -13,7 +13,14 @@ import {
 } from "lucide-react";
 
 
-export default function Footer() {
+interface FooterProps {
+  courseSlugs?: Record<string, string>;
+}
+
+export default function Footer({ courseSlugs = {} }: FooterProps) {
+  const getCourseHref = (code: string) =>
+    courseSlugs[code] ? `/courses/${courseSlugs[code]}` : `/courses?q=${encodeURIComponent(code)}`;
+
   return (
     <footer className="border-t border-slate-200 bg-[#0F172A] text-slate-300 text-sm">
       {/* 1. Industrial Credential & Assurance Banner */}
@@ -65,9 +72,9 @@ export default function Footer() {
 
       {/* 2. Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
-          {/* Company Summary */}
-          <div className="md:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12">
+          {/* Column 1: Brand & Contact */}
+          <div className="md:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-1 shadow-sm shrink-0 overflow-hidden">
                 <img 
@@ -86,11 +93,11 @@ export default function Footer() {
               </div>
             </div>
 
-            <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
-              Subway Energy Limited (RC: 1837154) delivers premier commercial & industrial solar engineering, power auditing, and high-yield mini-grid installations. Through <strong>Subway Schools</strong>, we train and field-deploy certified solar engineers across Nigeria and West Africa.
+            <p className="text-xs text-slate-400 max-w-md leading-relaxed">
+              Subway Energy Limited (RC: 1837154) delivers premier commercial &amp; industrial solar engineering, power auditing, and high-yield mini-grid installations. Through <strong>Subway Schools</strong>, we train and field-deploy certified solar engineers across Nigeria and West Africa.
             </p>
 
-            <div className="pt-2 text-xs text-slate-400 space-y-2">
+            <div className="pt-2 text-xs text-slate-400 space-y-2 max-w-md">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#2B82C9] shrink-0 mt-0.5" />
                 <span>Head Office: 23 Ikot Edet Use Abat, Ibiono Ibom L.G.A • Branch Office: 106 Ikot Ekpene Road</span>
@@ -116,25 +123,30 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Academy Tracks */}
-          <div>
+          {/* Column 2: Subway Schools Academy */}
+          <div className="md:col-span-3">
             <h4 className="text-xs font-bold uppercase text-white tracking-wider mb-4 border-b border-slate-800 pb-2">
               Subway Schools Academy
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
               <li>
-                <Link href="/courses/solar-installation-101" prefetch={false} className="hover:text-[#2B82C9] transition-colors font-medium text-slate-200">
-                  Solar Installation 101 (Engr. Asanga)
+                <Link href={getCourseHref("SI101")} prefetch={false} className="hover:text-[#2B82C9] transition-colors font-medium text-slate-200">
+                  Solar Installation 101
                 </Link>
               </li>
               <li>
-                <Link href="/courses/pvol101" prefetch={false} className="hover:text-[#2B82C9] transition-colors">
-                  Commercial PV Design (PVOL101)
+                <Link href={getCourseHref("COMSIT")} prefetch={false} className="hover:text-[#2B82C9] transition-colors">
+                  The Solar Fast-Track Blueprint
                 </Link>
               </li>
               <li>
-                <Link href="/courses/bess201" prefetch={false} className="hover:text-[#2B82C9] transition-colors">
-                  Battery Storage Sizing (BESS201)
+                <Link href={getCourseHref("CIP1")} prefetch={false} className="hover:text-[#2B82C9] transition-colors">
+                  Commercial &amp; Industrial Solar
+                </Link>
+              </li>
+              <li>
+                <Link href={getCourseHref("LBF1")} prefetch={false} className="hover:text-[#2B82C9] transition-colors">
+                  Lithium Battery Fabrication
                 </Link>
               </li>
               <li>
@@ -142,45 +154,16 @@ export default function Footer() {
                   Full Technical Catalog
                 </Link>
               </li>
-              <li>
-                <Link href="/courses/solar-installation-101#companion" prefetch={false} className="hover:text-amber-400 transition-colors">
-                  Solar Companion Handbook
-                </Link>
-              </li>
             </ul>
           </div>
 
-          {/* Commercial Solutions */}
-          <div>
-            <h4 className="text-xs font-bold uppercase text-white tracking-wider mb-4 border-b border-slate-800 pb-2">
-              Industrial Solutions
-            </h4>
-            <ul className="space-y-2.5 text-xs text-slate-400">
-              <li>
-                <span className="text-slate-300">Commercial & Industrial Mini-Grids</span>
-              </li>
-              <li>
-                <span className="text-slate-300">Commercial Hybrid Inverter Systems</span>
-              </li>
-              <li>
-                <span className="text-slate-300">Industrial Facility Power Auditing</span>
-              </li>
-              <li>
-                <span className="text-slate-300">Preventative Solar O&M Contracts</span>
-              </li>
-              <li>
-                <span className="text-slate-300">Corporate Technician Deployment</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Newsletter / Bulletin */}
-          <div className="space-y-3">
+          {/* Column 3: Engineering Bulletin */}
+          <div className="md:col-span-4 space-y-3">
             <h4 className="text-xs font-bold uppercase text-white tracking-wider mb-2 border-b border-slate-800 pb-2">
               Engineering Bulletin
             </h4>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Receive quarterly technical briefs on industrial solar, NEC revisions, and cohort enrollment openings.
+              Receive quarterly technical briefs on industrial solar, NEC revisions, and new academy program launches.
             </p>
             <div className="flex items-center gap-1.5">
               <input

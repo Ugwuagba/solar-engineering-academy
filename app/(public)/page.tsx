@@ -10,6 +10,21 @@ import { CourseStatus } from "@prisma/client";
 
 export const revalidate = 60; // Cache page for 60 seconds
 
+function parseOutcomes(raw: any): string[] {
+  if (Array.isArray(raw)) return raw.filter((item) => typeof item === "string" && item.trim().length > 0);
+  if (typeof raw === "string" && raw.trim().length > 0) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((item) => typeof item === "string" && item.trim().length > 0);
+      }
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 export default async function HomePage() {
   let dbCourses: any[] = [];
   try {
@@ -36,7 +51,12 @@ export default async function HomePage() {
         thumbnailUrl: true,
         badge: true,
         instructorName: true,
+        whatYoullLearn: true,
+        updatedAt: true,
         order: true,
+        _count: {
+          select: { modules: true },
+        },
       },
     });
   } catch (err) {
@@ -49,6 +69,7 @@ export default async function HomePage() {
   const courses = sourceCourses.map((c: any) => {
     const priceNgn = `₦${Number(c.price || 0).toLocaleString()}`;
     const originalPriceNgn = c.originalPrice ? `₦${Number(c.originalPrice).toLocaleString()}` : undefined;
+    const learningOutcomes = parseOutcomes(c.whatYoullLearn);
 
     return {
       id: c.id,
@@ -69,8 +90,6 @@ export default async function HomePage() {
       priceNgn,
       tuitionFee: priceNgn,
       originalPriceNgn,
-      rating: 4.9,
-      ratingCount: 120,
       thumbnailUrl: c.thumbnailUrl || "",
       thumbnailImage: c.thumbnailUrl || "",
       imageUrl: c.thumbnailUrl || "",
@@ -79,6 +98,10 @@ export default async function HomePage() {
       instructorName: c.instructorName || "Engr. Asanga (Certified Solar Professional)",
       fieldAttachment: "Official Accredited Certificate",
       isPublished: true,
+      learningOutcomes,
+      whatYouWillLearn: learningOutcomes,
+      modulesCount: c._count?.modules ?? 0,
+      updatedAt: c.updatedAt ? new Date(c.updatedAt).toISOString() : undefined,
     };
   });
 
@@ -129,7 +152,7 @@ export default async function HomePage() {
           </h2>
 
           <p className="text-base text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
-            Whether you need a turn-key commercial rooftop solar system or wish to enroll in the next physical field attachment cohort with Engr. Asanga, our engineering team is standing by.
+            Whether you need a turn-key commercial rooftop solar system or wish to enroll in our accredited solar engineering programs with Engr. Asanga, our engineering team is standing by.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
