@@ -70,7 +70,7 @@ export default function AboutBusinessPage() {
             </Link>
 
             <a
-              href="tel:+2348000000000"
+              href="tel:+2347012715632"
               className="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer"
             >
               <PhoneCall className="w-4 h-4 text-[#E13B2B]" />
@@ -170,15 +170,19 @@ export default function AboutBusinessPage() {
           <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-sm text-slate-700 font-medium">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-[#2B82C9]" />
-              <span>info@subwayschools.com</span>
+              <a href="mailto:subwayschoolsadmin@gmail.com" className="hover:text-[#2B82C9] transition-colors">
+                subwayschoolsadmin@gmail.com
+              </a>
             </div>
             <div className="flex items-center gap-2">
               <PhoneCall className="w-4 h-4 text-[#E13B2B]" />
-              <span>+234 (0) 800-SUBWAY-ENG</span>
+              <a href="tel:+2347012715632" className="hover:text-[#E13B2B] transition-colors">
+                +234 701 271 5632
+              </a>
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-emerald-600" />
-              <span>Lagos & Abuja, Nigeria</span>
+            <div className="flex items-start gap-2 text-left">
+              <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span>Head Office: 23 Ikot Edet Use Abat, Ibiono Ibom L.G.A • Branch Office: 106 Ikot Ekpene Road</span>
             </div>
           </div>
         </div>

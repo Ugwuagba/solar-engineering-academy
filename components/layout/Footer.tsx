@@ -91,17 +91,27 @@ export default function Footer() {
             </p>
 
             <div className="pt-2 text-xs text-slate-400 space-y-2">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#2B82C9] shrink-0" />
-                <span>Headquarters: Commercial Industrial Hub, Lagos, Nigeria</span>
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-[#2B82C9] shrink-0 mt-0.5" />
+                <span>Head Office: 23 Ikot Edet Use Abat, Ibiono Ibom L.G.A • Branch Office: 106 Ikot Ekpene Road</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#E13B2B] shrink-0" />
-                <span>Client & Trainee Hotline: +234 800 SUBWAY ENERGY</span>
+                <span>
+                  Phone:{" "}
+                  <a href="tel:+2347012715632" className="hover:text-white transition-colors">
+                    +234 701 271 5632
+                  </a>
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Admissions: info@subwayenergy.com</span>
+                <span>
+                  Admissions:{" "}
+                  <a href="mailto:subwayschoolsadmin@gmail.com" className="hover:text-white transition-colors">
+                    subwayschoolsadmin@gmail.com
+                  </a>
+                </span>
               </div>
             </div>
           </div>

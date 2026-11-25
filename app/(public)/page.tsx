@@ -143,7 +143,7 @@ export default async function HomePage() {
             </Link>
 
             <a
-              href="tel:+2348000000000"
+              href="tel:+2347012715632"
               className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] backdrop-blur-md border border-white/30 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all cursor-pointer"
             >
               <PhoneCall className="w-4 h-4 text-[#E13B2B]" />
