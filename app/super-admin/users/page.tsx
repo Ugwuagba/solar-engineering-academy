@@ -3,15 +3,13 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
 import { Role, CourseStatus } from "@prisma/client";
-import { createStaffAccount } from "../actions/user-actions";
 import ActiveCoursesRoster from "./ActiveCoursesRoster";
+import ProvisionStaffForm from "./ProvisionStaffForm";
 import Link from "next/link";
 import {
   ShieldCheck,
-  UserPlus,
   Users,
   Calendar,
-  Mail,
   ArrowLeft,
   GraduationCap,
   Shield,
@@ -24,8 +22,7 @@ import {
   AlertCircle,
   ExternalLink,
   Edit,
-  Globe,
-  Sparkles
+  Globe
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -63,28 +60,31 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
       ? resolvedParams.tab
       : "staff";
 
-  // 2. Overview metrics & counts across all roles
+  // 2. Single live Prisma query for all users + overview counts so KPIs, tabs, and directory always match 100%
   const [
-    totalUsersCount,
-    superAdminsCount,
-    programAdminsCount,
-    instructorsCount,
-    lpEditorsCount,
-    learnersCount,
+    allUsers,
     allPaymentsTotal,
     publishedCoursesCount,
     landingPagesCount,
   ] = await Promise.all([
-    prisma.user.count().catch(() => 0),
-    prisma.user.count({ where: { role: Role.SUPER_ADMIN } }).catch(() => 0),
-    prisma.user.count({ where: { role: Role.PROGRAM_ADMIN } }).catch(() => 0),
-    prisma.user.count({ where: { role: Role.INSTRUCTOR } }).catch(() => 0),
-    prisma.user.count({ where: { role: Role.LP_EDITOR } }).catch(() => 0),
-    prisma.user.count({
-      where: {
-        role: { in: [Role.LEARNER, Role.STUDENT] },
+    prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isEmailVerified: true,
+        createdAt: true,
+        courses: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
+          },
+        },
       },
-    }).catch(() => 0),
+      orderBy: { createdAt: "desc" },
+    }).catch(() => []),
     prisma.payment.aggregate({
       _sum: { amount: true },
       where: { status: "COMPLETED" },
@@ -100,42 +100,28 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
     prisma.landingPage.count().catch(() => 0),
   ]);
 
+  const STAFF_ROLES = new Set<string>([
+    Role.SUPER_ADMIN,
+    Role.PROGRAM_ADMIN,
+    Role.ADMIN,
+    Role.INSTRUCTOR,
+    Role.LP_EDITOR,
+  ]);
+  const LEARNER_ROLES = new Set<string>([Role.LEARNER, Role.STUDENT]);
+
+  const totalUsersCount = allUsers.length;
+  const superAdminsCount = allUsers.filter((u) => u.role === Role.SUPER_ADMIN).length;
+  const programAdminsCount = allUsers.filter(
+    (u) => u.role === Role.PROGRAM_ADMIN || u.role === Role.ADMIN
+  ).length;
+  const instructorsCount = allUsers.filter((u) => u.role === Role.INSTRUCTOR).length;
+  const learnersCount = allUsers.filter((u) => LEARNER_ROLES.has(String(u.role))).length;
+
+  const staffUsers = allUsers.filter((u) => STAFF_ROLES.has(String(u.role)));
+  const staffCount = staffUsers.length;
   const totalRevenue = allPaymentsTotal._sum?.amount || 0;
 
   // 3. Tab-specific data fetching
-  // Staff users: Super Admins, Program Admins, Instructors, LP Editors
-  const staffUsers =
-    activeTab === "staff"
-      ? await prisma.user.findMany({
-          where: {
-            role: {
-              in: [
-                Role.SUPER_ADMIN,
-                Role.PROGRAM_ADMIN,
-                Role.INSTRUCTOR,
-                Role.ADMIN,
-                Role.LP_EDITOR,
-              ],
-            },
-          },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            isEmailVerified: true,
-            createdAt: true,
-            courses: {
-              select: {
-                id: true,
-                title: true,
-                code: true,
-              },
-            },
-          },
-          orderBy: { createdAt: "desc" },
-        })
-      : [];
 
   // Landing pages
   const landingPages =
@@ -368,7 +354,7 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
             <Shield className="w-4 h-4" />
             Staff Governance
             <span className="ml-1.5 px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">
-              {superAdminsCount + programAdminsCount + instructorsCount + lpEditorsCount}
+              {staffCount}
             </span>
           </Link>
 
@@ -439,68 +425,7 @@ export default async function SuperAdminUsersPage({ searchParams }: PageProps) {
         {activeTab === "staff" && (
           <div className="space-y-6">
             {/* Staff Provisioning Form */}
-            <div className="bg-[#0b1528] border border-slate-800 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
-                  <UserPlus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-white">Provision New Staff Account</h2>
-                  <p className="text-xs text-slate-400">
-                    Create an institutional Program Admin or Instructor account. An immutable audit trail is logged automatically.
-                  </p>
-                </div>
-              </div>
-
-              <form action={createStaffAccount} className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                {/* Email Field */}
-                <div className="md:col-span-6 space-y-1.5">
-                  <label htmlFor="email" className="block text-xs font-semibold text-slate-300">
-                    Staff Email Address <span className="text-rose-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      required
-                      placeholder="instructor@subwayschools.org"
-                      className="w-full pl-10 pr-3.5 py-2.5 bg-[#070e1b] border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
-                    />
-                  </div>
-                </div>
-
-                {/* Role Select */}
-                <div className="md:col-span-4 space-y-1.5">
-                  <label htmlFor="role" className="block text-xs font-semibold text-slate-300">
-                    Assigned Role <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    id="role"
-                    name="role"
-                    required
-                    defaultValue="PROGRAM_ADMIN"
-                    className="w-full px-3.5 py-2.5 bg-[#070e1b] border border-slate-700/80 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
-                  >
-                    <option value="PROGRAM_ADMIN">Program Admin (Curriculum & Ops)</option>
-                    <option value="INSTRUCTOR">Instructor (Faculty / Lead)</option>
-                    <option value="LP_EDITOR">Landing Page Editor (LP_EDITOR)</option>
-                  </select>
-                </div>
-
-                {/* Submit Button */}
-                <div className="md:col-span-2 flex items-end">
-                  <button
-                    type="submit"
-                    className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-                  >
-                    <UserPlus className="w-4 h-4" />
-                    Provision Staff
-                  </button>
-                </div>
-              </form>
-            </div>
+            <ProvisionStaffForm />
 
             {/* Staff Table */}
             <div className="bg-[#0b1528] border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
