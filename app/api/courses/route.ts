@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    let courses = await prisma.course.findMany({
+    const courses = await prisma.course.findMany({
       where: {
         OR: [
           { status: { in: [CourseStatus.PUBLISHED] } },
@@ -32,7 +32,7 @@ export async function GET() {
 
 
     return NextResponse.json({ courses: courses || [] });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[API Courses GET Error]:", error);
     return NextResponse.json({ courses: [] }, { status: 500 });
   }

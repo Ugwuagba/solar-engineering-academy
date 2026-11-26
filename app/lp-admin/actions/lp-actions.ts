@@ -51,7 +51,7 @@ export async function sanitizeSlug(input: string): Promise<string> {
     throw new Error("URL slug is required.");
   }
 
-  let slug = input
+  const slug = input
     .toLowerCase()
     .trim()
     .replace(/[\s_]+/g, "-")

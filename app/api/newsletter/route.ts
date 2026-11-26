@@ -35,9 +35,10 @@ export async function POST(req: NextRequest) {
       { status: "subscribed", message: "Subscribed!" },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Handle race-condition unique constraint cleanly
-    if (error?.code === "P2002") {
+    const prismaError = error as { code?: string };
+    if (prismaError?.code === "P2002") {
       return NextResponse.json(
         { status: "already_subscribed", message: "You're already subscribed." },
         { status: 200 }

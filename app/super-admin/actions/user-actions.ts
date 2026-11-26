@@ -114,7 +114,7 @@ export async function createStaffAccount(formData: FormData) {
         details: {
           createdUserId: newUser.id,
           role,
-          temporaryPassword: tempPassword,
+          temporaryPasswordGenerated: true,
           timestamp: new Date().toISOString(),
         },
       },

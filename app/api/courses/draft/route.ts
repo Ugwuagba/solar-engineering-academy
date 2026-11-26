@@ -9,9 +9,17 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    // 1. Authorization: require ADMIN, INSTRUCTOR, or DIRECTOR
+    // 1. Authorization: require ADMIN, SUPER_ADMIN, PROGRAM_ADMIN, INSTRUCTOR, or DIRECTOR
     const role = session?.user?.role;
-    if (!session?.user || (role !== "ADMIN" && role !== "INSTRUCTOR" && (role as string) !== "DIRECTOR")) {
+    const isInstructor = role === "INSTRUCTOR";
+    const isAuthorized =
+      role === "ADMIN" ||
+      role === "SUPER_ADMIN" ||
+      role === "PROGRAM_ADMIN" ||
+      isInstructor ||
+      (role as string) === "DIRECTOR";
+
+    if (!session?.user?.id || !isAuthorized) {
       return NextResponse.json(
         { error: "Unauthorized. Admin or Instructor privileges required." },
         { status: 403 }
@@ -45,7 +53,8 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const targetId = courseId || id || null;
-    const isPublishing = Boolean(publish);
+    // Instructors cannot directly publish via draft endpoint
+    const isPublishing = isInstructor ? false : Boolean(publish);
 
     // 2. Format / normalize core metadata
     const finalTitle = (title && typeof title === "string" ? title.trim() : "") || (isPublishing ? "Untitled Course" : "Untitled Course Draft");
@@ -196,6 +205,13 @@ export async function POST(req: NextRequest) {
       });
 
       if (existing) {
+        if (isInstructor && existing.instructorId !== session.user.id) {
+          return NextResponse.json(
+            { error: "Forbidden: You may only edit courses authored by you." },
+            { status: 403 }
+          );
+        }
+
         // Remove existing modules to cleanly replace with incoming modules structure
         await prisma.module.deleteMany({
           where: { courseId: existing.id },

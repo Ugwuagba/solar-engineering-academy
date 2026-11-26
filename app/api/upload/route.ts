@@ -15,10 +15,10 @@ export async function POST(req: NextRequest) {
       role === "INSTRUCTOR" ||
       role === "SUPER_ADMIN" ||
       role === "PROGRAM_ADMIN" ||
-      (role as string) === "DIRECTOR" ||
-      process.env.NODE_ENV === "development";
+      role === "LP_EDITOR" ||
+      (role as string) === "DIRECTOR";
 
-    if (!isAuthorized && !session?.user) {
+    if (!session?.user || !isAuthorized) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in as an admin or instructor to upload assets." },
         { status: 401 }
@@ -69,10 +69,10 @@ export async function POST(req: NextRequest) {
       size: file.size,
       storage: "base64-data-url",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Upload API Error:", error);
     return NextResponse.json(
-      { error: error.message || "An unexpected error occurred while processing the upload." },
+      { error: error instanceof Error ? error.message : "An unexpected error occurred while processing the upload." },
       { status: 500 }
     );
   }

@@ -36,7 +36,11 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: process.env.NEXTAUTH_SECRET || "solar-engineering-academy-super-secure-jwt-secret-key-2026",
+  secret:
+    process.env.NEXTAUTH_SECRET ||
+    (process.env.NODE_ENV !== "production"
+      ? "dev-only-insecure-nextauth-secret"
+      : undefined),
   pages: {
     signIn: "/login",
   },
@@ -54,13 +58,15 @@ export const authOptions: NextAuthOptions = {
 
         const normalizedEmail = credentials.email.toLowerCase().trim();
 
-        // 1. Try resolving through live Prisma database
+        // 1. Resolve through live Prisma database
+        let foundUserInDb = false;
         try {
           const user = await prisma.user.findUnique({
             where: { email: normalizedEmail },
           });
 
           if (user) {
+            foundUserInDb = true;
             const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
             if (isValid) {
               if (!user.isEmailVerified) {
@@ -74,36 +80,38 @@ export const authOptions: NextAuthOptions = {
               };
             }
           }
-        } catch (authError: any) {
-          if (authError?.message === "Please verify your email before logging in.") {
+        } catch (authError: unknown) {
+          if (authError instanceof Error && authError.message === "Please verify your email before logging in.") {
             throw authError;
           }
-          // Live database might not be initialized yet; check fallback demo accounts
+          // Live database might not be initialized yet in local dev
         }
 
-        // 2. Resilient demo credentials fallback for evaluation & testing
-        if (
-          normalizedEmail === "admin@solaracademy.org" &&
-          credentials.password === "SolarAdmin2026!"
-        ) {
-          return {
-            id: "seed-admin-01",
-            name: "Lead Solar Engineer (Director)",
-            email: "admin@solaracademy.org",
-            role: "ADMIN",
-          };
-        }
+        // 2. Demo credentials fallback ONLY in non-production and only if account does not exist in DB
+        if (!foundUserInDb && process.env.NODE_ENV !== "production") {
+          if (
+            normalizedEmail === "admin@solaracademy.org" &&
+            credentials.password === "SolarAdmin2026!"
+          ) {
+            return {
+              id: "seed-admin-01",
+              name: "Lead Solar Engineer (Director)",
+              email: "admin@solaracademy.org",
+              role: "ADMIN",
+            };
+          }
 
-        if (
-          normalizedEmail === "student@solaracademy.org" &&
-          credentials.password === "SolarStudent2026!"
-        ) {
-          return {
-            id: "seed-student-01",
-            name: "Alex Rivera, EIT",
-            email: "student@solaracademy.org",
-            role: "STUDENT",
-          };
+          if (
+            normalizedEmail === "student@solaracademy.org" &&
+            credentials.password === "SolarStudent2026!"
+          ) {
+            return {
+              id: "seed-student-01",
+              name: "Alex Rivera, EIT",
+              email: "student@solaracademy.org",
+              role: "STUDENT",
+            };
+          }
         }
 
         throw new Error("Invalid email or password credentials.");

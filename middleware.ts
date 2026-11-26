@@ -2,9 +2,12 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import { Role } from "@prisma/client";
 
-const FALLBACK_SECRET = "solar-engineering-academy-super-secure-jwt-secret-key-2026";
+const FALLBACK_SECRET =
+  process.env.NODE_ENV !== "production"
+    ? "dev-only-insecure-nextauth-secret"
+    : undefined;
 
-if (!process.env.NEXTAUTH_SECRET) {
+if (!process.env.NEXTAUTH_SECRET && FALLBACK_SECRET) {
   process.env.NEXTAUTH_SECRET = FALLBACK_SECRET;
 }
 

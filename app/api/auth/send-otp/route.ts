@@ -46,7 +46,9 @@ export async function POST(req: Request) {
 
     const otp = code;
     const recipientName = name || user?.name || undefined;
-    console.log(`>>> [EMERGENCY_AUDIT_OTP] Candidate: ${normalizedEmail} | Code: ${otp} <<<`);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`>>> [DEV_OTP] Candidate: ${normalizedEmail} | Code: ${otp} <<<`);
+    }
 
     try {
       await sendEmail({

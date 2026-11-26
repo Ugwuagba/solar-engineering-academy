@@ -78,7 +78,9 @@ export async function POST(req: Request) {
     });
 
     const otp = otpCode;
-    console.log(`>>> [EMERGENCY_AUDIT_OTP] Candidate: ${email} | Code: ${otp} <<<`);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`>>> [DEV_OTP] Candidate: ${normalizedEmail} | Code: ${otp} <<<`);
+    }
 
     try {
       await sendEmail({

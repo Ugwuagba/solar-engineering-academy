@@ -12,7 +12,7 @@ export default async function PublicLayout({
   try {
     const footerCourses = await prisma.course.findMany({
       where: {
-        code: { in: ["SI101", "COMSIT", "CIP1", "LBF1"] },
+        code: { in: ["SI101", "SI102", "COMSIT", "CIP1", "LBF1"] },
         OR: [{ status: CourseStatus.PUBLISHED }, { isPublished: true }],
       },
       select: { code: true, slug: true },
@@ -28,7 +28,7 @@ export default async function PublicLayout({
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      <Navbar courseSlugs={courseSlugs} />
       <main className="flex-1">{children}</main>
       <Footer courseSlugs={courseSlugs} />
     </div>

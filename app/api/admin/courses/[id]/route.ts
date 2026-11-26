@@ -58,6 +58,21 @@ export async function DELETE(
       );
     }
 
+    const isInstructor = role === "INSTRUCTOR";
+    if (isInstructor && course.instructorId !== session.user.id) {
+      return NextResponse.json(
+        { error: "Forbidden: You may only delete courses authored by you." },
+        { status: 403 }
+      );
+    }
+
+    if (isInstructor && (course.isPublished || course.status === "PUBLISHED")) {
+      return NextResponse.json(
+        { error: "Cannot delete this course: it has already been approved by an administrator." },
+        { status: 400 }
+      );
+    }
+
     // 3. Delete course (Prisma cascade relations clean up modules, lessons, quizzes, questions, cohorts, enrollments)
     await prisma.course.delete({
       where: { id: course.id },
@@ -142,6 +157,14 @@ export async function PATCH(
       );
     }
 
+    const isInstructor = role === "INSTRUCTOR";
+    if (isInstructor && course.instructorId !== session.user.id) {
+      return NextResponse.json(
+        { error: "Forbidden: You may only modify courses authored by you." },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const updateData: any = {};
 
@@ -165,8 +188,10 @@ export async function PATCH(
     if (body.contactHours !== undefined) updateData.contactHours = Number(body.contactHours) || 40;
     if (body.price !== undefined) updateData.price = Number(body.price) || 0;
     if (body.originalPrice !== undefined) updateData.originalPrice = body.originalPrice !== "" && body.originalPrice != null ? Number(body.originalPrice) : null;
-    if (body.status !== undefined) updateData.status = body.status;
-    if (body.isPublished !== undefined) updateData.isPublished = Boolean(body.isPublished);
+    if (!isInstructor) {
+      if (body.status !== undefined) updateData.status = body.status;
+      if (body.isPublished !== undefined) updateData.isPublished = Boolean(body.isPublished);
+    }
     if (body.thumbnailUrl !== undefined) updateData.thumbnailUrl = body.thumbnailUrl;
     else if (body.imageUrl !== undefined) updateData.thumbnailUrl = body.imageUrl;
     if (body.promoVideoUrl !== undefined) updateData.promoVideoUrl = body.promoVideoUrl ? String(body.promoVideoUrl).trim() : null;

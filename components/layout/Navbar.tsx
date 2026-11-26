@@ -15,39 +15,52 @@ import {
   User
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { getRoleRedirectPath } from "@/lib/role-redirect";
 
-const EXPLORE_COURSES = [
-  {
-    title: "Solar System Design, Installation & Maintenance (Solar 101)",
-    code: "SOLAR 101 · Flagship Masterclass",
-    href: "/courses/solar-installation-101",
-  },
-  {
-    title: "Commercial & Industrial (C&I) Mini-Grid Design",
-    code: "CIGID 101 · Advanced C&I",
-    href: "/courses/commercial-industrial-solar",
-  },
-  {
-    title: "Battery Energy Storage Systems (BESS) & Lithium Safety",
-    code: "BESS 201 · Storage Specialist",
-    href: "/courses/bess-201",
-  },
-  {
-    title: "Solar Power Auditing & Load Profiling",
-    code: "AUDIT 201 · Practical Auditing",
-    href: "/courses/power-audit-masterclass",
-  },
-  {
-    title: "Solar Business, Contracting & Project Financing",
-    code: "ENTRE 301 · Commercial Strategy",
-    href: "/courses/solar-entrepreneurship",
-  },
-];
+interface NavbarProps {
+  courseSlugs?: Record<string, string>;
+}
 
-export default function Navbar() {
+export default function Navbar({ courseSlugs = {} }: NavbarProps) {
   const router = useRouter();
   const { data: session } = useSession();
-  const isInstructorOrAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'INSTRUCTOR';
+  const userRole = session?.user?.role as string | undefined;
+  const isStaff =
+    userRole === "ADMIN" ||
+    userRole === "SUPER_ADMIN" ||
+    userRole === "PROGRAM_ADMIN" ||
+    userRole === "INSTRUCTOR" ||
+    userRole === "LP_EDITOR";
+  const studioHref = getRoleRedirectPath(userRole);
+  const studioLabel = userRole === "INSTRUCTOR" ? "Instructor Studio" : "Admin Studio";
+
+  const exploreCourses = [
+    {
+      title: "Solar Installation 101",
+      code: "SI101 · Flagship Masterclass",
+      href: `/courses/${courseSlugs.SI101 || "solar-installation-101-6402"}`,
+    },
+    {
+      title: "Solar Installation 102",
+      code: "SI102 · Component & Sizing Mastery",
+      href: `/courses/${courseSlugs.SI102 || "solar-installation-102"}`,
+    },
+    {
+      title: "The Solar Fast-Track Blueprint",
+      code: "COMSIT · Complete Installation Track",
+      href: `/courses/${courseSlugs.COMSIT || "the-solar-fast-track-blueprint"}`,
+    },
+    {
+      title: "Commercial, Industrial & Mini-Grid Solar",
+      code: "CIP1 · Commercial C&I",
+      href: `/courses/${courseSlugs.CIP1 || "introduction-to-commercial-industrial-mini-grid-solar-projects"}`,
+    },
+    {
+      title: "Lithium Battery Fabrication – Part 1",
+      code: "LBF1 · Storage Engineering",
+      href: `/courses/${courseSlugs.LBF1 || "lithium"}`,
+    },
+  ];
   
   // Navigation State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -150,7 +163,7 @@ export default function Navbar() {
               </div>
 
               <div className="space-y-0.5">
-                {EXPLORE_COURSES.map((course) => (
+                {exploreCourses.map((course) => (
                   <Link
                     key={course.href}
                     href={course.href}
@@ -227,15 +240,15 @@ export default function Navbar() {
 
         {/* 6 & 7. Action Buttons (Desktop) */}
         <div className="hidden md:flex items-center gap-3 shrink-0">
-          {/* Instructor Studio Button (ADMIN or INSTRUCTOR) */}
-          {isInstructorOrAdmin && (
+          {/* Staff Studio Button */}
+          {isStaff && (
             <Link
-              href="/admin"
+              href={studioHref}
               prefetch={false}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-sky-400 border border-sky-500/30 hover:bg-slate-700 hover:text-white transition-all shadow-sm shrink-0"
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Instructor Studio</span>
+              <span>{studioLabel}</span>
             </Link>
           )}
 
@@ -347,7 +360,7 @@ export default function Navbar() {
 
             {mobileExploreOpen && (
               <div className="pl-4 pr-2 pt-1 pb-2 space-y-1.5 border-l-2 border-[#2B82C9] ml-3 mt-1">
-                {EXPLORE_COURSES.map((course) => (
+                {exploreCourses.map((course) => (
                   <Link
                     key={course.href}
                     href={course.href}
@@ -389,15 +402,15 @@ export default function Navbar() {
 
           {/* Mobile Buttons */}
           <div className="pt-3 border-t border-slate-200 flex flex-col gap-2.5">
-            {isInstructorOrAdmin && (
+            {isStaff && (
               <Link
-                href="/admin"
+                href={studioHref}
                 prefetch={false}
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 px-3.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-sky-400 border border-sky-500/30 hover:bg-slate-700 hover:text-white transition-all shadow-sm flex items-center justify-center gap-1.5"
               >
                 <LayoutDashboard className="w-4 h-4" />
-                <span>Instructor Studio</span>
+                <span>{studioLabel}</span>
               </Link>
             )}
 

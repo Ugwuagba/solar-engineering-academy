@@ -11,14 +11,10 @@ export async function GET(req: NextRequest) {
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     req.nextUrl.origin ||
-    "https://subwayschools.com";
+    "https://www.subwayschools.com";
 
-  console.log(`[Flutterwave Callback]: Received status='${status}', tx_ref='${tx_ref}', transaction_id='${transaction_id}'`);
+  let targetSlug = "solar-installation-101-6402";
 
-  // Default redirect if cancelled or invalid
-  let targetSlug = "solar-installation-101";
-
-  // Try extracting slug from tx_ref if format is subway_[slug]_[timestamp]
   if (tx_ref && tx_ref.startsWith("subway_")) {
     const parts = tx_ref.split("_");
     if (parts.length >= 3) {
@@ -26,9 +22,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // If status is explicitly cancelled or not successful
   if (!status || (status !== "successful" && status !== "completed") || !transaction_id) {
-    console.warn(`[Flutterwave Callback]: Payment cancelled or invalid status (${status})`);
     return NextResponse.redirect(`${appUrl}/courses/${targetSlug}?payment=cancelled`);
   }
 
@@ -41,7 +35,7 @@ export async function GET(req: NextRequest) {
 
     // 1. Verify transaction with Flutterwave API
     const verifyRes = await fetch(
-      `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
+      `https://api.flutterwave.com/v3/transactions/${encodeURIComponent(transaction_id)}/verify`,
       {
         method: "GET",
         headers: {
@@ -70,8 +64,7 @@ export async function GET(req: NextRequest) {
     const metaCourseSlug = meta.courseSlug || targetSlug;
     const metaUserId = meta.userId;
     const customerEmail = tx.customer?.email?.toLowerCase()?.trim();
-
-    console.log(`[Flutterwave Verified]: Validated transaction ${tx.id} for ${customerEmail} (₦${tx.amount})`);
+    const paidAmount = Number(tx.amount || 0);
 
     // 2. Resolve Course in DB
     const course = await prisma.course.findFirst({
@@ -84,7 +77,20 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // 3. Resolve User in DB (by userId or customer email)
+    if (!course) {
+      console.error("[Flutterwave Callback]: Course not found for", metaCourseId || metaCourseSlug);
+      return NextResponse.redirect(`${appUrl}/courses/${targetSlug}?payment=failed`);
+    }
+
+    // 3. Enforce verified paid amount covers course tuition price
+    if (paidAmount < Number(course.price || 0)) {
+      console.error(
+        `[Flutterwave Amount Mismatch]: Paid ₦${paidAmount} < Course Price ₦${course.price} for ${course.code}`
+      );
+      return NextResponse.redirect(`${appUrl}/courses/${course.slug}?payment=failed`);
+    }
+
+    // 4. Resolve User in DB (by userId or customer email)
     let user = await prisma.user.findFirst({
       where: {
         OR: [
@@ -94,7 +100,6 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // Auto-create user profile if paying student has not registered yet
     if (!user && customerEmail) {
       try {
         const studentName = tx.customer?.name || "Student Candidate";
@@ -107,46 +112,80 @@ export async function GET(req: NextRequest) {
             isEmailVerified: true,
           },
         });
-        console.log(`[User Auto-Created on Payment]: ${user.email} (${user.id})`);
       } catch (userCreateErr) {
         console.warn("[User Auto-Create Warning]:", userCreateErr);
       }
     }
 
-    const activeSlug = course?.slug || metaCourseSlug || targetSlug;
+    const activeSlug = course.slug || metaCourseSlug || targetSlug;
     const finalTxRef = tx.tx_ref || tx_ref || "";
+    const txIdempotentKey = String(tx.id || finalTxRef);
 
-    // 4. Activate enrollment in Prisma if user & course exist
-    if (user && course) {
-      await prisma.enrollment.upsert({
-        where: {
-          userId_courseId: {
+    // 5. Idempotently record Payment + Enrollment inside transaction
+    if (user) {
+      const newlyRecorded = await prisma.$transaction(async (trx) => {
+        const existingLog = await trx.auditLog.findFirst({
+          where: {
+            action: "FLW_PAYMENT_VERIFIED",
+            resource: txIdempotentKey,
+          },
+        });
+
+        await trx.enrollment.upsert({
+          where: {
+            userId_courseId: {
+              userId: user.id,
+              courseId: course.id,
+            },
+          },
+          update: {
+            status: "ACTIVE",
+            amountPaid: paidAmount,
+          },
+          create: {
             userId: user.id,
             courseId: course.id,
+            status: "ACTIVE",
+            amountPaid: paidAmount,
           },
-        },
-        update: {
-          status: "ACTIVE",
-          amountPaid: Number(tx.amount) || undefined,
-        },
-        create: {
-          userId: user.id,
-          courseId: course.id,
-          status: "ACTIVE",
-          amountPaid: Number(tx.amount) || undefined,
-        },
-      });
-      console.log(`[Enrollment Activated]: User '${user.email}' enrolled in course '${course.title}'`);
+        });
 
-      // Asynchronously trigger automated enrollment receipt email (safe try/catch)
-      if (customerEmail) {
+        if (!existingLog) {
+          await trx.payment.create({
+            data: {
+              userId: user.id,
+              courseId: course.id,
+              amount: paidAmount,
+              status: "COMPLETED",
+            },
+          });
+
+          await trx.auditLog.create({
+            data: {
+              actorId: user.id,
+              action: "FLW_PAYMENT_VERIFIED",
+              resource: txIdempotentKey,
+              details: {
+                txRef: finalTxRef,
+                flwTransactionId: tx.id,
+                courseId: course.id,
+                amount: paidAmount,
+              },
+            },
+          });
+          return true;
+        }
+        return false;
+      });
+
+      if (newlyRecorded && customerEmail) {
         try {
           await sendEnrollmentReceiptEmail({
             toEmail: customerEmail,
             studentName: user.name || tx.customer?.name || undefined,
             courseTitle: course.title,
             courseSlug: activeSlug,
-            amount: Number(tx.amount) || course.price || 0,
+            amount: paidAmount || course.price || 0,
             txRef: finalTxRef,
             paymentDate: new Date(),
           });
@@ -154,18 +193,12 @@ export async function GET(req: NextRequest) {
           console.error("[Email Receipt Error in Callback]:", emailErr);
         }
       }
-    } else {
-      console.warn(
-        `[Enrollment Notice]: Could not resolve user (${user ? user.id : "null"}) or course (${course ? course.id : "null"}). Meta:`,
-        meta
-      );
     }
 
-    // 5. Redirect student directly into the classroom with payment success & tx_ref
     return NextResponse.redirect(
       `${appUrl}/learn/${activeSlug}?payment=success&tx_ref=${encodeURIComponent(finalTxRef)}`
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[Flutterwave Callback Error]:", err);
     return NextResponse.redirect(`${appUrl}/courses/${targetSlug}?payment=error`);
   }

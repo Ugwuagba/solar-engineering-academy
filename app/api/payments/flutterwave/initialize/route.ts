@@ -6,39 +6,75 @@ import prisma from "@/lib/db";
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const body = await req.json().catch(() => ({}));
-
-    const courseId = body.courseId;
-    const courseSlug = body.courseSlug || body.slug || "";
-    
-    // Resolve exact course price from passed body or database
-    let resolvedAmount = typeof body.amount === "number" ? body.amount : (body.amount ? Number(body.amount) : undefined);
-
-    if ((resolvedAmount === undefined || isNaN(resolvedAmount)) && (courseId || courseSlug)) {
-      const dbCourse = await prisma.course.findFirst({
-        where: {
-          OR: [
-            ...(courseId ? [{ id: courseId }, { code: courseId }] : []),
-            ...(courseSlug ? [{ slug: courseSlug }, { slug: { startsWith: courseSlug } }] : []),
-          ],
-        },
-        select: { price: true },
-      });
-      if (dbCourse && typeof dbCourse.price === "number") {
-        resolvedAmount = dbCourse.price;
-      }
+    if (!session?.user?.id || !session?.user?.email) {
+      return NextResponse.json(
+        { status: "error", message: "Please sign in to enroll in a course." },
+        { status: 401 }
+      );
     }
 
-    const amount = (resolvedAmount !== undefined && !isNaN(resolvedAmount)) ? resolvedAmount : 5000;
-    const email = body.email || session?.user?.email;
-    const name = body.name || session?.user?.name || "Student Candidate";
-    const userId = body.userId || session?.user?.id;
+    const body = await req.json().catch(() => ({}));
+    const courseId = typeof body.courseId === "string" ? body.courseId.trim() : "";
+    const courseSlug = typeof (body.courseSlug || body.slug) === "string" ? String(body.courseSlug || body.slug).trim() : "";
 
-    if (!email) {
+    if (!courseId && !courseSlug) {
       return NextResponse.json(
-        { status: "error", message: "User email is required for payment initialization" },
+        { status: "error", message: "Course identifier is required." },
         { status: 400 }
       );
+    }
+
+    // Always resolve course & authoritative price from Prisma (never trust client amount)
+    const dbCourse = await prisma.course.findFirst({
+      where: {
+        OR: [
+          ...(courseId ? [{ id: courseId }, { code: courseId }] : []),
+          ...(courseSlug ? [{ slug: courseSlug }] : []),
+        ],
+      },
+      select: { id: true, slug: true, code: true, title: true, price: true, isPublished: true, status: true },
+    });
+
+    if (!dbCourse || (!dbCourse.isPublished && dbCourse.status !== "PUBLISHED")) {
+      return NextResponse.json(
+        { status: "error", message: "Course not found or not available for enrollment." },
+        { status: 404 }
+      );
+    }
+
+    const amount = Number(dbCourse.price || 0);
+    const email = session.user.email.toLowerCase().trim();
+    const name = session.user.name || "Student Candidate";
+    const userId = session.user.id;
+
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      req.nextUrl.origin ||
+      "https://www.subwayschools.com";
+
+    // Free course: activate enrollment directly without payment gateway
+    if (amount <= 0) {
+      await prisma.enrollment.upsert({
+        where: {
+          userId_courseId: {
+            userId,
+            courseId: dbCourse.id,
+          },
+        },
+        update: { status: "ACTIVE" },
+        create: {
+          userId,
+          courseId: dbCourse.id,
+          status: "ACTIVE",
+          amountPaid: 0,
+        },
+      });
+
+      return NextResponse.json({
+        status: "success",
+        link: `${appUrl}/learn/${dbCourse.slug}?payment=success`,
+        tx_ref: `free_${dbCourse.code}_${Date.now()}`,
+      });
     }
 
     const rawSecretKey = process.env.FLW_SECRET_KEY || process.env.FLW_CLIENT_SECRET;
@@ -52,15 +88,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate unique transaction reference
-    const cleanSlug = courseSlug.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 30);
-    const tx_ref = `subway_${cleanSlug || courseId || "course"}_${Date.now()}`;
-
-    // App URL base resolution
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      req.nextUrl.origin ||
-      "https://subwayschools.com";
+    const cleanSlug = dbCourse.slug.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 30);
+    const tx_ref = `subway_${cleanSlug || dbCourse.id}_${Date.now()}`;
     const redirect_url = `${appUrl}/api/payments/flutterwave/callback`;
 
     const payload = {
@@ -73,19 +102,18 @@ export async function POST(req: NextRequest) {
         name,
       },
       meta: {
-        courseId: String(courseId || ""),
-        userId: String(userId || ""),
-        courseSlug: String(courseSlug || ""),
+        courseId: dbCourse.id,
+        userId,
+        courseSlug: dbCourse.slug,
+        expectedAmount: amount,
         tx_ref,
       },
       customizations: {
         title: "Subway Schools",
-        description: "Course Tuition & Enrollment",
-        logo: "https://subwayschools.com/icon.png",
+        description: `${dbCourse.title} — Course Tuition`,
+        logo: "https://www.subwayschools.com/icon.png",
       },
     };
-
-    console.log(`[Flutterwave Init]: Initializing transaction ${tx_ref} for ${email} (₦${amount})`);
 
     const flwRes = await fetch("https://api.flutterwave.com/v3/payments", {
       method: "POST",
@@ -110,17 +138,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(`[Flutterwave Success]: Payment link generated: ${flwData.data.link}`);
-
     return NextResponse.json({
       status: "success",
       link: flwData.data.link,
       tx_ref,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[Flutterwave Init Exception]:", error);
     return NextResponse.json(
-      { status: "error", message: error?.message || "Internal server error" },
+      { status: "error", message: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }
     );
   }

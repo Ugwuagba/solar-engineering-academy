@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    let { lessonId, courseId, completed, lastPosition } = body;
+    const { lessonId, courseId, completed, lastPosition } = body;
 
     if (!lessonId || !courseId) {
       return NextResponse.json(
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const userId = session.user.id;
 
     // 1. Resolve actual course in DB if courseId is slug or code
-    let dbCourse = await prisma.course.findFirst({
+    const dbCourse = await prisma.course.findFirst({
       where: {
         OR: [
           { id: courseId },
@@ -65,10 +65,6 @@ export async function POST(req: NextRequest) {
           actualLesson = found;
           break;
         }
-      }
-      // If still not found, fallback to first lesson of first module
-      if (!actualLesson && dbCourse.modules.length > 0 && dbCourse.modules[0].lessons.length > 0) {
-        actualLesson = dbCourse.modules[0].lessons[0];
       }
     }
 

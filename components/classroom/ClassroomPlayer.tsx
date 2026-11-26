@@ -10,13 +10,11 @@ import {
   Briefcase,
   Check,
   RotateCcw,
-  Sparkles,
-  Award,
   X,
   ChevronDown,
   ChevronUp
 } from "lucide-react";
-import { SeedCourse, SeedLesson, SeedModule } from "@/lib/seed-data";
+import { SeedCourse, SeedLesson } from "@/lib/seed-data";
 import { formatDuration } from "@/lib/utils";
 
 function WhatsAppIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -111,27 +109,11 @@ export default function ClassroomPlayer({
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isAttachmentExpanded, setIsAttachmentExpanded] = useState(false);
   const [resumeNotification, setResumeNotification] = useState<string | null>(null);
-  const [isSavingProgress, setIsSavingProgress] = useState(false);
 
   // Payment onboarding and celebration modal state
   const [showPaymentSuccessModal, setShowPaymentSuccessModal] = useState(paymentStatus === "success");
   const [showPaymentSuccessBanner, setShowPaymentSuccessBanner] = useState(paymentStatus === "success");
-  const [activeTxRef, setActiveTxRef] = useState(txRef || "");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isSuccess = urlParams.get("payment") === "success" || paymentStatus === "success";
-      const ref = urlParams.get("tx_ref") || txRef || "";
-      if (isSuccess) {
-        setShowPaymentSuccessModal(true);
-        setShowPaymentSuccessBanner(true);
-      }
-      if (ref) {
-        setActiveTxRef(ref);
-      }
-    }
-  }, [paymentStatus, txRef]);
+  const activeTxRef = txRef || "";
 
   // Clean WhatsApp phone number & prefilled message generator
   const rawPhone = process.env.NEXT_PUBLIC_INSTRUCTOR_WHATSAPP || "2347012715632";
@@ -145,12 +127,12 @@ export default function ClassroomPlayer({
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState<number | null>(null);
 
-  const currentModule = course.modules[activeModuleIdx] || course.modules[0];
-  const currentLesson = currentModule.lessons[activeLessonIdx] || currentModule.lessons[0];
-  const currentQuiz = currentModule.quiz;
+  const currentModule = course.modules?.[activeModuleIdx] || course.modules?.[0] || null;
+  const currentLesson = currentModule?.lessons?.[activeLessonIdx] || currentModule?.lessons?.[0] || null;
+  const currentQuiz = currentModule?.quiz || null;
 
   const currentLessonIdentifier =
-    currentLesson?.id || `${course.code}-m${currentModule?.sortOrder}-l${currentLesson?.sortOrder}`;
+    currentLesson?.id || `${course.code}-m${currentModule?.sortOrder || 1}-l${currentLesson?.sortOrder || 1}`;
 
   const isCurrentLessonCompleted = Boolean(
     progressMap[currentLesson?.id || ""]?.completed ||
@@ -168,17 +150,10 @@ export default function ClassroomPlayer({
     ? Math.min(100, Math.round((completedLessonsCount / totalLessons) * 100))
     : 0;
 
-  // Global lesson number
-  const currentLessonGlobalNumber =
-    course.modules.slice(0, activeModuleIdx).reduce((sum, m) => sum + m.lessons.length, 0) +
-    activeLessonIdx +
-    1;
-
   // Persist progress to server API
   const saveProgressToServer = useCallback(
     async (lessonId: string, completed: boolean, position: number) => {
       try {
-        setIsSavingProgress(true);
         await fetch("/api/lessons/progress", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -191,8 +166,6 @@ export default function ClassroomPlayer({
         });
       } catch (err) {
         console.warn("Failed to persist progress:", err);
-      } finally {
-        setIsSavingProgress(false);
       }
     },
     [course.id, course.slug]
@@ -221,7 +194,6 @@ export default function ClassroomPlayer({
   // Reset seek ref when switching lesson
   useEffect(() => {
     hasSeekedInitialRef.current = false;
-    setResumeNotification(null);
   }, [activeModuleIdx, activeLessonIdx]);
 
   // Periodic progress tracking and auto-complete at >= 90%
@@ -295,7 +267,8 @@ export default function ClassroomPlayer({
     saveProgressToServer(targetKey, true, 0);
 
     // Find next lesson
-    if (activeLessonIdx + 1 < currentModule.lessons.length) {
+    setResumeNotification(null);
+    if (currentModule && activeLessonIdx + 1 < currentModule.lessons.length) {
       setActiveLessonIdx((prev) => prev + 1);
     } else if (activeModuleIdx + 1 < course.modules.length) {
       setActiveModuleIdx((prev) => prev + 1);
@@ -442,7 +415,14 @@ export default function ClassroomPlayer({
               </div>
             </div>
           )}
-          {!isQuizMode ? (
+          {!currentModule || !currentLesson ? (
+            <div className="max-w-3xl mx-auto deye-card p-10 text-center space-y-3">
+              <h2 className="text-lg font-bold text-slate-900">Curriculum Lessons Pending</h2>
+              <p className="text-xs sm:text-sm text-slate-600">
+                No lessons have been added to this course yet. Please check back shortly or contact your instructor.
+              </p>
+            </div>
+          ) : !isQuizMode ? (
             /* Video Lecture Mode */
             <div className="max-w-4xl mx-auto space-y-4">
               {/* Responsive Video Container with Dark Bezel */}
@@ -789,6 +769,7 @@ export default function ClassroomPlayer({
                         <button
                           key={lesson.sortOrder}
                           onClick={() => {
+                            setResumeNotification(null);
                             setActiveModuleIdx(mIdx);
                             setActiveLessonIdx(lIdx);
                             setIsQuizMode(false);

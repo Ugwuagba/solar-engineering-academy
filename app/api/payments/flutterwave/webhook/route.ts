@@ -18,14 +18,14 @@ export async function POST(req: NextRequest) {
     }
 
     const { event, data } = payload;
-    console.log(`[Flutterwave Webhook]: Received event '${event}' for tx_ref='${data?.tx_ref}'`);
 
-    if (event === "charge.completed" && data?.status === "successful") {
+    if (event === "charge.completed" && data?.status === "successful" && data?.currency === "NGN") {
       const meta = data.meta || {};
       const metaCourseId = meta.courseId;
       const metaCourseSlug = meta.courseSlug;
       const metaUserId = meta.userId;
       const customerEmail = data.customer?.email?.toLowerCase()?.trim();
+      const paidAmount = Number(data.amount || 0);
 
       // Resolve course in DB
       const course = await prisma.course.findFirst({
@@ -37,6 +37,11 @@ export async function POST(req: NextRequest) {
         },
       });
 
+      if (!course || paidAmount < Number(course.price || 0)) {
+        console.warn("[Flutterwave Webhook]: Course missing or underpaid amount:", paidAmount);
+        return NextResponse.json({ status: "ignored" }, { status: 200 });
+      }
+
       // Resolve user in DB
       let user = await prisma.user.findFirst({
         where: {
@@ -47,7 +52,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Auto-create user profile if paying student has not registered yet
       if (!user && customerEmail) {
         try {
           const studentName = data.customer?.name || "Student Candidate";
@@ -60,42 +64,80 @@ export async function POST(req: NextRequest) {
               isEmailVerified: true,
             },
           });
-          console.log(`[User Auto-Created in Webhook]: ${user.email} (${user.id})`);
         } catch (userCreateErr) {
           console.warn("[User Auto-Create Warning in Webhook]:", userCreateErr);
         }
       }
 
-      if (user && course) {
-        await prisma.enrollment.upsert({
-          where: {
-            userId_courseId: {
+      if (user) {
+        const txIdempotentKey = String(data.id || data.tx_ref || "");
+        const newlyRecorded = await prisma.$transaction(async (trx) => {
+          const existingLog = txIdempotentKey
+            ? await trx.auditLog.findFirst({
+                where: {
+                  action: "FLW_PAYMENT_VERIFIED",
+                  resource: txIdempotentKey,
+                },
+              })
+            : null;
+
+          await trx.enrollment.upsert({
+            where: {
+              userId_courseId: {
+                userId: user.id,
+                courseId: course.id,
+              },
+            },
+            update: {
+              status: "ACTIVE",
+              amountPaid: paidAmount,
+            },
+            create: {
               userId: user.id,
               courseId: course.id,
+              status: "ACTIVE",
+              amountPaid: paidAmount,
             },
-          },
-          update: {
-            status: "ACTIVE",
-            amountPaid: Number(data.amount) || undefined,
-          },
-          create: {
-            userId: user.id,
-            courseId: course.id,
-            status: "ACTIVE",
-            amountPaid: Number(data.amount) || undefined,
-          },
-        });
-        console.log(`[Flutterwave Webhook Success]: Enrollment verified active for ${user.email} in ${course.title}`);
+          });
 
-        // Asynchronously trigger automated enrollment receipt email (safe try/catch)
-        if (customerEmail) {
+          if (!existingLog) {
+            await trx.payment.create({
+              data: {
+                userId: user.id,
+                courseId: course.id,
+                amount: paidAmount,
+                status: "COMPLETED",
+              },
+            });
+
+            if (txIdempotentKey) {
+              await trx.auditLog.create({
+                data: {
+                  actorId: user.id,
+                  action: "FLW_PAYMENT_VERIFIED",
+                  resource: txIdempotentKey,
+                  details: {
+                    txRef: data.tx_ref || "",
+                    flwTransactionId: data.id,
+                    courseId: course.id,
+                    amount: paidAmount,
+                  },
+                },
+              });
+            }
+            return true;
+          }
+          return false;
+        });
+
+        if (newlyRecorded && customerEmail) {
           try {
             await sendEnrollmentReceiptEmail({
               toEmail: customerEmail,
               studentName: user.name || data.customer?.name || undefined,
               courseTitle: course.title,
               courseSlug: metaCourseSlug || course.slug,
-              amount: Number(data.amount) || course.price || 0,
+              amount: paidAmount || course.price || 0,
               txRef: data.tx_ref || "",
               paymentDate: new Date(),
             });
@@ -107,9 +149,11 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ status: "success", received: true }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[Flutterwave Webhook Exception]:", error);
-    // Return 200 to prevent webhook retries on internal logging issues
-    return NextResponse.json({ status: "error", message: error?.message }, { status: 200 });
+    return NextResponse.json(
+      { status: "error", message: error instanceof Error ? error.message : "Internal error" },
+      { status: 200 }
+    );
   }
 }

@@ -259,7 +259,25 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    const role = session?.user?.role;
+    const isInstructor = role === "INSTRUCTOR";
+    const isAuthorized =
+      role === "ADMIN" ||
+      role === "PROGRAM_ADMIN" ||
+      role === "SUPER_ADMIN" ||
+      isInstructor ||
+      (role as string) === "DIRECTOR";
+
+    if (!session?.user?.id || !isAuthorized) {
+      return NextResponse.json(
+        { error: "Unauthorized. Admin or Instructor privileges required." },
+        { status: 403 }
+      );
+    }
+
     const courses = await prisma.course.findMany({
+      where: isInstructor ? { instructorId: session.user.id } : {},
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       include: {
         modules: {
