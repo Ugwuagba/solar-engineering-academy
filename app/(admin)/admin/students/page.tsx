@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
+import { Role } from "@prisma/client";
 import StudentsManagementClient, { 
   RegisteredUser, 
   PaidEnrollment 
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminStudentsPage() {
-  // 1. Route Security: Require NextAuth session with role === 'ADMIN' or 'INSTRUCTOR' or 'DIRECTOR'
+  // 1. Route Security: Require NextAuth session with authorized staff/admin role
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
@@ -19,7 +20,14 @@ export default async function AdminStudentsPage() {
   }
 
   const role = session.user.role;
-  if (role !== "ADMIN" && role !== "INSTRUCTOR" && (role as string) !== "DIRECTOR") {
+  const isAuthorized =
+    role === Role.SUPER_ADMIN ||
+    role === Role.PROGRAM_ADMIN ||
+    role === Role.ADMIN ||
+    role === Role.INSTRUCTOR ||
+    (role as string) === "DIRECTOR";
+
+  if (!isAuthorized) {
     redirect("/dashboard");
   }
 
@@ -29,7 +37,7 @@ export default async function AdminStudentsPage() {
   // 2. Data Fetching using Prisma
   try {
     const studentsData = await prisma.user.findMany({
-      where: { role: "STUDENT" },
+      where: { role: { in: [Role.STUDENT, Role.LEARNER] } },
       include: {
         enrollments: {
           include: {
