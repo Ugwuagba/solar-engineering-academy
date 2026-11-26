@@ -3,7 +3,38 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { CourseStatus } from "@prisma/client";
+import { CourseStatus, Role } from "@prisma/client";
+
+interface DraftQuestionInput {
+  question?: unknown;
+  options?: unknown;
+  correctOptionIndex?: unknown;
+  explanation?: unknown;
+}
+
+interface DraftLessonInput {
+  title?: unknown;
+  order?: number;
+  durationText?: unknown;
+  durationSec?: unknown;
+  videoUrl?: unknown;
+  isPreview?: unknown;
+  technicalSheetUrl?: unknown;
+  contentMarkdown?: unknown;
+}
+
+interface DraftModuleInput {
+  title?: unknown;
+  order?: number;
+  description?: unknown;
+  lessons?: DraftLessonInput[];
+  hasQuiz?: boolean;
+  quiz?: {
+    title?: unknown;
+    passingScore?: unknown;
+    questions?: DraftQuestionInput[];
+  } | null;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,11 +42,14 @@ export async function POST(req: NextRequest) {
 
     // 1. Authorization: require ADMIN, SUPER_ADMIN, PROGRAM_ADMIN, INSTRUCTOR, or DIRECTOR
     const role = session?.user?.role;
-    const isInstructor = role === "INSTRUCTOR";
+    const isInstructor = role === Role.INSTRUCTOR || role === "INSTRUCTOR";
     const isAuthorized =
-      role === "ADMIN" ||
+      role === Role.SUPER_ADMIN ||
       role === "SUPER_ADMIN" ||
+      role === Role.PROGRAM_ADMIN ||
       role === "PROGRAM_ADMIN" ||
+      role === Role.ADMIN ||
+      role === "ADMIN" ||
       isInstructor ||
       (role as string) === "DIRECTOR";
 
@@ -122,13 +156,13 @@ export async function POST(req: NextRequest) {
 
     // Prepare modules payload
     const modulesCreateData = Array.isArray(modules)
-      ? modules.map((m: any, mIdx: number) => ({
+      ? (modules as DraftModuleInput[]).map((m, mIdx) => ({
           title: (m.title && typeof m.title === "string" ? m.title.trim() : "") || `Module ${mIdx + 1}`,
           sortOrder: m.order ?? mIdx + 1,
           description: m.description ? String(m.description).trim() : null,
           lessons: {
             create: Array.isArray(m.lessons)
-              ? m.lessons.map((l: any, lIdx: number) => ({
+              ? m.lessons.map((l, lIdx) => ({
                   title: (l.title && typeof l.title === "string" ? l.title.trim() : "") || `Lesson ${lIdx + 1}`,
                   sortOrder: l.order ?? lIdx + 1,
                   durationText: l.durationText ? String(l.durationText).trim() : "30m",
@@ -149,8 +183,8 @@ export async function POST(req: NextRequest) {
                 questions: {
                   create: Array.isArray(m.quiz.questions)
                     ? m.quiz.questions
-                        .filter((q: any) => q.question && String(q.question).trim().length > 0)
-                        .map((q: any) => ({
+                        .filter((q) => q.question && String(q.question).trim().length > 0)
+                        .map((q) => ({
                           text: String(q.question).trim(),
                           optionsJson: JSON.stringify(Array.isArray(q.options) ? q.options : []),
                           correctOptionIndex: Number(q.correctOptionIndex) || 0,
@@ -182,10 +216,10 @@ export async function POST(req: NextRequest) {
       whatYoullLearn: JSON.stringify(Array.isArray(whatYoullLearn) ? whatYoullLearn : []),
       includesList: JSON.stringify(Array.isArray(includesList) ? includesList : []),
       targetAudience: Array.isArray(targetAudience)
-        ? targetAudience.map((item: any) => String(item).trim()).filter(Boolean)
+        ? targetAudience.map((item: unknown) => String(item).trim()).filter(Boolean)
         : [],
       requirements: Array.isArray(requirements)
-        ? requirements.map((item: any) => String(item).trim()).filter(Boolean)
+        ? requirements.map((item: unknown) => String(item).trim()).filter(Boolean)
         : [],
       thumbnailUrl: (thumbnailUrl && String(thumbnailUrl).trim().length > 0)
         ? String(thumbnailUrl).trim()
@@ -221,6 +255,7 @@ export async function POST(req: NextRequest) {
           where: { id: existing.id },
           data: {
             ...courseData,
+            instructorId: isInstructor ? session.user.id : (existing.instructorId ?? courseData.instructorId),
             modules: {
               create: modulesCreateData,
             },
@@ -243,6 +278,8 @@ export async function POST(req: NextRequest) {
     try {
       revalidatePath("/");
       revalidatePath("/courses");
+      revalidatePath("/admin");
+      revalidatePath("/program-admin");
       if (savedCourse.slug) {
         revalidatePath(`/courses/${savedCourse.slug}`);
       }
@@ -258,10 +295,10 @@ export async function POST(req: NextRequest) {
       isPublished: savedCourse.isPublished,
       message: isPublishing ? "Course published to live catalog successfully" : "Draft saved successfully",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error saving course draft:", error);
     return NextResponse.json(
-      { error: "Failed to save draft", details: error?.message || String(error) },
+      { error: "Failed to save draft", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

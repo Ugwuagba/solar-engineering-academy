@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
+import { Prisma, Role } from "@prisma/client";
 import CourseStudioForm from "@/components/admin/CourseStudioForm";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +22,18 @@ export default async function EditCoursePage({ params }: Props) {
   }
 
   const role = session.user.role;
-  if (role !== "ADMIN" && role !== "INSTRUCTOR" && (role as string) !== "DIRECTOR") {
+  const isAuthorized =
+    role === Role.SUPER_ADMIN ||
+    role === "SUPER_ADMIN" ||
+    role === Role.PROGRAM_ADMIN ||
+    role === "PROGRAM_ADMIN" ||
+    role === Role.ADMIN ||
+    role === "ADMIN" ||
+    role === Role.INSTRUCTOR ||
+    role === "INSTRUCTOR" ||
+    (role as string) === "DIRECTOR";
+
+  if (!isAuthorized) {
     redirect("/dashboard");
   }
 
@@ -30,7 +42,18 @@ export default async function EditCoursePage({ params }: Props) {
     redirect("/admin");
   }
 
-  let course: any = null;
+  let course: Prisma.CourseGetPayload<{
+    include: {
+      modules: {
+        include: {
+          lessons: true;
+          quiz: {
+            include: { questions: true };
+          };
+        };
+      };
+    };
+  }> | null = null;
 
   // 2. Fetch course from Prisma by ID
   try {
