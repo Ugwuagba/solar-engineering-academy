@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
-import { Role } from "@prisma/client";
+import { Role, CourseStatus, Prisma } from "@prisma/client";
 import { 
   Users, 
   BookOpen, 
@@ -11,7 +11,8 @@ import {
   CheckCircle2, 
   Plus, 
   ArrowLeft,
-  ShieldCheck
+  Clock,
+  Layers
 } from "lucide-react";
 import AdminStudioClient from "@/components/admin/AdminStudioClient";
 
@@ -33,6 +34,8 @@ export default async function AdminStudioPage() {
     totalQuizAttempts,
     passedQuizAttempts,
     completedEnrollmentsCount,
+    pendingApprovalCount,
+    landingPagesCount,
   ] = await Promise.all([
     prisma.enrollment.count().catch(() => 0),
     prisma.course.count().catch(() => 0),
@@ -40,6 +43,8 @@ export default async function AdminStudioPage() {
     prisma.quizAttempt.count().catch(() => 0),
     prisma.quizAttempt.count({ where: { passed: true } }).catch(() => 0),
     prisma.enrollment.count({ where: { status: "COMPLETED" } }).catch(() => 0),
+    prisma.course.count({ where: { status: CourseStatus.PENDING_APPROVAL } }).catch(() => 0),
+    prisma.landingPage.count().catch(() => 0),
   ]);
 
   // Dynamic milestone pass rate calculation from real database records
@@ -50,7 +55,16 @@ export default async function AdminStudioPage() {
     : "0.0%";
 
   // 2. Fetch live curriculum inventory for the studio table
-  let dbCourses: any[] = [];
+  let dbCourses: Prisma.CourseGetPayload<{
+    include: {
+      modules: {
+        include: {
+          lessons: true;
+          quiz: true;
+        };
+      };
+    };
+  }>[] = [];
   try {
     dbCourses = await prisma.course.findMany({
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
@@ -72,7 +86,7 @@ export default async function AdminStudioPage() {
 
   const coursesSource = dbCourses || [];
 
-  const initialCourses = coursesSource.map((c: any, idx: number) => ({
+  const initialCourses = coursesSource.map((c, idx) => ({
     id: c.id || c.code,
     code: c.code,
     title: c.title,
@@ -80,8 +94,7 @@ export default async function AdminStudioPage() {
     level: c.level,
     description: c.description,
     instructorId: c.instructorId,
-    instructorName: c.instructorName || c.instructor || "Lead Solar Engineer (Director)",
-    fieldAttachment: c.fieldAttachment,
+    instructorName: c.instructorName || "Lead Solar Engineer (Director)",
     price: c.price,
     originalPrice: c.originalPrice,
     contactHours: c.contactHours || 40,
@@ -89,8 +102,8 @@ export default async function AdminStudioPage() {
     status: c.status || (c.isPublished ? "PUBLISHED" : "DRAFT"),
     order: c.order ?? idx,
     moduleCount: c.modules?.length ?? 0,
-    lessonCount: (c.modules || []).reduce((sum: number, m: any) => sum + (m.lessons?.length || 0), 0),
-    quizCount: (c.modules || []).filter((m: any) => !!m.quiz).length,
+    lessonCount: (c.modules || []).reduce((sum, m) => sum + (m.lessons?.length || 0), 0),
+    quizCount: (c.modules || []).filter((m) => !!m.quiz).length,
     createdAt: c.createdAt ? c.createdAt.toString() : new Date().toISOString(),
   }));
 
@@ -124,12 +137,30 @@ export default async function AdminStudioPage() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/program-admin"
+              href="/lp-admin"
+              prefetch={false}
+              className="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 hover:text-slate-900 flex items-center gap-2 shadow-2xs transition-all cursor-pointer bg-white"
+            >
+              <Layers className="w-4 h-4 text-amber-600" />
+              <span>Landing Pages</span>
+              {landingPagesCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                  {landingPagesCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/program-admin/review-queue"
               prefetch={false}
               className="px-4 py-2.5 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-2 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
             >
-              <ShieldCheck className="w-4 h-4" />
-              <span>View New Program Queue</span>
+              <Clock className="w-4 h-4" />
+              <span>Review Queue</span>
+              {pendingApprovalCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-black bg-slate-950 text-amber-400">
+                  {pendingApprovalCount}
+                </span>
+              )}
             </Link>
             <Link
               href="/admin/students"
