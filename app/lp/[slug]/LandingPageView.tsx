@@ -14,6 +14,16 @@ import {
 import { SerializedLandingPage } from "@/lib/landing-page-types";
 import VideoEmbedPlayer from "./VideoEmbedPlayer";
 
+declare global {
+  interface Window {
+    fbq?: (
+      command: string,
+      eventName: string,
+      params?: Record<string, string>
+    ) => void;
+  }
+}
+
 function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg
@@ -32,11 +42,13 @@ function WhatsAppCTAButton({
   label = "JOIN THE FREE WEBINAR",
   className = "",
   size = "default",
+  pageTitle,
 }: {
   url: string;
   label?: string;
   className?: string;
   size?: "compact" | "default" | "large";
+  pageTitle?: string;
 }) {
   const sizeClasses = {
     compact: "px-4 py-2 text-xs sm:text-sm gap-2",
@@ -44,11 +56,21 @@ function WhatsAppCTAButton({
     large: "px-8 py-4 sm:py-4.5 text-base sm:text-lg gap-3",
   }[size];
 
+  const handleClick = () => {
+    if (typeof window !== "undefined") {
+      window.fbq?.("track", "Lead", {
+        content_name: pageTitle || "Solar Webinar",
+        content_category: "Webinar Landing Page",
+      });
+    }
+  };
+
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={handleClick}
       className={`inline-flex items-center justify-center font-extrabold uppercase tracking-wide rounded-xl sm:rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/45 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ${sizeClasses} ${className}`}
     >
       <WhatsAppIcon className={size === "compact" ? "w-4 h-4 shrink-0" : "w-5 h-5 shrink-0"} />
@@ -177,7 +199,7 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
                   <div className="pt-2 sm:pt-4 space-y-3">
                     <div>
                       <WhatsAppCTAButton
-                        url={whatsappUrl}
+                        url={whatsappUrl} pageTitle={page.title}
                         label={content.hero.ctaText}
                         size="default"
                         className="w-full sm:w-auto"
@@ -255,7 +277,7 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
                 <div className="pt-2 sm:pt-4 space-y-3 flex flex-col items-center justify-center">
                   <div>
                     <WhatsAppCTAButton
-                      url={whatsappUrl}
+                      url={whatsappUrl} pageTitle={page.title}
                       label={content.hero.ctaText}
                       size="default"
                       className="w-full sm:w-auto"
@@ -486,7 +508,7 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
 
               <div className="pt-4 space-y-3">
                 <WhatsAppCTAButton
-                  url={whatsappUrl}
+                  url={whatsappUrl} pageTitle={page.title}
                   label={content.clarity.ctaText}
                   size="default"
                   className="w-full sm:w-auto"
@@ -547,7 +569,7 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
 
               <div className="pt-2 space-y-3 relative z-10">
                 <WhatsAppCTAButton
-                  url={whatsappUrl}
+                  url={whatsappUrl} pageTitle={page.title}
                   label={content.webinarGains.bannerCtaText}
                   size="default"
                   className="w-full sm:w-auto"
@@ -617,7 +639,7 @@ export default function LandingPageView({ page }: LandingPageViewProps) {
 
               <div>
                 <WhatsAppCTAButton
-                  url={whatsappUrl}
+                  url={whatsappUrl} pageTitle={page.title}
                   label={content.about.ctaText}
                   size="default"
                   className="w-full sm:w-auto"
